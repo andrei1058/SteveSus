@@ -96,13 +96,6 @@
             <version>[1.2.0,)</version>
             <scope>compile</scope>
         </dependency>
-        <!-- HikariCP for database -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
-            <scope>compile</scope>
-        </dependency>
         <!-- DataBase API -->
         <dependency>
             <groupId>com.andrei1058.dbi</groupId>
