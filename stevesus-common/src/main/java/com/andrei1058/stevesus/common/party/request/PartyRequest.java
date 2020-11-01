@@ -1,9 +1,9 @@
 package com.andrei1058.stevesus.common.party.request;
 
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.party.PartyManager;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
+import com.andrei1058.stevesus.common.party.PartyManager;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -12,7 +12,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 public class PartyRequest {
 

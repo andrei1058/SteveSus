@@ -1,11 +1,11 @@
 package com.andrei1058.stevesus.language;
 
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.locale.Locale;
+import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.hook.HookManager;
 import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;

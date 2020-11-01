@@ -2,8 +2,8 @@ package com.andrei1058.stevesus.common.selector;
 
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.gui.slot.RefreshableSlotHolder;
+import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 

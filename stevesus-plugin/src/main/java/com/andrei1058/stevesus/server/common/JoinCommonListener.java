@@ -1,8 +1,8 @@
 package com.andrei1058.stevesus.server.common;
 
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.common.stats.StatsManager;
+import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

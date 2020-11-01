@@ -1,10 +1,11 @@
 package com.andrei1058.stevesus.common.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
 import org.bukkit.command.ConsoleCommandSender;
 
+@SuppressWarnings("UnstableApiUsage")
 public class DebugCmd {
 
     private DebugCmd() {

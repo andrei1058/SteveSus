@@ -1,22 +1,23 @@
 package com.andrei1058.stevesus.connector.common;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.party.PartyManager;
-import com.andrei1058.stevesus.connector.arena.ArenaManager;
-import com.andrei1058.stevesus.connector.language.LanguageManager;
-import com.andrei1058.stevesus.connector.socket.LobbyCommunicationHandler;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import com.andrei1058.stevesus.common.api.party.PartyHandler;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
+import com.andrei1058.stevesus.common.party.PartyManager;
+import com.andrei1058.stevesus.connector.arena.ArenaManager;
+import com.andrei1058.stevesus.connector.language.LanguageManager;
+import com.andrei1058.stevesus.connector.socket.LobbyCommunicationHandler;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ConnectorCommonProvider implements CommonProvider {
 
     private static ConnectorCommonProvider INSTANCE;

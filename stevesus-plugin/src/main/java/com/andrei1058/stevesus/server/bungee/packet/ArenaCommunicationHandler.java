@@ -1,13 +1,13 @@
 package com.andrei1058.stevesus.server.bungee.packet;
 
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.config.MainConfig;
-import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.stevesus.server.bungee.remote.RemoteLobby;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import com.andrei1058.stevesus.common.api.packet.DataPacket;
 import com.andrei1058.stevesus.common.api.packet.PacketChannel;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
+import com.andrei1058.stevesus.config.MainConfig;
+import com.andrei1058.stevesus.server.ServerManager;
+import com.andrei1058.stevesus.server.bungee.remote.RemoteLobby;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 

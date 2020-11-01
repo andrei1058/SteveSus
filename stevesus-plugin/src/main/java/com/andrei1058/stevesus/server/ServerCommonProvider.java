@@ -1,21 +1,21 @@
 package com.andrei1058.stevesus.server;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.party.PartyManager;
-import com.andrei1058.stevesus.selector.ArenaSelectorListener;
-import com.andrei1058.stevesus.server.bungee.packet.ArenaCommunicationHandler;
-import com.andrei1058.stevesus.setup.SetupManager;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
-import com.andrei1058.stevesus.common.selector.SelectorManager;
-import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import com.andrei1058.stevesus.common.api.party.PartyHandler;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
+import com.andrei1058.stevesus.common.party.PartyManager;
+import com.andrei1058.stevesus.common.selector.SelectorManager;
+import com.andrei1058.stevesus.language.LanguageManager;
+import com.andrei1058.stevesus.selector.ArenaSelectorListener;
+import com.andrei1058.stevesus.server.bungee.packet.ArenaCommunicationHandler;
+import com.andrei1058.stevesus.setup.SetupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ServerCommonProvider implements CommonProvider {
 
     private static final List<DisplayableArena> displayableArenas = new ArrayList<>();

@@ -1,10 +1,10 @@
 package com.andrei1058.stevesus.common.database.type;
 
 
-import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.dbi.column.Column;
 import com.andrei1058.dbi.column.SqlColumnType;
+import com.andrei1058.stevesus.common.CommonManager;
+import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 
 public class LanguageColumn implements Column<CommonLocale> {
 

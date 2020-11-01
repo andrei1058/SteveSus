@@ -1,11 +1,11 @@
 package com.andrei1058.stevesus.connector.socket;
 
-import com.andrei1058.stevesus.connector.SteveSusConnector;
-import com.andrei1058.stevesus.connector.socket.slave.SlaveServerSocket;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import com.andrei1058.stevesus.common.api.packet.DataPacket;
 import com.andrei1058.stevesus.common.api.packet.PacketChannel;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
+import com.andrei1058.stevesus.connector.SteveSusConnector;
+import com.andrei1058.stevesus.connector.socket.slave.SlaveServerSocket;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 

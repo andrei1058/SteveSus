@@ -1,9 +1,9 @@
 package com.andrei1058.stevesus.server.bungee.remote.task;
 
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.common.packet.PingPacket;
 import com.andrei1058.stevesus.server.bungee.remote.RemoteLobby;
-import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 
 /**
  * Let remote servers know this server isn't dead and sent arenas are up to date.

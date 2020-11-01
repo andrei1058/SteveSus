@@ -1,13 +1,14 @@
 package com.andrei1058.stevesus.common.selector.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SelectorCommand {
 
     /**

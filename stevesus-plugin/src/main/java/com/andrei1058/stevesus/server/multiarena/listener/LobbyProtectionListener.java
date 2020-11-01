@@ -1,9 +1,9 @@
 package com.andrei1058.stevesus.server.multiarena.listener;
 
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
+import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.server.ServerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

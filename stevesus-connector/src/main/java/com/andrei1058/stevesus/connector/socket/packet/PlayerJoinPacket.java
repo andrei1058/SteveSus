@@ -1,8 +1,8 @@
 package com.andrei1058.stevesus.connector.socket.packet;
 
-import com.andrei1058.stevesus.connector.language.LanguageManager;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.packet.DataPacket;
+import com.andrei1058.stevesus.connector.language.LanguageManager;
 import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 

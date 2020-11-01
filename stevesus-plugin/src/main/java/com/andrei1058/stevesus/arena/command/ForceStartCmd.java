@@ -1,19 +1,20 @@
 package com.andrei1058.stevesus.arena.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.PluginPermission;
 import com.andrei1058.stevesus.arena.ArenaHandler;
-import com.andrei1058.stevesus.language.LanguageManager;
-import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
+import com.andrei1058.stevesus.language.LanguageManager;
+import com.andrei1058.stevesus.server.ServerManager;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ForceStartCmd {
 
     private ForceStartCmd() {

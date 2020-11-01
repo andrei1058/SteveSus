@@ -1,12 +1,12 @@
 package com.andrei1058.stevesus.common.party;
 
 import com.andrei1058.stevesus.common.CommonManager;
+import com.andrei1058.stevesus.common.api.party.PartyAdapter;
+import com.andrei1058.stevesus.common.api.party.PartyHandler;
 import com.andrei1058.stevesus.common.party.adapter.DisabledPartyAdapter;
 import com.andrei1058.stevesus.common.party.adapter.InternalPartyAdapter;
 import com.andrei1058.stevesus.common.party.command.PartyCmd;
 import com.andrei1058.stevesus.common.party.listener.PartyListeners;
-import com.andrei1058.stevesus.common.api.party.PartyAdapter;
-import com.andrei1058.stevesus.common.api.party.PartyHandler;
 import org.bukkit.Bukkit;
 
 public class PartyManager implements PartyHandler {

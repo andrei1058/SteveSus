@@ -1,19 +1,19 @@
 package com.andrei1058.stevesus.connector.arena;
 
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.party.PartyManager;
-import com.andrei1058.stevesus.connector.SteveSusConnector;
-import com.andrei1058.stevesus.connector.language.LanguageManager;
-import com.andrei1058.stevesus.connector.socket.packet.PlayerJoinPacket;
 import com.andrei1058.stevesus.common.api.arena.GameState;
-import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
 import com.andrei1058.stevesus.common.api.selector.ArenaHolderConfig;
+import com.andrei1058.stevesus.common.party.PartyManager;
+import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.api.arena.RemoteArena;
 import com.andrei1058.stevesus.connector.api.event.GameStateChangeEvent;
 import com.andrei1058.stevesus.connector.api.event.PlayerGameJoinEvent;
+import com.andrei1058.stevesus.connector.language.LanguageManager;
+import com.andrei1058.stevesus.connector.socket.packet.PlayerJoinPacket;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;

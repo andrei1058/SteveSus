@@ -1,10 +1,10 @@
 package com.andrei1058.stevesus.common.stats;
 
-import com.andrei1058.stevesus.common.database.DatabaseManager;
 import com.andrei1058.dbi.column.Column;
 import com.andrei1058.dbi.column.ColumnValue;
 import com.andrei1058.dbi.column.datavalue.SimpleValue;
 import com.andrei1058.dbi.operator.EqualsOperator;
+import com.andrei1058.stevesus.common.database.DatabaseManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Date;

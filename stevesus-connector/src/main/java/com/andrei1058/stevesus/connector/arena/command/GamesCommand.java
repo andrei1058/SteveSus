@@ -1,13 +1,13 @@
 package com.andrei1058.stevesus.connector.arena.command;
 
+import com.andrei1058.spigot.commandlib.ICommandNode;
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
+import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
+import com.andrei1058.stevesus.common.api.server.CommonPermission;
 import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.arena.ArenaManager;
 import com.andrei1058.stevesus.connector.language.LanguageManager;
-import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
-import com.andrei1058.stevesus.common.api.server.CommonPermission;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
-import com.andrei1058.spigot.commandlib.ICommandNode;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -16,6 +16,7 @@ import org.bukkit.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class GamesCommand {
 
     private static final int ARENAS_PER_PAGE = 10;

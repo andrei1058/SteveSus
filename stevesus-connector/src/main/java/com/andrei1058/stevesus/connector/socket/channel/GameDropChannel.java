@@ -1,11 +1,11 @@
 package com.andrei1058.stevesus.connector.socket.channel;
 
-import com.andrei1058.stevesus.connector.SteveSusConnector;
-import com.andrei1058.stevesus.connector.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.packet.PacketChannel;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
+import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.api.arena.RemoteArena;
 import com.andrei1058.stevesus.connector.api.event.GameDropEvent;
+import com.andrei1058.stevesus.connector.arena.ArenaManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;

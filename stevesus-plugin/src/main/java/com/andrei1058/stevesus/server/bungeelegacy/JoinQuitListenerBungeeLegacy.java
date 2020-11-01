@@ -1,17 +1,17 @@
 package com.andrei1058.stevesus.server.bungeelegacy;
 
+import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaHandler;
-import com.andrei1058.stevesus.common.command.CommonCmdManager;
-import com.andrei1058.stevesus.common.api.locale.CommonMessage;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import com.andrei1058.stevesus.common.api.locale.CommonMessage;
+import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.common.JoinCommonListener;
-import com.andrei1058.dbi.operator.EqualsOperator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

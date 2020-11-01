@@ -1,13 +1,14 @@
 package com.andrei1058.stevesus.api;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
-import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
 import com.andrei1058.stevesus.common.api.CommonProvider;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
+import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import org.bukkit.Bukkit;
 
+@SuppressWarnings("UnstableApiUsage")
 public interface SteveSusAPI {
 
     /**

@@ -1,14 +1,14 @@
 package com.andrei1058.stevesus.connector.socket.slave;
 
 import co.aikar.taskchain.TaskChain;
-import com.andrei1058.stevesus.connector.SteveSusConnector;
-import com.andrei1058.stevesus.connector.arena.ArenaManager;
-import com.andrei1058.stevesus.connector.socket.SocketManager;
 import com.andrei1058.stevesus.common.api.packet.PacketChannel;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
+import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.api.arena.RemoteArena;
 import com.andrei1058.stevesus.connector.api.event.SlaveConnectedEvent;
 import com.andrei1058.stevesus.connector.api.event.SlaveDisconnectedEvent;
+import com.andrei1058.stevesus.connector.arena.ArenaManager;
+import com.andrei1058.stevesus.connector.socket.SocketManager;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;

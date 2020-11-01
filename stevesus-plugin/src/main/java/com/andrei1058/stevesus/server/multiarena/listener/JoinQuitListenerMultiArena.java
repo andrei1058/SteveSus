@@ -1,17 +1,17 @@
 package com.andrei1058.stevesus.server.multiarena.listener;
 
+import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
+import com.andrei1058.stevesus.common.database.DatabaseManager;
+import com.andrei1058.stevesus.config.MainConfig;
+import com.andrei1058.stevesus.language.LanguageManager;
+import com.andrei1058.stevesus.server.ServerManager;
+import com.andrei1058.stevesus.server.common.JoinCommonListener;
 import com.andrei1058.stevesus.sidebar.GameSidebarManager;
 import com.andrei1058.stevesus.sidebar.SidebarType;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
-import com.andrei1058.stevesus.config.MainConfig;
-import com.andrei1058.stevesus.common.database.DatabaseManager;
-import com.andrei1058.stevesus.language.LanguageManager;
-import com.andrei1058.stevesus.server.common.JoinCommonListener;
-import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.dbi.operator.EqualsOperator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

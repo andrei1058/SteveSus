@@ -1,15 +1,15 @@
 package com.andrei1058.stevesus.connector.language;
 
+import com.andrei1058.dbi.DatabaseAdapter;
+import com.andrei1058.dbi.column.datavalue.SimpleValue;
+import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
+import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
 import com.andrei1058.stevesus.common.database.table.LanguageTable;
 import com.andrei1058.stevesus.connector.SteveSusConnector;
-import com.andrei1058.stevesus.connector.config.ConnectorConfig;
-import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
-import com.andrei1058.stevesus.common.api.locale.CommonMessage;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.connector.api.event.PlayerLanguageChangeEvent;
-import com.andrei1058.dbi.DatabaseAdapter;
-import com.andrei1058.dbi.column.datavalue.SimpleValue;
+import com.andrei1058.stevesus.connector.config.ConnectorConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

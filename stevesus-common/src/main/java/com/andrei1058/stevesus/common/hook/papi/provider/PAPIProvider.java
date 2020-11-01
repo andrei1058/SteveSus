@@ -1,11 +1,11 @@
 package com.andrei1058.stevesus.common.hook.papi.provider;
 
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.stats.PlayerStatsCache;
-import com.andrei1058.stevesus.common.stats.StatsManager;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import com.andrei1058.stevesus.common.stats.PlayerStatsCache;
+import com.andrei1058.stevesus.common.stats.StatsManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

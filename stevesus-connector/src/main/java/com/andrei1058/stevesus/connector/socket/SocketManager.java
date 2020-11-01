@@ -1,13 +1,13 @@
 package com.andrei1058.stevesus.connector.socket;
 
+import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
+import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.config.ConnectorConfig;
 import com.andrei1058.stevesus.connector.socket.channel.*;
 import com.andrei1058.stevesus.connector.socket.slave.SlaveServerSocket;
 import com.andrei1058.stevesus.connector.socket.slave.SlaveSocketListener;
 import com.andrei1058.stevesus.connector.socket.task.TimeOutCheckerTask;
-import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
-import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

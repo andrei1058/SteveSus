@@ -1,8 +1,8 @@
 package com.andrei1058.stevesus.common.party.listener;
 
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.party.adapter.InternalPartyAdapter;
 import com.andrei1058.stevesus.common.party.PartyManager;
+import com.andrei1058.stevesus.common.party.adapter.InternalPartyAdapter;
 import com.andrei1058.stevesus.common.party.request.PartyRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

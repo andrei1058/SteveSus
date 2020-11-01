@@ -1,18 +1,19 @@
 package com.andrei1058.stevesus.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("UnstableApiUsage")
 public class LeaveCommand extends FastRootCommand {
 
     protected LeaveCommand() {

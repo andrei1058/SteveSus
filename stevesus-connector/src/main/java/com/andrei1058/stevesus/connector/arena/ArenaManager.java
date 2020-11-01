@@ -1,15 +1,15 @@
 package com.andrei1058.stevesus.connector.arena;
 
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.selector.SelectorManager;
-import com.andrei1058.stevesus.connector.SteveSusConnector;
-import com.andrei1058.stevesus.connector.common.ArenaSelectorListener;
-import com.andrei1058.stevesus.connector.arena.command.GamesCommand;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
+import com.andrei1058.stevesus.common.selector.SelectorManager;
+import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.api.arena.RemoteArena;
 import com.andrei1058.stevesus.connector.api.event.GameDropEvent;
 import com.andrei1058.stevesus.connector.api.event.GameRegisterEvent;
+import com.andrei1058.stevesus.connector.arena.command.GamesCommand;
+import com.andrei1058.stevesus.connector.common.ArenaSelectorListener;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,13 +1,13 @@
 package com.andrei1058.stevesus.common.stats;
 
+import com.andrei1058.dbi.column.Column;
+import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.common.CommonManager;
+import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
 import com.andrei1058.stevesus.common.stats.command.StatsCommand;
 import com.andrei1058.stevesus.common.stats.config.StatsConfig;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
-import com.andrei1058.stevesus.common.api.locale.CommonMessage;
-import com.andrei1058.dbi.column.Column;
-import com.andrei1058.dbi.operator.EqualsOperator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

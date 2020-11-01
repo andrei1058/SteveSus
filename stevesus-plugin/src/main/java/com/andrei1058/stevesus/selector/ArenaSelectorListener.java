@@ -2,8 +2,8 @@ package com.andrei1058.stevesus.selector;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.event.*;
-import com.andrei1058.stevesus.server.ServerCommonProvider;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
+import com.andrei1058.stevesus.server.ServerCommonProvider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

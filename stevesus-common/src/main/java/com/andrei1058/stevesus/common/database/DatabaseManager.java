@@ -2,12 +2,12 @@ package com.andrei1058.stevesus.common.database;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
-import com.andrei1058.stevesus.common.api.database.DatabaseService;
-import com.andrei1058.stevesus.common.database.adapter.NoDatabase;
-import com.andrei1058.stevesus.common.database.config.DatabaseConfig;
 import com.andrei1058.dbi.DatabaseAdapter;
 import com.andrei1058.dbi.adapter.HikariAdapter;
 import com.andrei1058.dbi.adapter.SQLiteAdapter;
+import com.andrei1058.stevesus.common.api.database.DatabaseService;
+import com.andrei1058.stevesus.common.database.adapter.NoDatabase;
+import com.andrei1058.stevesus.common.database.config.DatabaseConfig;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 

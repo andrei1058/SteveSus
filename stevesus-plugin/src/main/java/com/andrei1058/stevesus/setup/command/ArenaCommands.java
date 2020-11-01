@@ -2,14 +2,14 @@ package com.andrei1058.stevesus.setup.command;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.properties.Property;
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.setup.SetupManager;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
 import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ArenaCommands {
 
     private ArenaCommands() {

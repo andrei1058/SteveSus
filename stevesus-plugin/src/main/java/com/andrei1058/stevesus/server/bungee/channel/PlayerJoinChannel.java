@@ -1,10 +1,10 @@
 package com.andrei1058.stevesus.server.bungee.channel;
 
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.language.LanguageManager;
-import com.andrei1058.stevesus.server.bungee.ProxyUser;
 import com.andrei1058.stevesus.common.api.packet.PacketChannel;
 import com.andrei1058.stevesus.common.api.packet.RawSocket;
+import com.andrei1058.stevesus.language.LanguageManager;
+import com.andrei1058.stevesus.server.bungee.ProxyUser;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;

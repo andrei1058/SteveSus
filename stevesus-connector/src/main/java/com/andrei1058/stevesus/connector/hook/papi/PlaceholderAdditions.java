@@ -1,8 +1,8 @@
 package com.andrei1058.stevesus.connector.hook.papi;
 
 import com.andrei1058.stevesus.common.hook.papi.provider.AdditionalParser;
-import com.andrei1058.stevesus.connector.arena.ArenaManager;
 import com.andrei1058.stevesus.connector.api.arena.RemoteArena;
+import com.andrei1058.stevesus.connector.arena.ArenaManager;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

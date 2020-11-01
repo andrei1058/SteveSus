@@ -1,11 +1,12 @@
 package com.andrei1058.stevesus.common.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
 
 import java.util.Arrays;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SteveSusCmd extends FastRootCommand {
 
     protected SteveSusCmd(String name) {

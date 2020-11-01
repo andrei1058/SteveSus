@@ -1,9 +1,9 @@
 package com.andrei1058.stevesus.common.database.table;
 
-import com.andrei1058.stevesus.common.database.type.LanguageColumn;
 import com.andrei1058.dbi.column.Column;
 import com.andrei1058.dbi.column.type.UUIDColumn;
 import com.andrei1058.dbi.table.Table;
+import com.andrei1058.stevesus.common.database.type.LanguageColumn;
 
 import java.util.LinkedList;
 

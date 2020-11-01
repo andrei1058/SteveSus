@@ -1,13 +1,13 @@
 package com.andrei1058.stevesus.common.party.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.party.PartyManager;
-import com.andrei1058.stevesus.common.party.request.PartyRequest;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
-import com.andrei1058.spigot.commandlib.FastSubRootCommand;
+import com.andrei1058.stevesus.common.party.PartyManager;
+import com.andrei1058.stevesus.common.party.request.PartyRequest;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 
+@SuppressWarnings("UnstableApiUsage")
 public class PartyCmd /*extends FastRootCommand*/ {
 
     /*

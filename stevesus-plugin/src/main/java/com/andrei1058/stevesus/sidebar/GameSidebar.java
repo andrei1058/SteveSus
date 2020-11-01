@@ -1,15 +1,15 @@
 package com.andrei1058.stevesus.sidebar;
 
-import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.common.hook.HookManager;
-import com.andrei1058.stevesus.common.stats.StatsManager;
-import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.spigot.sidebar.PlaceholderProvider;
 import com.andrei1058.spigot.sidebar.Sidebar;
 import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarLineAnimated;
+import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.common.api.arena.GameState;
+import com.andrei1058.stevesus.common.hook.HookManager;
+import com.andrei1058.stevesus.common.stats.StatsManager;
+import com.andrei1058.stevesus.server.ServerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

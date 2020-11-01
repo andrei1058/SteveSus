@@ -1,14 +1,14 @@
 package com.andrei1058.stevesus.common.stats;
 
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.gui.ItemUtil;
-import com.andrei1058.stevesus.common.selector.SelectorManager;
-import com.andrei1058.stevesus.common.stats.config.StatsConfig;
 import com.andrei1058.stevesus.common.api.gui.BaseGUI;
 import com.andrei1058.stevesus.common.api.gui.CustomHolder;
 import com.andrei1058.stevesus.common.api.gui.slot.StaticSlot;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
+import com.andrei1058.stevesus.common.gui.ItemUtil;
+import com.andrei1058.stevesus.common.selector.SelectorManager;
+import com.andrei1058.stevesus.common.stats.config.StatsConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;

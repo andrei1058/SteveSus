@@ -3,8 +3,8 @@ package com.andrei1058.stevesus.arena.listener;
 import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.api.event.GameStateChangeEvent;
 import com.andrei1058.stevesus.arena.ArenaHandler;
-import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.common.api.arena.GameState;
+import com.andrei1058.stevesus.config.ArenaConfig;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

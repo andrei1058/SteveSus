@@ -3,11 +3,11 @@ package com.andrei1058.stevesus.server.bungee.remote;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.server.bungee.packet.ArenaStatusUpdatePacket;
 import com.andrei1058.stevesus.server.bungee.packet.DropGamePacket;
 import com.andrei1058.stevesus.server.bungee.packet.FullDataArenaPacket;
 import com.andrei1058.stevesus.server.bungee.packet.PlayerCountUpdatePacket;
-import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

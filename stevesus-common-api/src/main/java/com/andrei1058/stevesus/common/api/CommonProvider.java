@@ -1,10 +1,10 @@
 package com.andrei1058.stevesus.common.api;
 
+import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import com.andrei1058.stevesus.common.api.party.PartyHandler;
-import com.andrei1058.spigot.commandlib.FastRootCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;

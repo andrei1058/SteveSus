@@ -1,12 +1,12 @@
 package com.andrei1058.stevesus.setup.command;
 
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
+import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.common.api.server.CommonPermission;
 import com.andrei1058.stevesus.setup.SetupManager;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
-import com.andrei1058.stevesus.common.api.server.CommonPermission;
-import com.andrei1058.spigot.commandlib.FastSubCommand;
-import com.andrei1058.spigot.commandlib.FastSubRootCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SetupCommand extends FastSubRootCommand {
 
     public SetupCommand(String name) {

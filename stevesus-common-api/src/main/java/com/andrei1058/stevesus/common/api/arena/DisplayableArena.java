@@ -1,8 +1,8 @@
 package com.andrei1058.stevesus.common.api.arena;
 
 import com.andrei1058.stevesus.common.api.CommonProvider;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.gui.slot.SlotHolder;
+import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

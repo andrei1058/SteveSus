@@ -1,11 +1,11 @@
 package com.andrei1058.stevesus.common;
 
+import com.andrei1058.spigot.versionsupport.ItemStackSupport;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.arena.GameState;
-import com.andrei1058.stevesus.common.party.PartyManager;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
-import com.andrei1058.spigot.versionsupport.ItemStackSupport;
+import com.andrei1058.stevesus.common.party.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
