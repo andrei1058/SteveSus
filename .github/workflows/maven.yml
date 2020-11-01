@@ -21,4 +21,4 @@ jobs:
         with:
           java-version: 1.8
       - name: Build with Maven
-        run: mvn clean install --file pom.xml
+        run: mvn clean deploy --file pom.xml -s ci_settings.xml -Djavadocs.username=${{ secrets.FTP_USR }} -Djavadocs.password=${{ secrets.FTP_PASS }}
