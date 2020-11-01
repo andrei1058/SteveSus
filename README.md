@@ -1,4 +1,5 @@
-# Among Us for Minecraft Spigot.
+# SteveSus - A Minecraft Spigot mini-game.
+A murder mystery mini-game based on the famous and trending "Red Sus" game.
 
 
 # WiKi  

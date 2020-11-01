@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.andrei1058.amongusmc</groupId>
-    <artifactId>AmongUsMc</artifactId>
+    <groupId>com.andrei1058.stevesus</groupId>
+    <artifactId>SteveSus</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <modules>
-        <module>aum-api</module>
-        <module>aum-plugin</module>
-        <module>aum-common</module>
-        <module>aum-connector</module>
-        <module>aum-common-api</module>
-        <module>aum-connector-api</module>
+        <module>stevesus-api</module>
+        <module>stevesus-plugin</module>
+        <module>stevesus-common</module>
+        <module>stevesus-connector</module>
+        <module>stevesus-common-api</module>
+        <module>stevesus-connector-api</module>
     </modules>
 
     <properties>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>SteveSus</artifactId>
+        <groupId>com.andrei1058.stevesus</groupId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>stevesus-common</artifactId>
+
+    <repositories>
+        <repository>
+            <id>placeholder-api</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
+        <!-- Vault -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!--This adds the Spigot API artifact to the build -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--CommandLib -->
+        <dependency>
+            <groupId>com.andrei1058.spigot.commandlib</groupId>
+            <artifactId>CommandLib</artifactId>
+            <version>[1.0-SNAPSHOT,)</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--Chat Util -->
+        <dependency>
+            <groupId>com.andrei1058.spigot.versionsupport</groupId>
+            <artifactId>chat-version</artifactId>
+            <version>[1.5.0,)</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--Annotations-->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <optional>true</optional>
+        </dependency>
+        <!--ConfigMe-->
+        <dependency>
+            <groupId>ch.jalu</groupId>
+            <artifactId>configme</artifactId>
+            <version>[1.2.0,)</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- DataBase API -->
+        <dependency>
+            <groupId>com.andrei1058.dbi</groupId>
+            <artifactId>DataBaseInterface</artifactId>
+            <version>[0.1-SNAPSHOT,)</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- ItemStack version support -->
+        <dependency>
+            <groupId>com.andrei1058.spigot.versionsupport</groupId>
+            <artifactId>itemstack-version</artifactId>
+            <version>1.5.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Common API -->
+        <dependency>
+            <groupId>com.andrei1058.stevesus</groupId>
+            <artifactId>stevesus-common-api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Vault API -->
+        <dependency>
+            <groupId>com.github.MilkBowl</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bukkit</groupId>
+                    <artifactId>bukkit</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Placeholder API -->
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.10.9</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

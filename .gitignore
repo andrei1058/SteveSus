@@ -2,3 +2,5 @@
 /*.iml
 /*/target
 /*/*.iml
+/*/dependency-reduced-pom.xml
+/dependency-reduced-pom.xml
