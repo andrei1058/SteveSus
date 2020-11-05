@@ -94,9 +94,7 @@ public class GameSidebarManager {
         if (previousSidebar == null) {
             if (delay) {
                 // give with 5 ticks of delay
-                SteveSus.newChain().delay(5).sync(() -> {
-                    sidebarByPlayer.put(player.getUniqueId(), new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat()));
-                }).execute();
+                SteveSus.newChain().delay(5).sync(() -> sidebarByPlayer.put(player.getUniqueId(), new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat()))).execute();
             } else {
                 // give normally
                 sidebarByPlayer.put(player.getUniqueId(), new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat()));

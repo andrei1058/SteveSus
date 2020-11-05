@@ -84,7 +84,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
 
         // create arenas from templates
         if (arenaDirectory.exists()) {
-            for (File file : arenaDirectory.listFiles()) {
+            for (File file : Objects.requireNonNull(arenaDirectory.listFiles())) {
                 if (file != null && file.isFile()) {
                     if (file.getName().endsWith(".yml")) {
                         String templateName = file.getName().replace(".yml", "");
@@ -216,7 +216,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
     public List<String> getTemplates() {
         List<String> list = new ArrayList<>();
         if (getTemplatesDirectory().exists()) {
-            for (File file : getTemplatesDirectory().listFiles()) {
+            for (File file : Objects.requireNonNull(getTemplatesDirectory().listFiles())) {
                 if (file != null && file.isFile()) {
                     if (file.getName().endsWith(".yml")) {
                         list.add(file.getName().replace(".yml", ""));
@@ -285,6 +285,9 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         // todo add validation checks
         if (config.getProperty(ArenaConfig.WAITING_LOBBY_LOCATIONS).isEmpty()) return false;
         if (config.getProperty(ArenaConfig.SPECTATE_LOCATIONS).isEmpty()) return false;
+        if (config.getProperty(ArenaConfig.MEETING_LOCATIONS).isEmpty()) return false;
+        if (!config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).isPresent()) return false;
+        if (config.getProperty(ArenaConfig.VENTS).isEmpty()) return false;
         return true;
     }
 

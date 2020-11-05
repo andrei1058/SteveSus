@@ -5,10 +5,12 @@ import ch.jalu.configme.SettingsHolder;
 import ch.jalu.configme.configurationdata.CommentsConfiguration;
 import ch.jalu.configme.properties.*;
 import com.andrei1058.stevesus.common.api.selector.ArenaHolderConfig;
+import com.andrei1058.stevesus.config.properties.LocationProperty;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ArenaConfig implements SettingsHolder {
 
@@ -44,7 +46,21 @@ public class ArenaConfig implements SettingsHolder {
     @Comment({" ", "Will spawn players in sequence if you set more than one location."})
     public static final ListProperty<Location> SPECTATE_LOCATIONS = new ListProperty<>("spectator-system.spawn-locations", new OrphanLocationProperty(), new ArrayList<>());
 
-    @Comment("Set this to true if you want to store player data on a database.")
+    @Comment({" ", "Will spawn players in sequence when the game starts or when an emergency meeting is requested."})
+    public static final ListProperty<Location> MEETING_LOCATIONS = new ListProperty<>("emergency-meeting-locations", new OrphanLocationProperty(), new ArrayList<>());
+
+    @Comment({" ", "Location where to spawn meeting button."})
+    public static final OptionalProperty<Location> MEETING_BUTTON_LOC = new OptionalProperty<>(new TypeBasedProperty<>("meeting-button-location", new Location(null, 0, 0, 0), new OrphanLocationProperty()));
+
+    @Comment({
+            " ",
+            "Imposter vents configuration. List of strings.",
+            "Syntax: vent_name;vent_connection1,conn2;x,y,z,yaw,pitch"
+    })
+    public static final StringListProperty VENTS = new StringListProperty("imposter-vents", Collections.emptyList());
+
+
+    @Comment("Initial game countdown for this arena.")
     public static final OptionalProperty<Integer> GAME_COUNTDOWN_INITIAL = new OptionalProperty<>(new IntegerProperty(MainConfig.GAME_COUNTDOWN_INITIAL.getPath().split("\\.")[1] + "." + MainConfig.GAME_COUNTDOWN_INITIAL.getPath().split("\\.")[2], 70));
     @Comment("Used when the maximum amount of players is reached. Time shortener.")
     public static final OptionalProperty<Integer> GAME_COUNTDOWN_SHORTENED = new OptionalProperty<>(new IntegerProperty(MainConfig.GAME_COUNTDOWN_SHORTENED.getPath().split("\\.")[1] + "." + MainConfig.GAME_COUNTDOWN_SHORTENED.getPath().split("\\.")[2], 20));

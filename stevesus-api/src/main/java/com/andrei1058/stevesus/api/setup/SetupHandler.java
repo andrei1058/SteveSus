@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.api.setup;
 
+import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +50,6 @@ public interface SetupHandler {
      * @param sender sender to be checked.
      * @return true if sender is a player and is doing a setup.
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isInSetup(CommandSender sender);
 
     /**
@@ -86,4 +86,25 @@ public interface SetupHandler {
      */
     @Nullable
     SetupSession getSession(Player player);
+
+    /**
+     * Get "set" sub command active in setup session.
+     * Useful if you need to add your custom setup commands.
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    FastSubRootCommand getSetCommand();
+
+    /**
+     * Get "add" sub command active in setup session.
+     * Useful if you need to add your custom setup commands.
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    FastSubRootCommand getAddCommand();
+
+    /**
+     * Get "remove" sub command active in setup session.
+     * Useful if you need to add your custom setup commands.
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    FastSubRootCommand getRemoveCommand();
 }

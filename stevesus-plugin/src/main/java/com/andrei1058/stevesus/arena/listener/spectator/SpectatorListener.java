@@ -63,7 +63,9 @@ public class SpectatorListener implements Listener {
 
         } else if (!(e.getClickedInventory().getHolder() instanceof CustomHolder)) {
             // cancel usage of inventory if not custom
-            e.setCancelled(true);
+            if (e.getWhoClicked() instanceof Player && ArenaHandler.getINSTANCE().isSpectating((Player) e.getWhoClicked())) {
+                e.setCancelled(true);
+            }
         }
     }
 

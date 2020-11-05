@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.server;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
+import com.andrei1058.hologramapi.HologramAPI;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.server.ServerType;
@@ -39,7 +40,8 @@ public class ServerManager {
     private static int serverPingTaskId;
     private DisconnectHandler disconnectHandler;
     private boolean debuggingLogs = true;
-    private String serverName;
+    private final String serverName;
+    private HologramAPI hologramAPI;
 
     private ServerManager() {
         if (!SteveSus.getInstance().getDataFolder().exists()) {
@@ -57,9 +59,17 @@ public class ServerManager {
         }
     }
 
+    @SuppressWarnings("InstantiationOfUtilityClass")
     public static void onEnable() {
         if (INSTANCE == null) return;
         INSTANCE.config.reload();
+
+        // register hologram api
+        try {
+            INSTANCE.hologramAPI = new HologramAPI(SteveSus.getInstance());
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
 
         // set default player removal adapter
         getINSTANCE().setDisconnectHandler(new InternalDisconnectHandler());
@@ -167,5 +177,9 @@ public class ServerManager {
 
     public String getServerName() {
         return serverName;
+    }
+
+    public HologramAPI getHologramAPI() {
+        return hologramAPI;
     }
 }

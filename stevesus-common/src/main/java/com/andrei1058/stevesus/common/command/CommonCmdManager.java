@@ -1,5 +1,10 @@
 package com.andrei1058.stevesus.common.command;
 
+import com.andrei1058.spigot.commandlib.CommandLib;
+import com.andrei1058.spigot.versionsupport.ChatSupport;
+import com.andrei1058.stevesus.common.CommonManager;
+import org.bukkit.Bukkit;
+
 public class CommonCmdManager {
 
     private static CommonCmdManager INSTANCE;
@@ -7,6 +12,16 @@ public class CommonCmdManager {
     private SteveSusCmd rootCommand;
 
     protected CommonCmdManager() {
+        // Load chat util
+        ChatSupport chatSupport = ChatSupport.SupportBuilder.load();
+        if (chatSupport == null) {
+            CommonManager.getINSTANCE().getPlugin().getLogger().severe("Server version not supported");
+            Bukkit.getPluginManager().disablePlugin(CommonManager.getINSTANCE().getPlugin());
+        }
+        //
+
+        //noinspection UnstableApiUsage
+        CommandLib.init(chatSupport);
     }
 
     /**
@@ -28,7 +43,7 @@ public class CommonCmdManager {
 
     // not all commands are registered here
     protected void registerCommands() {
-        rootCommand = new SteveSusCmd("au");
+        rootCommand = new SteveSusCmd("ss");
         rootCommand.register();
         JoinCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         LangCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());

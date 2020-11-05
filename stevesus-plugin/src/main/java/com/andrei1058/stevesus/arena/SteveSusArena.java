@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.arena;
 import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.Team;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -11,6 +12,8 @@ import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.task.ArenaTaskPlaying;
 import com.andrei1058.stevesus.arena.task.ArenaTaskRestarting;
 import com.andrei1058.stevesus.arena.task.ArenaTaskStarting;
+import com.andrei1058.stevesus.arena.team.CrewTeam;
+import com.andrei1058.stevesus.arena.team.ImposterTeam;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
@@ -69,9 +72,12 @@ public class SteveSusArena implements Arena {
 
     private final LinkedList<Location> waitingLocations = new LinkedList<>();
     private final LinkedList<Location> spectatingLocations = new LinkedList<>();
+    private final LinkedList<Location> meetingLocations = new LinkedList<>();
     // used for sequential player spawn
     private int currentSpawnPos = 0;
     private int currentSpectatePos = 0;
+    private int currentMeetingPos = 0;
+    //
     private int gameTask;
 
     private ItemStack itemWaiting;
@@ -81,6 +87,8 @@ public class SteveSusArena implements Arena {
 
     private final SettingsManager config;
 
+    private final LinkedList<Team> teams = new LinkedList<>();
+
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
         this.gameId = gameId;
@@ -89,6 +97,7 @@ public class SteveSusArena implements Arena {
 
         waitingLocations.addAll(config.getProperty(ArenaConfig.WAITING_LOBBY_LOCATIONS));
         spectatingLocations.addAll(config.getProperty(ArenaConfig.SPECTATE_LOCATIONS));
+        meetingLocations.addAll(config.getProperty(ArenaConfig.MEETING_LOCATIONS));
         spectatePerm = config.getProperty(ArenaConfig.SPECTATE_PERM);
         minPlayers = config.getProperty(ArenaConfig.MIN_PLAYERS);
         maxPlayers = config.getProperty(ArenaConfig.MAX_PLAYERS);
@@ -122,6 +131,10 @@ public class SteveSusArena implements Arena {
 
         waitingLocations.forEach(location -> location.setWorld(this.world));
         spectatingLocations.forEach(location -> location.setWorld(this.world));
+        meetingLocations.forEach(location -> location.setWorld(this.world));
+
+        teams.add(new CrewTeam());
+        teams.add(new ImposterTeam());
 
         switchState(GameState.WAITING);
     }
@@ -769,6 +782,13 @@ public class SteveSusArena implements Arena {
             return spectatingLocations.get(0);
         }
         return spectatingLocations.get(++currentSpectatePos >= spectatingLocations.size() ? currentSpectatePos = 0 : currentSpectatePos);
+    }
+
+    public Location getNextMeetingSpawn() {
+        if (meetingLocations.size() == 1) {
+            return meetingLocations.get(0);
+        }
+        return meetingLocations.get(++currentMeetingPos >= meetingLocations.size() ? currentMeetingPos = 0 : currentMeetingPos);
     }
 
     @Override

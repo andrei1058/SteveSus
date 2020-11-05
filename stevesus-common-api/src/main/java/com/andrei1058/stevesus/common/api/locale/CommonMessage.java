@@ -10,7 +10,7 @@ public enum CommonMessage {
     ENABLE("enable", true),
     NAME("display-name", "&cUnknown"),
     TIME_ZONE("time-zone", "UTC+1"),
-    DATE_FORMAT("date-format", "dd-MMMM-yyyy HH:mm"),
+    DATE_FORMAT("date-format", "dd MMMM yyyy HH:mm"),
     DATE_NONE("date-never", "Never"),
     PREFIX("prefix", ""),
 

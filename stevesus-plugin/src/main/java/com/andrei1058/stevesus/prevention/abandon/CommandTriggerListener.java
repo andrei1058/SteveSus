@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.prevention.abandon;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.prevention.PreventionManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,8 +18,10 @@ public class CommandTriggerListener implements Listener {
             if (arena.isPlayer(e.getPlayer())){
                 final String command = e.getMessage();
                 if (PreventionManager.getInstance().getCommandTriggers().stream().anyMatch(command::startsWith)){
-                    if (PreventionManager.getInstance().triggerAbandon(arena, e.getPlayer())){
-                        PreventionManager.getInstance().setAbandoned(e.getPlayer().getUniqueId());
+                    if (arena.getGameState() == GameState.IN_GAME) {
+                        if (PreventionManager.getInstance().triggerAbandon(arena, e.getPlayer())) {
+                            PreventionManager.getInstance().setAbandoned(e.getPlayer().getUniqueId());
+                        }
                     }
                 }
             }

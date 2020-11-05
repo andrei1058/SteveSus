@@ -45,14 +45,13 @@ import java.io.File;
 @Author(value = "andrei1058")
 @Website(value = "www.andrei1058.com")
 @ApiVersion(value = ApiVersion.Target.v1_13)
-@Command(name = "au")
+@Command(name = "ss")
 @SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI")})
 public class SteveSusConnector extends JavaPlugin implements ConnectorAPI {
 
     public static final byte SERVER_VERSION = Byte.parseByte(Bukkit.getServer().getClass().getName().split("\\.")[3].split("_")[1]);
     public static SteveSusConnector INSTANCE;
     private static TaskChainFactory taskChainFactory;
-    private static ChatSupport chatSupport;
     private static SettingsManager config;
     private static String serverName;
 
@@ -96,15 +95,6 @@ public class SteveSusConnector extends JavaPlugin implements ConnectorAPI {
             Bukkit.getPluginManager().disablePlugin(INSTANCE);
             return;
         }
-
-        // Load chat util
-        chatSupport = ChatSupport.SupportBuilder.load();
-        if (chatSupport == null) {
-            getLogger().severe("Server version not supported");
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
-        //
 
         // Initialize task chain
         taskChainFactory = BukkitTaskChainFactory.create(this);

@@ -1,9 +1,11 @@
 package com.andrei1058.stevesus.setup;
 
+import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
 import com.andrei1058.stevesus.api.setup.SetupSession;
+import com.andrei1058.stevesus.command.SlaveCommandManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.common.ServerQuitListener;
@@ -13,6 +15,7 @@ import com.andrei1058.stevesus.setup.command.ArenaCommands;
 import com.andrei1058.stevesus.setup.command.SetupCommand;
 import com.andrei1058.stevesus.setup.listeners.CreatureSpawnListener;
 import com.andrei1058.stevesus.setup.listeners.WorldLoadListener;
+import com.andrei1058.stevesus.setup.listeners.WorldProtectListener;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -24,6 +27,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SetupManager implements SetupHandler {
 
     private static SetupManager INSTANCE;
@@ -36,7 +40,7 @@ public class SetupManager implements SetupHandler {
         //logger.debug("SetupManager initialized!");
 
         // register setup related listeners
-        for (Listener listener : new Listener[]{new WorldLoadListener(), new CreatureSpawnListener()}) {
+        for (Listener listener : new Listener[]{new WorldLoadListener(), new CreatureSpawnListener(), new WorldProtectListener()}) {
             Bukkit.getPluginManager().registerEvents(listener, SteveSus.getInstance());
         }
 
@@ -126,5 +130,20 @@ public class SetupManager implements SetupHandler {
     @Override
     public @Nullable SetupSession getSession(Player player) {
         return setupSessions.stream().filter(session -> session.getPlayer().equals(player)).findFirst().orElse(null);
+    }
+
+    @Override
+    public FastSubRootCommand getSetCommand() {
+        return (FastSubRootCommand) SlaveCommandManager.getINSTANCE().getMainCmd().getSubCommand("set");
+    }
+
+    @Override
+    public FastSubRootCommand getAddCommand() {
+        return (FastSubRootCommand) SlaveCommandManager.getINSTANCE().getMainCmd().getSubCommand("add");
+    }
+
+    @Override
+    public FastSubRootCommand getRemoveCommand() {
+        return (FastSubRootCommand) SlaveCommandManager.getINSTANCE().getMainCmd().getSubCommand("remove");
     }
 }

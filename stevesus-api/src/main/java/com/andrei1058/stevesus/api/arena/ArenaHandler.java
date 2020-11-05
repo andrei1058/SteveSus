@@ -189,6 +189,7 @@ public interface ArenaHandler {
 
     /**
      * Get amount of users playing and spectating.
+     *
      * @return amount of users playing and spectating.
      */
     int getOnlineCount();

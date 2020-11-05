@@ -7,6 +7,7 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.prevention.abandon.AbandonCondition;
 import com.andrei1058.stevesus.api.prevention.abandon.TriggerType;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.prevention.abandon.CommandTriggerListener;
 import com.andrei1058.stevesus.prevention.abandon.condition.PlayTimeCondition;
@@ -170,7 +171,7 @@ public class PreventionManager implements PreventionHandler {
                 PreventionManager.instance.abandoned.remove(player.getUniqueId());
                 return abandoned;
             }
-        } else if (triggerType == TriggerType.ARENA_LEAVE && arena != null) {
+        } else if (triggerType == TriggerType.ARENA_LEAVE && arena != null && arena.getGameState() == GameState.IN_GAME) {
             return triggerAbandon(arena, player);
         }
         return false;

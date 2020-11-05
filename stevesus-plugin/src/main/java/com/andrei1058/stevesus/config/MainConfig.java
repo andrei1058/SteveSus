@@ -96,9 +96,9 @@ public class MainConfig implements SettingsHolder {
 
     // ALLOWED COMMANDS IN GAME
     @Comment("Commands allowed when game status is waiting or starting.")
-    public static final ListProperty<String> ALLOWED_CMD_PRE_GAME = new StringListProperty("whitelisted-commands.pre-game", Arrays.asList("au", "lang"));
+    public static final ListProperty<String> ALLOWED_CMD_PRE_GAME = new StringListProperty("whitelisted-commands.pre-game", Arrays.asList("ss", "lang"));
     @Comment("Commands allowed during the game.")
-    public static final ListProperty<String> ALLOWED_CMD_IN_GAME = new StringListProperty("whitelisted-commands.in-game", Arrays.asList("au", "lang", "party"));
+    public static final ListProperty<String> ALLOWED_CMD_IN_GAME = new StringListProperty("whitelisted-commands.in-game", Arrays.asList("ss", "lang", "party"));
 
     @Override
     public void registerComments(CommentsConfiguration conf) {

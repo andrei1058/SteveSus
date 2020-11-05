@@ -57,7 +57,7 @@ import java.io.File;
 @Author(value = "andrei1058")
 @Website(value = "www.andrei1058.com")
 @ApiVersion(value = ApiVersion.Target.v1_13)
-@Command(name = "au")
+@Command(name = "ss")
 @SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI")})
 public class SteveSus extends JavaPlugin implements SteveSusAPI {
 
