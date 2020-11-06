@@ -243,6 +243,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
         return ServerCommonProvider.getInstance();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public FastRootCommand getMainCommand() {
         return CommonCmdManager.getINSTANCE().getMainCmd();
@@ -266,6 +267,11 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
     @Override
     public PreventionHandler getPreventionHandler() {
         return PreventionManager.getInstance();
+    }
+
+    @Override
+    public com.andrei1058.stevesus.api.arena.ArenaHandler getArenaHandler() {
+        return ArenaHandler.getINSTANCE();
     }
 
     public static SteveSus getInstance() {

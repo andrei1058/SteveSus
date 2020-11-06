@@ -4,6 +4,7 @@ import ch.jalu.configme.Comment;
 import ch.jalu.configme.SettingsHolder;
 import ch.jalu.configme.configurationdata.CommentsConfiguration;
 import ch.jalu.configme.properties.*;
+import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.common.api.selector.ArenaHolderConfig;
 import com.andrei1058.stevesus.config.properties.LocationProperty;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
@@ -58,6 +59,19 @@ public class ArenaConfig implements SettingsHolder {
             "Syntax: vent_name;vent_connection1,conn2;x,y,z,yaw,pitch"
     })
     public static final StringListProperty VENTS = new StringListProperty("imposter-vents", Collections.emptyList());
+
+    @Comment({
+            " ",
+            "Player tasks configuration. List of strings.",
+            "Syntax: localName,provider,taskName,taskData."
+    })
+    public static final StringListProperty TASKS = new StringListProperty("crew-tasks", Collections.emptyList());
+
+    @Comment({
+            " ",
+            "Set gameplay time. Available choices: DAY, NIGHT."
+    })
+    public static final Property<ArenaTime> MAP_TIME = new EnumProperty<>(ArenaTime.class, "time-of-the-day", ArenaTime.NIGHT);
 
 
     @Comment("Initial game countdown for this arena.")

@@ -1,4 +1,4 @@
-package com.andrei1058.stevesus.arena.task;
+package com.andrei1058.stevesus.arena.runnable;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 

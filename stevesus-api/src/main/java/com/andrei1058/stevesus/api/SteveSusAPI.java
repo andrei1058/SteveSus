@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
+import com.andrei1058.stevesus.api.arena.ArenaHandler;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
@@ -48,6 +49,11 @@ public interface SteveSusAPI {
      * Get abuse and other preventions manager.
      */
     PreventionHandler getPreventionHandler();
+
+    /**
+     * Get arena handler.
+     */
+    ArenaHandler getArenaHandler();
 
     /**
      * Get API instance.

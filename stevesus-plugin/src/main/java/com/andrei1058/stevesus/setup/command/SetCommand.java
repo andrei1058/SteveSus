@@ -5,6 +5,7 @@ import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
+import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaHandler;
@@ -19,10 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -48,6 +46,7 @@ public class SetCommand {
         FastSubCommand ventConnection = new FastSubCommand("ventConnection");
         FastSubCommand displayName = new FastSubCommand("displayName");
         FastSubCommand displayItem = new FastSubCommand("displayItem");
+        FastSubCommand timeOfTheDay = new FastSubCommand("time");
 
         root.withSubNode(setClonesAvailableAtOnce
                 .withPermAdditions(s -> SetupManager.getINSTANCE().isInSetup(s) && ServerManager.getINSTANCE().getServerType() != ServerType.BUNGEE_LEGACY)
@@ -293,6 +292,29 @@ public class SetCommand {
 
                             config.save();
                             player.sendMessage(ChatColor.GRAY + "Display item for " + ChatColor.YELLOW + args[0] + ChatColor.GRAY + " state set!");
+                        })
+                )
+                .withSubNode(timeOfTheDay
+                        .withDisplayName(s -> "&7" + timeOfTheDay.getName() + " [day/ night]")
+                        .withDisplayHover(s -> "&fSet time of the game for\n&fthe gameplay..\n \n&eCurrently set to: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.MAP_TIME, s))
+                        .withExecutor((sender, args) -> {
+                            if (args.length != 1 || ArenaTime.getByName(args[0]) == null) {
+                                sender.sendMessage(ChatColor.GRAY + "Available choices: DAY, NIGHT.");
+                                return;
+                            }
+                            ArenaTime time = ArenaTime.getByName(args[0]);
+
+                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(((Player) sender).getWorld().getName(), true);
+                            config.setProperty(ArenaConfig.MAP_TIME, time);
+                            config.save();
+                            assert time != null;
+                            ((Player)sender).getWorld().setTime(time.getStartTick());
+                            sender.sendMessage(ChatColor.GRAY + "Gameplay time set to: " + ChatColor.AQUA + time.toString());
+                        })
+                        .withTabSuggestions(s -> {
+                            List<String> types = new ArrayList<>();
+                            Arrays.stream(ArenaTime.values()).forEach(type -> types.add(type.name()));
+                            return types;
                         })
                 )
         ;

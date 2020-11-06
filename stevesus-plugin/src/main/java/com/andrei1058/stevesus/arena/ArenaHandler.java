@@ -4,10 +4,14 @@ import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.task.TaskHandler;
 import com.andrei1058.stevesus.api.event.GameInitializedEvent;
+import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
+import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringHandler;
+import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -32,6 +36,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
     private static final HashMap<UUID, Arena> arenaByPlayer = new HashMap<>();
     private static final HashMap<String, Arena> arenaByWorldName = new HashMap<>();
     private static final Random randomInstance = new Random();
+    private static final LinkedList<TaskHandler> registeredTasks = new LinkedList<>();
 
     private static long lastPlayerCountRequest = 0L;
     private static int lastPlayerCount = 0;
@@ -112,6 +117,12 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         // register arena related commands
         GameCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         ForceStartCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
+
+        // register map time checker
+        Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new MapTimeTask(), 20L, 20L);
+
+        // register default tasks
+        getINSTANCE().registerGameTask(FixWiringHandler.getInstance());
     }
 
     public static void onDisable() {
@@ -276,6 +287,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         }
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean validateTemplate(String templateName) {
         SettingsManager config = getTemplate(templateName, false);
@@ -329,6 +341,33 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         // 50 should be a server tick
         lastSpectatorCountRequest = System.currentTimeMillis() + 50;
         return lastSpectatorCount;
+    }
+
+    @Override
+    public boolean registerGameTask(TaskHandler taskHandler) {
+        if (registeredTasks.contains(taskHandler)) return false;
+        return registeredTasks.add(taskHandler);
+    }
+
+    @Override
+    public List<TaskHandler> getRegisteredTasks() {
+        return Collections.unmodifiableList(registeredTasks);
+    }
+
+    @Override
+    @Nullable
+    public TaskHandler getTask(String provider, String task2) {
+        return registeredTasks.stream().filter(task -> task.getProvider().getName().equals(provider) && task.getIdentifier().equals(task2)).findFirst().orElse(null);
+    }
+
+    @Override
+    public void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName) {
+        SettingsManager config = getTemplate(setupSession.getWorldName(), true);
+        List<String> tasks = new ArrayList<>(config.getProperty(ArenaConfig.TASKS));
+        SteveSus.debug("Saving " + task.getIdentifier() + "(" + givenName + ") task data on " + setupSession.getWorldName() + ".");
+        tasks.add(givenName + ";" + task.getProvider().getName() + ";" + task.getIdentifier() + ";" + task.exportAndSave(setupSession).toJSONString());
+        config.setProperty(ArenaConfig.TASKS, tasks);
+        config.save();
     }
 
     public SettingsManager getTemplate(String worldName, boolean create) {

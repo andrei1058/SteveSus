@@ -18,6 +18,9 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedHashMap;
 
 public class SetupActivity implements SetupSession {
 
@@ -26,6 +29,8 @@ public class SetupActivity implements SetupSession {
     private SettingsManager config;
     private Hologram meetingButtonHologram;
     private BukkitTask setupTask;
+    private boolean allowCommands;
+    private final LinkedHashMap<String, Object> cachedValues = new LinkedHashMap<>();
 
     public SetupActivity(Player player, String world) {
         this.player = player;
@@ -72,11 +77,11 @@ public class SetupActivity implements SetupSession {
         Bukkit.getScheduler().runTaskLater(SteveSus.getInstance(), () -> Bukkit.dispatchCommand(player, CommonCmdManager.getINSTANCE().getMainCmd().getName()), 60L);
 
         // spawn holograms
-        reloadButtonHologram();
+        SteveSus.newChain().delay(20).sync(this::reloadButtonHologram).execute();
 
         setupTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> {
             // better use this here than in a move event since this gets cancelled at a certain point
-            if (player.getLocation().getY() < 0){
+            if (player.getLocation().getY() < 0) {
                 player.teleport(player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         }, 20L, 20L);
@@ -96,6 +101,27 @@ public class SetupActivity implements SetupSession {
                 GameSidebarManager.getInstance().setSidebar(player, SidebarType.MULTI_ARENA_LOBBY, null, true);
             }
         }
+    }
+
+    @Override
+    public void setAllowCommands(boolean toggle) {
+        this.allowCommands = toggle;
+    }
+
+    @Override
+    public boolean canUseCommands() {
+        return allowCommands;
+    }
+
+    @Override
+    public void cacheValue(String identifier, Object value) {
+        cachedValues.remove(identifier);
+        cachedValues.put(identifier, value);
+    }
+
+    @Override
+    public @Nullable Object getCachedValue(String identifier) {
+        return cachedValues.get(identifier);
     }
 
     public void reloadButtonHologram() {

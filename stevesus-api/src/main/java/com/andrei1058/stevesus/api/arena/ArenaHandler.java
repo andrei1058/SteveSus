@@ -1,5 +1,7 @@
 package com.andrei1058.stevesus.api.arena;
 
+import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.setup.SetupSession;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -207,4 +209,35 @@ public interface ArenaHandler {
      * @return amount of players that are spectating globally.
      */
     int getSpectatorCount();
+
+    /**
+     * Register a custom task.
+     *
+     * @param taskHandler custom task manager.
+     */
+    boolean registerGameTask(TaskHandler taskHandler);
+
+    /**
+     * Get unmodifiable list of registered tasks.
+     */
+    List<TaskHandler> getRegisteredTasks();
+
+    /**
+     * Get a game task.
+     *
+     * @param provider provider plugin name.
+     * @param task     task identifier.
+     */
+    @Nullable
+    TaskHandler getTask(String provider, String task);
+
+    /**
+     * Save a task data. Should be used when a player finished setting up a task.
+     * This will trigger {@link TaskHandler#exportAndSave()}.
+     *
+     * @param task         task instance.
+     * @param setupSession setup session instance.
+     * @param givenName    local identifier used by server owner to identify this configuration.
+     */
+    void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName);
 }

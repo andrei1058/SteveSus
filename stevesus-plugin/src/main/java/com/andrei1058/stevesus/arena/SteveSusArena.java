@@ -3,15 +3,16 @@ package com.andrei1058.stevesus.arena;
 import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.arena.Team;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.ServerType;
-import com.andrei1058.stevesus.arena.task.ArenaTaskPlaying;
-import com.andrei1058.stevesus.arena.task.ArenaTaskRestarting;
-import com.andrei1058.stevesus.arena.task.ArenaTaskStarting;
+import com.andrei1058.stevesus.arena.runnable.ArenaTaskPlaying;
+import com.andrei1058.stevesus.arena.runnable.ArenaTaskRestarting;
+import com.andrei1058.stevesus.arena.runnable.ArenaTaskStarting;
 import com.andrei1058.stevesus.arena.team.CrewTeam;
 import com.andrei1058.stevesus.arena.team.ImposterTeam;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
@@ -66,6 +67,7 @@ public class SteveSusArena implements Arena {
     private String displayName;
     private Instant gameStart;
     private final String gameTag;
+    private final ArenaTime mapTime;
 
     private final LinkedList<Player> players = new LinkedList<>();
     private final LinkedList<Player> spectators = new LinkedList<>();
@@ -117,6 +119,8 @@ public class SteveSusArena implements Arena {
             itemEnding = ItemUtil.createItem(config.getProperty(ArenaConfig.SELECTOR_ENDING_MATERIAL), (byte) ((int) config.getProperty(ArenaConfig.SELECTOR_ENDING_DATA)),
                     1, config.getProperty(ArenaConfig.SELECTOR_ENDING_ENCHANT), Arrays.asList(ServerCommonProvider.getInstance().getDisplayableArenaNBTTagKey(), getTag()));
         }
+
+        this.mapTime = config.getProperty(ArenaConfig.MAP_TIME);
     }
 
     private void restoreCountDown() {
@@ -135,6 +139,10 @@ public class SteveSusArena implements Arena {
 
         teams.add(new CrewTeam());
         teams.add(new ImposterTeam());
+
+        if (getTime() != null) {
+            world.setTime(getTime().getStartTick());
+        }
 
         switchState(GameState.WAITING);
     }
@@ -768,6 +776,11 @@ public class SteveSusArena implements Arena {
     @Override
     public boolean isFirstPersonSpectate(Player spectator) {
         return isSpectator(spectator) && spectator.getSpectatorTarget() != null && spectator.getGameMode() == GameMode.SPECTATOR;
+    }
+
+    @Override
+    public @Nullable ArenaTime getTime() {
+        return mapTime;
     }
 
     public Location getNextWaitingSpawn() {

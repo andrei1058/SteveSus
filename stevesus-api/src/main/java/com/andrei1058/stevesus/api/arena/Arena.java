@@ -328,4 +328,12 @@ public interface Arena extends DisplayableArena {
      * @param spectator spectator to be checked.
      */
     boolean isFirstPersonSpectate(Player spectator);
+
+    /**
+     * Get gameplay time.
+     *
+     * @return null if time is not handled internally. (vanilla day cycle).
+     */
+    @Nullable
+    ArenaTime getTime();
 }

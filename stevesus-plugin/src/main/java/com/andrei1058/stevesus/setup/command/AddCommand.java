@@ -5,19 +5,22 @@ import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
+import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.arena.task.TaskHandler;
 import com.andrei1058.stevesus.api.prevention.abandon.AbandonCondition;
+import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.setup.SetupManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("UnstableApiUsage")
 public class AddCommand {
@@ -40,6 +43,7 @@ public class AddCommand {
         FastSubCommand addMeetingSpawn = new FastSubCommand("meetingSpawn");
         FastSubCommand addSpectatorSpawn = new FastSubCommand("spectatorSpawn");
         FastSubCommand addVent = new FastSubCommand("vent");
+        FastSubCommand addTask = new FastSubCommand("task");
 
         root
                 .withSubNode(addWaitingSpawn
@@ -143,7 +147,51 @@ public class AddCommand {
                             ventList.add(args[0] + ";" + connections.toString() + ";" + orphanLocationProperty.toExportValue(player.getLocation()));
                             config.setProperty(ArenaConfig.VENTS, ventList);
                             config.save();
-                        }).withTabSuggestions(s -> getVents(((Player) s).getWorld().getName())))
+                        }).withTabSuggestions(s -> getVents(((Player) s).getWorld().getName()))
+                )
+
+                .withSubNode(addTask
+                        .withDisplayName(s -> "&e" + addTask.getName() + " ")
+                        .withDescription(s -> "&e[name]")
+                        .withDisplayHover(s -> "&fAdd a task.\n&e" + ICommandNode.getClickCommand(addVent) + " [provider] [task] [localIdentifier]\n \n&fYou can usually add a task multiple times.")
+                        .withExecutor((sender, args) -> {
+                            if (args.length != 3) {
+                                sender.sendMessage(ChatColor.RED + "Usage: " + ChatColor.GRAY + ICommandNode.getClickCommand(addTask) + " [provider] [task] [localIdentifier]");
+                                sender.sendMessage(ChatColor.GRAY + "Where:");
+                                sender.sendMessage(ChatColor.YELLOW + "[provider] " + ChatColor.GRAY + "is the plugin which provides the task. (Like " + SteveSus.getInstance().getName() + ").");
+                                sender.sendMessage(ChatColor.YELLOW + "[task] " + ChatColor.GRAY + "is the task name from provider.");
+                                sender.sendMessage(ChatColor.YELLOW + "[localIdentifier] " + ChatColor.GRAY + "is some name that helps you remember this configuration, because you can set a task multiple times and this name is used eventually later if you want to remove this configuration.");
+                                sender.sendMessage(" ");
+                                sender.sendMessage(ChatColor.GRAY + "Available tasks: " + getAvailableTasks().toString());
+                                return;
+                            }
+
+                            TaskHandler task = ArenaHandler.getINSTANCE().getTask(args[0], args[1]);
+                            if (task == null) {
+                                sender.sendMessage(ChatColor.RED + "Invalid provider or task identifier.");
+                                return;
+                            }
+                            Player player = (Player) sender;
+                            SetupSession setupSession = SetupManager.getINSTANCE().getSession(player);
+                            if (!task.canSetup(player, setupSession)) {
+                                player.sendMessage(ChatColor.RED + "You're not allowed to set this task on this map. (This task might allow to be set a single time per template).");
+                                return;
+                            }
+                            if (!args[0].matches(AbandonCondition.IDENTIFIER_REGEX)) {
+                                player.sendMessage(ChatColor.RED + args[2] + ChatColor.GRAY + " cannot be used. Try removing special characters.");
+                                return;
+                            }
+
+                            if (hasTaskWithRememberName(player, args[2])) {
+                                player.sendMessage(ChatColor.RED + args[2] + ChatColor.GRAY + " already exists. Please give it another name (it's used to recognize it if you want to remove it eventually).");
+                                return;
+                            }
+                            player.sendMessage(ChatColor.GRAY + "Disabling commands usage...");
+                            assert setupSession != null;
+                            setupSession.setAllowCommands(false);
+                            task.onSetupRequest(player, setupSession, args[2]);
+                        })
+                )
         ;
     }
 
@@ -154,9 +202,26 @@ public class AddCommand {
 
     protected static List<String> getVents(String template) {
         List<String> vents = new ArrayList<>();
-        ArenaHandler.getINSTANCE().getTemplate(template, false).getProperty(ArenaConfig.VENTS).forEach(vent -> {
+        ArenaHandler.getINSTANCE().getTemplate(template, true).getProperty(ArenaConfig.VENTS).forEach(vent -> {
             vents.add(vent.split(";")[0]);
         });
         return vents;
+    }
+
+    protected static List<String> getAvailableTasks() {
+        List<String> tasks = new ArrayList<>();
+        ArenaHandler.getINSTANCE().getRegisteredTasks().forEach(task -> tasks.add(task.getProvider().getName() + " " + task.getIdentifier()));
+        return tasks;
+    }
+
+    protected static boolean hasTaskWithRememberName(CommandSender player, String nameToCheck) {
+        if (!(player instanceof Player)) return false;
+        return ArenaHandler.getINSTANCE().getTemplate(((Player) player).getWorld().getName(), true).getProperty(ArenaConfig.TASKS).stream().anyMatch(task -> {
+            String[] taskData = task.split(";");
+            if (taskData.length != 0) {
+                return taskData[0].equals(nameToCheck);
+            }
+            return false;
+        });
     }
 }
