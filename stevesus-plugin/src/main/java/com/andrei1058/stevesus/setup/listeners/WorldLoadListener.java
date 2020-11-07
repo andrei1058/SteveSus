@@ -21,18 +21,19 @@ public class WorldLoadListener implements Listener {
         if (setupSession != null) {
             setupSession.onStart(e.getWorld());
             e.getWorld().getEntities().forEach(entity -> {
-                if (entity instanceof Creature){
+                if (entity instanceof Creature) {
                     entity.remove();
                 }
             });
+            SetupManager.getINSTANCE().initializeSavedTasks(setupSession, e.getWorld().getName());
         }
 
         // handle enable queue
         Arena arena = ArenaHandler.getINSTANCE().getFromEnableQueue(worldName);
-        if (arena != null){
+        if (arena != null) {
             ArenaHandler.getINSTANCE().removeFromEnableQueue(worldName);
             e.getWorld().getEntities().forEach(entity -> {
-                if (entity instanceof Creature){
+                if (entity instanceof Creature) {
                     entity.remove();
                 }
             });

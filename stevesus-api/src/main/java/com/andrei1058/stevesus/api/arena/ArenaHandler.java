@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.setup.SetupSession;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.util.List;
@@ -233,11 +234,10 @@ public interface ArenaHandler {
 
     /**
      * Save a task data. Should be used when a player finished setting up a task.
-     * This will trigger {@link TaskHandler#exportAndSave()}.
      *
      * @param task         task instance.
      * @param setupSession setup session instance.
      * @param givenName    local identifier used by server owner to identify this configuration.
      */
-    void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName);
+    void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName, JSONObject taskConfiguration);
 }

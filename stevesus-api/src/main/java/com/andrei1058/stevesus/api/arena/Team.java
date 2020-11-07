@@ -49,4 +49,15 @@ public interface Team {
      * Team name identifier. Used for language paths and other configurations.
      */
     String getIdentifier();
+
+    /**
+     * Check if this team can vote.
+     */
+    boolean canVote();
+
+    /**
+     * Set if a team can vote.
+     * Useful if you add a detective team and you want to disable voting for crew and imposters.
+     */
+    void setCanVote(boolean toggle);
 }

@@ -71,7 +71,7 @@ public abstract class TaskHandler {
      * <p>
      * IMPORTANT: when task setup is done, mark it as finished (to allow commands usage)
      * via {@link SetupSession#setAllowCommands(boolean)} - set to true.
-     * Also make sure to save your data using {@link ArenaHandler#saveTaskData(TaskHandler, SetupSession, String)}.
+     * Also make sure to save your data using {@link ArenaHandler#saveTaskData(TaskHandler, SetupSession, String, JSONObject)}.
      *
      * @param player       admin doing setup.
      * @param setupSession setup session.
@@ -80,10 +80,21 @@ public abstract class TaskHandler {
     public abstract void onSetupRequest(Player player, SetupSession setupSession, String localName);
 
     /**
-     * Used by main plugin to save data to arena's config.
-     * This is triggered when you've done setting up a task.
+     * This is called when a world is loaded for being set.
+     * Already configured tasks will trigger this method and you should use it
+     * to protect custom entities removal or to put some holograms on the map to let
+     * the player know the locations he set etc.
+     * <p>
+     * Can be ignored, especially if you're using meta data on your placed entities or tags etc.
      */
-    public abstract JSONObject exportAndSave(SetupSession setupSession);
+    public abstract void onSetupLoad(SetupSession setupSession, String localName, JSONObject configData);
+
+    /**
+     * IMPORTANT.
+     * This is triggered when a player used the remove command.
+     * Use this method to clear your task map modifications etc.
+     */
+    public abstract void onRemove(Player player, SetupSession setupSession, String localName, JSONObject configData);
 
 
     ///////////////       GAME USAGE

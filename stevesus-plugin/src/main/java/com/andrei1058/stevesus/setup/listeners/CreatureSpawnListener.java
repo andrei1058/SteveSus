@@ -10,9 +10,10 @@ public class CreatureSpawnListener implements Listener {
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent e){
         if (e.isCancelled())return;
-        if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.CUSTOM)
-        if (SetupManager.getINSTANCE().getSession(e.getEntity().getWorld().getName()) != null) {
-            e.setCancelled(true);
+        if (!(e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.CUSTOM || e.getSpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)) {
+            if (SetupManager.getINSTANCE().getSession(e.getEntity().getWorld().getName()) != null) {
+                e.setCancelled(true);
+            }
         }
     }
 }

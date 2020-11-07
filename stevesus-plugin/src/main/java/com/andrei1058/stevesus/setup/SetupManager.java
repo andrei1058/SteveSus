@@ -2,11 +2,14 @@ package com.andrei1058.stevesus.setup;
 
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.arena.task.TaskHandler;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
 import com.andrei1058.stevesus.api.setup.SetupSession;
+import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.command.SlaveCommandManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
+import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.common.ServerQuitListener;
 import com.andrei1058.stevesus.server.multiarena.command.BuildCmd;
@@ -14,14 +17,19 @@ import com.andrei1058.stevesus.server.multiarena.command.SetLobbyCmd;
 import com.andrei1058.stevesus.setup.command.ArenaCommands;
 import com.andrei1058.stevesus.setup.command.SetupCommand;
 import com.andrei1058.stevesus.setup.listeners.CreatureSpawnListener;
+import com.andrei1058.stevesus.setup.listeners.SetupSessionListener;
 import com.andrei1058.stevesus.setup.listeners.WorldLoadListener;
 import com.andrei1058.stevesus.setup.listeners.WorldProtectListener;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -34,6 +42,9 @@ public class SetupManager implements SetupHandler {
 
     private final LinkedList<SetupSession> setupSessions = new LinkedList<>();
     //private final Logger logger = LoggerFactory.getLogger(LanguageManager.class);
+
+    // setup listener used by setup sessions
+    private SetupSessionListener setupSessionListener;
 
     private SetupManager() {
         INSTANCE = this;
@@ -83,6 +94,10 @@ public class SetupManager implements SetupHandler {
         if (setupSessions.stream().noneMatch(ss -> ss.equals(setupSession))) {
             setupSessions.add(setupSession);
             WorldManager.getINSTANCE().getWorldAdapter().onSetupSessionStart(setupSession.getWorldName(), setupSession);
+            if (setupSessionListener == null){
+                setupSessionListener = new SetupSessionListener();
+                Bukkit.getPluginManager().registerEvents(setupSessionListener, SteveSus.getInstance());
+            }
             //logger.debug("SetupSession added: " + setupSession.toString());
         }
     }
@@ -93,6 +108,9 @@ public class SetupManager implements SetupHandler {
             //logger.debug("SetupSession removed: " + setupSession.toString());
             setupSession.onStop();
             WorldManager.getINSTANCE().getWorldAdapter().onSetupSessionClose(setupSession);
+            if (setupSessions.isEmpty() && setupSessionListener != null){
+                setupSessionListener.unRegister();
+            }
         }
     }
 
@@ -120,6 +138,22 @@ public class SetupManager implements SetupHandler {
         SetupSession session = new SetupActivity(player, world);
         addSession(session);
         return true;
+    }
+
+    public void initializeSavedTasks(SetupSession setupSession, String world) {
+        ArenaHandler.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).forEach(task -> {
+            String[] taskData = task.split(";");
+            if (taskData.length == 4) {
+                TaskHandler taskHandler = ArenaHandler.getINSTANCE().getTask(taskData[1], taskData[2]);
+                if (taskHandler != null){
+                    try {
+                        taskHandler.onSetupLoad(setupSession, taskData[0], (JSONObject) new JSONParser().parse(taskData[3]));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     @Override

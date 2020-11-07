@@ -13,6 +13,7 @@ import java.util.List;
 public class ImposterTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
+    private boolean canVote = true;
 
     @Override
     public List<Player> getMembers() {
@@ -53,5 +54,15 @@ public class ImposterTeam implements Team {
     @Override
     public String getIdentifier() {
         return "imposter";
+    }
+
+    @Override
+    public boolean canVote() {
+        return canVote;
+    }
+
+    @Override
+    public void setCanVote(boolean toggle) {
+        this.canVote = toggle;
     }
 }

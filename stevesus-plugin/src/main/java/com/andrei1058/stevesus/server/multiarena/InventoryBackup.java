@@ -59,6 +59,9 @@ public class InventoryBackup {
      * Restore contents.
      */
     private void restore(Player player) {
+        // clear current inventory
+        player.getInventory().clear();
+
         // restore lobby items
         if (!items.isEmpty()) {
             for (Map.Entry<ItemStack, Integer> entry : items.entrySet()) {

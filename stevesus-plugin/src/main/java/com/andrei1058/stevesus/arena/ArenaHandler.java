@@ -23,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -177,7 +178,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         if (arenas.contains(arena)) return false;
         SteveSus.debug("Adding arena with id " + arena.getGameId() + " from template: " + arena.getTemplateWorld() + " to the arenas list.");
         Bukkit.getPluginManager().callEvent(new GameInitializedEvent(arena, arena.getTemplateWorld(), arena.getWorld().getName()));
-        arenaByWorldName.put(arena.getTemplateWorld(), arena);
+        arenaByWorldName.put(arena.getWorld().getName(), arena);
         return arenas.add(arena);
     }
 
@@ -361,11 +362,11 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
     }
 
     @Override
-    public void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName) {
+    public void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName, JSONObject taskConfiguration) {
         SettingsManager config = getTemplate(setupSession.getWorldName(), true);
         List<String> tasks = new ArrayList<>(config.getProperty(ArenaConfig.TASKS));
         SteveSus.debug("Saving " + task.getIdentifier() + "(" + givenName + ") task data on " + setupSession.getWorldName() + ".");
-        tasks.add(givenName + ";" + task.getProvider().getName() + ";" + task.getIdentifier() + ";" + task.exportAndSave(setupSession).toJSONString());
+        tasks.add(givenName + ";" + task.getProvider().getName() + ";" + task.getIdentifier() + ";" + taskConfiguration.toJSONString());
         config.setProperty(ArenaConfig.TASKS, tasks);
         config.save();
     }

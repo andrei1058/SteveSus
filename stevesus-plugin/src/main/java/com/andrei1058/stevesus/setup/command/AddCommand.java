@@ -13,6 +13,9 @@ import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.setup.SetupManager;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -156,13 +159,28 @@ public class AddCommand {
                         .withDisplayHover(s -> "&fAdd a task.\n&e" + ICommandNode.getClickCommand(addVent) + " [provider] [task] [localIdentifier]\n \n&fYou can usually add a task multiple times.")
                         .withExecutor((sender, args) -> {
                             if (args.length != 3) {
-                                sender.sendMessage(ChatColor.RED + "Usage: " + ChatColor.GRAY + ICommandNode.getClickCommand(addTask) + " [provider] [task] [localIdentifier]");
-                                sender.sendMessage(ChatColor.GRAY + "Where:");
-                                sender.sendMessage(ChatColor.YELLOW + "[provider] " + ChatColor.GRAY + "is the plugin which provides the task. (Like " + SteveSus.getInstance().getName() + ").");
-                                sender.sendMessage(ChatColor.YELLOW + "[task] " + ChatColor.GRAY + "is the task name from provider.");
-                                sender.sendMessage(ChatColor.YELLOW + "[localIdentifier] " + ChatColor.GRAY + "is some name that helps you remember this configuration, because you can set a task multiple times and this name is used eventually later if you want to remove this configuration.");
                                 sender.sendMessage(" ");
-                                sender.sendMessage(ChatColor.GRAY + "Available tasks: " + getAvailableTasks().toString());
+                                String command = ICommandNode.getClickCommand(addTask);
+                                TextComponent usage = new TextComponent(ChatColor.RED + "Usage: " + ChatColor.GRAY + command);
+                                usage.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
+                                TextComponent provider = new TextComponent(" [provider]");
+                                provider.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[provider] " + ChatColor.GRAY + "is the plugin which provides the task. (Like " + SteveSus.getInstance().getName() + ").")}));
+                                usage.addExtra(provider);
+                                TextComponent task = new TextComponent(" [task]");
+                                task.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[task] " + ChatColor.GRAY + "is the task name from provider.")}));
+                                usage.addExtra(task);
+                                TextComponent localIdentifier = new TextComponent(" [localIdentifier]");
+                                localIdentifier.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[localIdentifier] " + ChatColor.GRAY + "is some name that helps you remember this configuration, because you can set a task multiple times and this name is used eventually later if you want to remove this configuration.")}));
+                                usage.addExtra(localIdentifier);
+                                sender.spigot().sendMessage(usage);
+                                sender.sendMessage(" ");
+                                sender.sendMessage(ChatColor.GRAY + "Available tasks: ");
+                                ArenaHandler.getINSTANCE().getRegisteredTasks().forEach(taskHandler -> {
+                                    TextComponent textComponent = new TextComponent(ChatColor.GOLD + "- " + ChatColor.GRAY + taskHandler.getProvider().getName() + " " + ChatColor.YELLOW + taskHandler.getIdentifier());
+                                    textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.WHITE + "Click to use " + ChatColor.translateAlternateColorCodes('&', taskHandler.getDefaultDisplayName()))}));
+                                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command + " " + taskHandler.getProvider().getName() + " " + taskHandler.getIdentifier() + " "));
+                                    sender.spigot().sendMessage(textComponent);
+                                });
                                 return;
                             }
 
@@ -214,9 +232,19 @@ public class AddCommand {
         return tasks;
     }
 
-    protected static boolean hasTaskWithRememberName(CommandSender player, String nameToCheck) {
+    public static boolean hasTaskWithRememberName(CommandSender player, String nameToCheck) {
         if (!(player instanceof Player)) return false;
         return ArenaHandler.getINSTANCE().getTemplate(((Player) player).getWorld().getName(), true).getProperty(ArenaConfig.TASKS).stream().anyMatch(task -> {
+            String[] taskData = task.split(";");
+            if (taskData.length != 0) {
+                return taskData[0].equals(nameToCheck);
+            }
+            return false;
+        });
+    }
+
+    public static boolean hasTaskWithRememberName(String world, String nameToCheck) {
+        return ArenaHandler.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).stream().anyMatch(task -> {
             String[] taskData = task.split(";");
             if (taskData.length != 0) {
                 return taskData[0].equals(nameToCheck);

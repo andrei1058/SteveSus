@@ -308,8 +308,12 @@ public class SetCommand {
                             config.setProperty(ArenaConfig.MAP_TIME, time);
                             config.save();
                             assert time != null;
-                            ((Player)sender).getWorld().setTime(time.getStartTick());
+                            ((Player) sender).getWorld().setTime(time.getStartTick());
                             sender.sendMessage(ChatColor.GRAY + "Gameplay time set to: " + ChatColor.AQUA + time.toString());
+                            SetupSession setupSession = SetupManager.getINSTANCE().getSession((Player) sender);
+                            if (setupSession instanceof SetupActivity) {
+                                ((SetupActivity) setupSession).setTime(time);
+                            }
                         })
                         .withTabSuggestions(s -> {
                             List<String> types = new ArrayList<>();

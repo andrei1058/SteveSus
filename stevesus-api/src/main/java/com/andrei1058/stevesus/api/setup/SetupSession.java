@@ -2,7 +2,10 @@ package com.andrei1058.stevesus.api.setup;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 /**
  * Arena Setup Session.
@@ -11,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
  * It is used to prevent two players from modifying the same arena at the same time.
  * It will handle most of arena setup logic.
  */
+@SuppressWarnings("unused")
 public interface SetupSession {
 
     /**
@@ -66,4 +70,27 @@ public interface SetupSession {
      */
     @Nullable
     Object getCachedValue(String identifier);
+
+    /**
+     * A setup listener is used when you require to listen some actions
+     * like player interact when someone is doing a map setup.
+     * <p>
+     * You should use this listener and not raw bukkit events because this is unregistered
+     * when a setup session is closed.
+     *
+     * @param identifier can be used later to unregister listener when no longer needed.
+     */
+    void addSetupListener(@NotNull String identifier, @NotNull SetupListener listener);
+
+    /**
+     * Unregister a setup listener when no longer needed.
+     */
+    void removeSetupListener(@NotNull String identifier);
+
+    /**
+     * Get setup listener.
+     * Used by main plugin to trigger events.
+     * @return
+     */
+    Collection<SetupListener> getSetupListeners();
 }

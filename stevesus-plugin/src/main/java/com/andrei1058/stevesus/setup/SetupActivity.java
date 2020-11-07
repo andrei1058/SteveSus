@@ -5,7 +5,9 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.server.ServerType;
+import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaHandler;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
@@ -18,8 +20,11 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 
 public class SetupActivity implements SetupSession {
@@ -31,6 +36,8 @@ public class SetupActivity implements SetupSession {
     private BukkitTask setupTask;
     private boolean allowCommands;
     private final LinkedHashMap<String, Object> cachedValues = new LinkedHashMap<>();
+    private final LinkedHashMap<String, SetupListener> setupListeners = new LinkedHashMap<>();
+    private ArenaTime time;
 
     public SetupActivity(Player player, String world) {
         this.player = player;
@@ -57,10 +64,12 @@ public class SetupActivity implements SetupSession {
         if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
             InventoryBackup.createInventoryBackup(player);
         }
+        time = config.getProperty(ArenaConfig.MAP_TIME);
         world.setWeatherDuration(0);
         world.setThunderDuration(0);
         world.setStorm(false);
         world.setThundering(false);
+        world.setTime(time.getStartTick());
         player.teleport(world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.setGameMode(GameMode.CREATIVE);
         player.setAllowFlight(true);
@@ -77,12 +86,17 @@ public class SetupActivity implements SetupSession {
         Bukkit.getScheduler().runTaskLater(SteveSus.getInstance(), () -> Bukkit.dispatchCommand(player, CommonCmdManager.getINSTANCE().getMainCmd().getName()), 60L);
 
         // spawn holograms
-        SteveSus.newChain().delay(20).sync(this::reloadButtonHologram).execute();
+        SteveSus.newChain().delay(60).sync(this::reloadButtonHologram).execute();
 
         setupTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> {
             // better use this here than in a move event since this gets cancelled at a certain point
             if (player.getLocation().getY() < 0) {
                 player.teleport(player.getWorld().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+            if (time != null) {
+                if (!time.isInRange(world.getTime())) {
+                    world.setTime(time.getStartTick());
+                }
             }
         }, 20L, 20L);
     }
@@ -124,6 +138,22 @@ public class SetupActivity implements SetupSession {
         return cachedValues.get(identifier);
     }
 
+    @Override
+    public void addSetupListener(@NotNull String identifier, @NotNull SetupListener listener) {
+        setupListeners.remove(identifier);
+        setupListeners.put(identifier, listener);
+    }
+
+    @Override
+    public void removeSetupListener(@NotNull String identifier) {
+        setupListeners.remove(identifier);
+    }
+
+    @Override
+    public Collection<SetupListener> getSetupListeners() {
+        return Collections.unmodifiableCollection(setupListeners.values());
+    }
+
     public void reloadButtonHologram() {
         config.reload();
         if (!config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).isPresent()) return;
@@ -140,5 +170,14 @@ public class SetupActivity implements SetupSession {
         assert page != null;
         page.setLineContent(0, new LineTextContent((p) -> "&4&lEmergency Meeting Button"));
         page.setLineContent(1, new LineTextContent((p) -> "&fwill be spawned here"));
+        SteveSus.newChain().delay(10).sync(()-> {
+            meetingButtonHologram.hide(player);
+            meetingButtonHologram.show(player);
+        }).execute();
+    }
+
+    public void setTime(ArenaTime time) {
+        this.time = time;
+        Bukkit.getWorld(getWorldName()).setTime(time.getStartTick());
     }
 }
