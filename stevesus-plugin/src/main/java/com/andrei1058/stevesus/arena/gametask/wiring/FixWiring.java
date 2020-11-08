@@ -16,7 +16,7 @@ public class FixWiring extends GameTask {
 
     @Override
     public TaskHandler getHandler() {
-        return FixWiringHandler.getInstance();
+        return FixWiringProvider.getInstance();
     }
 
     @Override

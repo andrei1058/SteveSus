@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -46,16 +47,16 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.function.Function;
 
-public class FixWiringHandler extends TaskHandler {
+public class FixWiringProvider extends TaskHandler {
 
-    private static FixWiringHandler instance;
+    private static FixWiringProvider instance;
 
-    private FixWiringHandler() {
+    private FixWiringProvider() {
     }
 
-    public static FixWiringHandler getInstance() {
+    public static FixWiringProvider getInstance() {
         if (instance == null) {
-            instance = new FixWiringHandler();
+            instance = new FixWiringProvider();
         }
         return instance;
     }
@@ -167,6 +168,12 @@ public class FixWiringHandler extends TaskHandler {
         Function<Void, Void> saveAndCloseTaskSetup = (Void o) -> {
             if (preventCalledTwice[0]) return null;
             preventCalledTwice[0] = true;
+            if (panelEntities.size() < stagesAmount[0]) {
+                panelEntities.forEach(Entity::remove);
+                player.sendTitle(ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()), ChatColor.RED + "Not saved!", 0, 60, 0);
+                player.sendMessage(ChatColor.RED + getDefaultDisplayName() + " wasn't saved because you didn't add enough wiring panels: " + stagesAmount[0]);
+                return null;
+            }
             JsonArray panels = new JsonArray();
             panelEntities.forEach(panelEntity -> {
                 JsonObject entry = new JsonObject();
@@ -323,8 +330,8 @@ public class FixWiringHandler extends TaskHandler {
             }
 
             @Override
-            public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-
+            public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+                event.setCancelled(true);
             }
         });
     }
@@ -332,6 +339,11 @@ public class FixWiringHandler extends TaskHandler {
     @Override
     public void onSetupLoad(SetupSession setupSession, String localName, JSONObject configData) {
         registerItemFrameProtector(setupSession, localName);
+    }
+
+    @Override
+    public void onSetupClose(SetupSession setupSession, String localName, JSONObject configData) {
+
     }
 
     @Override

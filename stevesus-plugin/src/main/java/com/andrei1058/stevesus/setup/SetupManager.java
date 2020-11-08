@@ -24,6 +24,7 @@ import com.andrei1058.stevesus.worldmanager.WorldManager;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -75,7 +76,7 @@ public class SetupManager implements SetupHandler {
         ArenaCommands.register(CommonCmdManager.getINSTANCE().getMainCmd());
 
         // register setLobby command for multi-arena
-        if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA){
+        if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
             SetLobbyCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
             BuildCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         }
@@ -94,7 +95,7 @@ public class SetupManager implements SetupHandler {
         if (setupSessions.stream().noneMatch(ss -> ss.equals(setupSession))) {
             setupSessions.add(setupSession);
             WorldManager.getINSTANCE().getWorldAdapter().onSetupSessionStart(setupSession.getWorldName(), setupSession);
-            if (setupSessionListener == null){
+            if (setupSessionListener == null) {
                 setupSessionListener = new SetupSessionListener();
                 Bukkit.getPluginManager().registerEvents(setupSessionListener, SteveSus.getInstance());
             }
@@ -105,10 +106,11 @@ public class SetupManager implements SetupHandler {
     @Override
     public void removeSession(SetupSession setupSession) {
         if (setupSessions.remove(setupSession)) {
+            SetupManager.getINSTANCE().unloadTasks(setupSession, setupSession.getWorldName());
             //logger.debug("SetupSession removed: " + setupSession.toString());
             setupSession.onStop();
             WorldManager.getINSTANCE().getWorldAdapter().onSetupSessionClose(setupSession);
-            if (setupSessions.isEmpty() && setupSessionListener != null){
+            if (setupSessions.isEmpty() && setupSessionListener != null) {
                 setupSessionListener.unRegister();
             }
         }
@@ -145,9 +147,25 @@ public class SetupManager implements SetupHandler {
             String[] taskData = task.split(";");
             if (taskData.length == 4) {
                 TaskHandler taskHandler = ArenaHandler.getINSTANCE().getTask(taskData[1], taskData[2]);
-                if (taskHandler != null){
+                if (taskHandler != null) {
                     try {
                         taskHandler.onSetupLoad(setupSession, taskData[0], (JSONObject) new JSONParser().parse(taskData[3]));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void unloadTasks(SetupSession setupSession, String world) {
+        ArenaHandler.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).forEach(task -> {
+            String[] taskData = task.split(";");
+            if (taskData.length == 4) {
+                TaskHandler taskHandler = ArenaHandler.getINSTANCE().getTask(taskData[1], taskData[2]);
+                if (taskHandler != null) {
+                    try {
+                        taskHandler.onSetupClose(setupSession, taskData[0], (JSONObject) new JSONParser().parse(taskData[3]));
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }

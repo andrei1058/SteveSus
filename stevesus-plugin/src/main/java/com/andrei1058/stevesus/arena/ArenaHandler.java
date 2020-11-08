@@ -10,7 +10,9 @@ import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
-import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringHandler;
+import com.andrei1058.stevesus.arena.gametask.scan.SubmitScan;
+import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
+import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
@@ -123,7 +125,8 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new MapTimeTask(), 20L, 20L);
 
         // register default tasks
-        getINSTANCE().registerGameTask(FixWiringHandler.getInstance());
+        getINSTANCE().registerGameTask(FixWiringProvider.getInstance());
+        getINSTANCE().registerGameTask(SubmitScanProvider.getInstance());
     }
 
     public static void onDisable() {

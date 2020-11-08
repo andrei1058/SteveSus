@@ -90,6 +90,12 @@ public abstract class TaskHandler {
     public abstract void onSetupLoad(SetupSession setupSession, String localName, JSONObject configData);
 
     /**
+     * This is called when a setup session is interrupted.
+     * Use it to cancel your tasks etc.
+     */
+    public abstract void onSetupClose(SetupSession setupSession, String localName, JSONObject configData);
+
+    /**
      * IMPORTANT.
      * This is triggered when a player used the remove command.
      * Use this method to clear your task map modifications etc.
