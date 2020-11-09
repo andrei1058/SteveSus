@@ -3,7 +3,7 @@ package com.andrei1058.stevesus.setup.command;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
 import com.andrei1058.stevesus.setup.SetupManager;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
@@ -24,7 +24,7 @@ public class SetupCommand extends FastSubRootCommand {
         super(name);
         withAliases(new String[]{"s"});
         withPermissions(new String[]{CommonPermission.ALL.get(), CommonPermission.ADMIN.get()})
-                .withPermAdditions((s) -> !SetupManager.getINSTANCE().isInSetup(s) && (s instanceof ConsoleCommandSender || (((s) instanceof Player) && !ArenaHandler.getINSTANCE().isInArena((Player) s))))
+                .withPermAdditions((s) -> !SetupManager.getINSTANCE().isInSetup(s) && (s instanceof ConsoleCommandSender || (((s) instanceof Player) && !ArenaManager.getINSTANCE().isInArena((Player) s))))
                 .withHeaderContent("&1|| &3" + SteveSus.getInstance().getName() + " &7 - Setup Commands")
                 .withHeaderHover("&7By " + Arrays.toString(SteveSus.getInstance().getDescription().getAuthors().toArray()) + "\n&av" + SteveSus.getInstance().getDescription().getVersion())
                 .withDescription((s) -> "&8- &eSetup commands.").withDisplayHover((s) -> "&fCreate or edit an existing arena.");
@@ -34,11 +34,11 @@ public class SetupCommand extends FastSubRootCommand {
         withSubNode(new FastSubCommand("create").withDescription((s) -> " <arenaName> &eCreate a new arena.")
                 .withDisplayHover((s) -> "&fCreate a new arena where &e<worldName> &fis the arena name and the world to be cloned.\n&fIf the world does not exist a void map will be created.")
                 .withPermAdditions((s) -> !SetupManager.getINSTANCE().isInSetup(s) && (s instanceof Player))
-                .withTabSuggestions((sender) -> WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> !ArenaHandler.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList()))
+                .withTabSuggestions((sender) -> WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> !ArenaManager.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList()))
                 .withExecutor((sender, args) -> {
                     if (args.length != 1) {
                         sender.sendMessage(ChatColor.GRAY + "Setup a new arena with the given name.");
-                        List<String> existing = WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> !ArenaHandler.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList());
+                        List<String> existing = WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> !ArenaManager.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList());
                         sender.sendMessage(ChatColor.GRAY + "Available worlds: " + ChatColor.GREEN + existing.toString());
                         return;
                     }
@@ -48,7 +48,7 @@ public class SetupCommand extends FastSubRootCommand {
                         return;
                     }
                     if (WorldManager.getINSTANCE().getWorldAdapter().hasWorld(world)) {
-                        if (ArenaHandler.getINSTANCE().getTemplateFile(world).exists()) {
+                        if (ArenaManager.getINSTANCE().getTemplateFile(world).exists()) {
                             sender.sendMessage(ChatColor.GREEN + world + ChatColor.GRAY + " already exists! Use the edit command instead.");
                             return;
                         }
@@ -64,11 +64,11 @@ public class SetupCommand extends FastSubRootCommand {
         withSubNode(new FastSubCommand("edit").withDescription((s) -> " <arenaName> &eEdit an existing arena.")
                 .withPermAdditions((s) -> !SetupManager.getINSTANCE().isInSetup(s) && (s instanceof Player))
                 .withDisplayHover((s) -> "&fEdit an existing arena.")
-                .withTabSuggestions((s) -> WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> ArenaHandler.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList()))
+                .withTabSuggestions((s) -> WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> ArenaManager.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList()))
                 .withExecutor((sender, args) -> {
                     if (args.length != 1) {
                         sender.sendMessage(ChatColor.GRAY + "Edit an arena with the given name.");
-                        List<String> existing = WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> ArenaHandler.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList());
+                        List<String> existing = WorldManager.getINSTANCE().getWorldAdapter().getWorlds().stream().filter(map -> ArenaManager.getINSTANCE().getTemplateFile(map).exists()).collect(Collectors.toList());
                         sender.sendMessage(ChatColor.GRAY + "Available arenas: " + ChatColor.GREEN + existing.toString());
                         return;
                     }
@@ -81,7 +81,7 @@ public class SetupCommand extends FastSubRootCommand {
                         sender.sendMessage(ChatColor.RED + world + ChatColor.GRAY + " world does not exist!");
                         return;
                     }
-                    if (!ArenaHandler.getINSTANCE().getTemplateFile(world).exists()) {
+                    if (!ArenaManager.getINSTANCE().getTemplateFile(world).exists()) {
                         sender.sendMessage(ChatColor.GREEN + world + ChatColor.GRAY + " does not exist! Use the create command instead.");
                         return;
                     }
@@ -98,7 +98,7 @@ public class SetupCommand extends FastSubRootCommand {
                     if (args.length != 1) {
                         sender.sendMessage(ChatColor.GRAY + " <arenaName> &eDelete an existing arena with the given name.");
                         List<String> existing = WorldManager.getINSTANCE().getWorldAdapter().getWorlds();
-                        for (String worldConfig : ArenaHandler.getINSTANCE().getTemplates()) {
+                        for (String worldConfig : ArenaManager.getINSTANCE().getTemplates()) {
                             if (!existing.contains(worldConfig)) {
                                 existing.add(worldConfig);
                             }
@@ -122,12 +122,12 @@ public class SetupCommand extends FastSubRootCommand {
                         sender.sendMessage(ChatColor.GREEN + world + ChatColor.GRAY + " world deleted from " + ChatColor.GREEN + WorldManager.getINSTANCE().getWorldAdapter().getAdapterName() + ChatColor.GRAY + "'s world container.");
                         deleted = true;
                     }
-                    File template = ArenaHandler.getINSTANCE().getTemplateFile(world);
+                    File template = ArenaManager.getINSTANCE().getTemplateFile(world);
                     if (template.exists()) {
                         if (template.delete()) {
-                            sender.sendMessage(ChatColor.GREEN + template.getName() + ChatColor.GRAY + " deleted from " + ArenaHandler.getINSTANCE().getTemplatesDirectory().getPath());
+                            sender.sendMessage(ChatColor.GREEN + template.getName() + ChatColor.GRAY + " deleted from " + ArenaManager.getINSTANCE().getTemplatesDirectory().getPath());
                         } else {
-                            sender.sendMessage(ChatColor.GRAY + "Could not delete " + ChatColor.RED + template.getName() + ChatColor.GRAY + " from " + ArenaHandler.getINSTANCE().getTemplatesDirectory().getPath());
+                            sender.sendMessage(ChatColor.GRAY + "Could not delete " + ChatColor.RED + template.getName() + ChatColor.GRAY + " from " + ArenaManager.getINSTANCE().getTemplatesDirectory().getPath());
                         }
                         deleted = true;
                     }

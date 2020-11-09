@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.bungee.remote;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.event.*;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.server.bungee.packet.ArenaStatusUpdatePacket;
 import com.andrei1058.stevesus.server.bungee.packet.DropGamePacket;
@@ -16,13 +16,13 @@ public class ArenaUpdateListener implements Listener {
     @EventHandler
     public void onPlayerJoinArena(PlayerGameJoinEvent e) {
         if (e == null) return;
-        SteveSus.getInstance().getPacketsHandler().sendPacket(DefaultChannel.PLAYER_COUNT_UPDATE.toString(), new PlayerCountUpdatePacket(e.getArena().getGameId(), e.getArena().getCurrentPlayers(), e.getArena().getCurrentSpectators(), (int) e.getArena().getPlayers().stream().filter(p -> ArenaHandler.getINSTANCE().hasVipJoin(p)).count()), true);
+        SteveSus.getInstance().getPacketsHandler().sendPacket(DefaultChannel.PLAYER_COUNT_UPDATE.toString(), new PlayerCountUpdatePacket(e.getArena().getGameId(), e.getArena().getCurrentPlayers(), e.getArena().getCurrentSpectators(), (int) e.getArena().getPlayers().stream().filter(p -> ArenaManager.getINSTANCE().hasVipJoin(p)).count()), true);
     }
 
     @EventHandler
     public void onPlayerLeaveArena(PlayerGameLeaveEvent e) {
         if (e == null) return;
-        SteveSus.getInstance().getPacketsHandler().sendPacket(DefaultChannel.PLAYER_COUNT_UPDATE.toString(), new PlayerCountUpdatePacket(e.getArena().getGameId(), e.getArena().getCurrentPlayers(), e.getArena().getCurrentSpectators(), (int) e.getArena().getPlayers().stream().filter(p -> ArenaHandler.getINSTANCE().hasVipJoin(p)).count()), true);
+        SteveSus.getInstance().getPacketsHandler().sendPacket(DefaultChannel.PLAYER_COUNT_UPDATE.toString(), new PlayerCountUpdatePacket(e.getArena().getGameId(), e.getArena().getCurrentPlayers(), e.getArena().getCurrentSpectators(), (int) e.getArena().getPlayers().stream().filter(p -> ArenaManager.getINSTANCE().hasVipJoin(p)).count()), true);
     }
 
     @EventHandler

@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.bungeelegacy;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.server.ServerManager;
 import org.bukkit.Bukkit;
@@ -29,7 +29,7 @@ public class BungeeLegacyRestartManager {
             SteveSus.getInstance().getLogger().warning("Running restart command as console: " + restartCommand);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), restartCommand);
         } else {
-            ArenaHandler.getINSTANCE().startArenaFromTemplate(arena.getTemplateWorld());
+            ArenaManager.getINSTANCE().startArenaFromTemplate(arena.getTemplateWorld());
         }
     }
 }

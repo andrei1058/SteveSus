@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.bungee;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.locale.Locale;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 
 import java.util.UUID;
@@ -18,7 +18,7 @@ public class ProxyUser {
     private static final ConcurrentHashMap<UUID, ProxyUser> loaded = new ConcurrentHashMap<>();
 
     public ProxyUser(String uuid, int arenaIdentifier, String langIso, String partyOwnerOrSpectateTarget){
-        if (ArenaHandler.getINSTANCE().getArenaById(arenaIdentifier) == null) return;
+        if (ArenaManager.getINSTANCE().getArenaById(arenaIdentifier) == null) return;
         this.arenaIdentifier = arenaIdentifier;
         this.uuid = UUID.fromString(uuid);
         if (partyOwnerOrSpectateTarget != null){

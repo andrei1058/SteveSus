@@ -1,7 +1,7 @@
 package com.andrei1058.stevesus.arena.listener;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +15,7 @@ public class DropPickListener implements Listener {
     public void onItemPickUp(EntityPickupItemEvent e) {
         if (e.isCancelled()) return;
         if (e.getEntity().getType() != EntityType.PLAYER) return;
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer((Player) e.getEntity());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer((Player) e.getEntity());
         if (arena != null) {
             e.setCancelled(true);
             /*if (arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING){
@@ -31,7 +31,7 @@ public class DropPickListener implements Listener {
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (arena != null) {
             e.setCancelled(true);
             /*if (arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING){

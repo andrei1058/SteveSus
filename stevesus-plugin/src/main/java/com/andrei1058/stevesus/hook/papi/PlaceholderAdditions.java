@@ -1,7 +1,7 @@
 package com.andrei1058.stevesus.hook.papi;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.hook.papi.provider.AdditionalParser;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.OfflinePlayer;
@@ -25,7 +25,7 @@ public class PlaceholderAdditions implements AdditionalParser {
             if (player == null) {
                 return null;
             }
-            Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(player);
+            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
             if (arena == null) return null;
             String subRequest = identifier.substring(5);
             switch (subRequest) {

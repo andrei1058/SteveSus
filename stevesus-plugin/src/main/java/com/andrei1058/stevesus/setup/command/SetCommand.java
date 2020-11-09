@@ -8,7 +8,7 @@ import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -33,7 +33,7 @@ public class SetCommand {
 
         FastSubRootCommand root = new FastSubRootCommand("set");
         mainCommand.withSubNode(root
-                .withPermAdditions(s -> SetupManager.getINSTANCE().isInSetup(s))
+                .withPermAdditions(s -> SetupManager.getINSTANCE().isInSetup(s) && s instanceof Player && Objects.requireNonNull(SetupManager.getINSTANCE().getSession((Player) s)).canUseCommands())
                 .withDescription(s -> "&f- Single Options.")
                 .withDisplayName(s -> "&e" + root.getName() + " ")
                 .withDisplayHover(s -> "&eSet single options")
@@ -84,7 +84,7 @@ public class SetCommand {
                         s.sendMessage(ChatColor.GRAY + "Since you set it to " + ChatColor.AQUA + args[0] + ChatColor.GRAY + " no clones will be automatically made available.");
                     }
                     Player player = (Player) s;
-                    SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                    SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
                     config.setProperty(ArenaConfig.CLONES_AVAILABLE_AT_ONCE, input);
                     config.save();
                 }))
@@ -115,7 +115,7 @@ public class SetCommand {
                             s.sendMessage(ChatColor.GRAY + "Minimum players was set to " + ChatColor.AQUA + args[0] + ChatColor.GRAY + ".");
 
                             Player player = (Player) s;
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
                             config.setProperty(ArenaConfig.MIN_PLAYERS, input);
                             config.save();
                         }))
@@ -144,7 +144,7 @@ public class SetCommand {
                             }
 
                             Player player = (Player) s;
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
 
                             if (config.getProperty(ArenaConfig.MIN_PLAYERS) > input) {
                                 s.sendMessage(ChatColor.RED + "Players limit cannot be lower than minimum players: " + args[0]);
@@ -163,7 +163,7 @@ public class SetCommand {
                                 "\n&eIs set: &b" + ArenaCommands.isSet(ArenaConfig.MEETING_BUTTON_LOC, s))
                         .withExecutor((s, args) -> {
                             Player player = (Player) s;
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
                             config.setProperty(ArenaConfig.MEETING_BUTTON_LOC, Optional.of(player.getLocation()));
                             config.save();
                             s.sendMessage(ChatColor.GRAY + "Meeting Button location set!");
@@ -183,7 +183,7 @@ public class SetCommand {
                                 return;
                             }
                             Player player = (Player) s;
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
                             List<String> ventList = new ArrayList<>(config.getProperty(ArenaConfig.VENTS));
 
                             // Connect existing vents
@@ -237,7 +237,7 @@ public class SetCommand {
                                 }
                                 customName = stringBuilder.toString();
                             }
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(((Player) s).getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(((Player) s).getWorld().getName(), true);
                             config.setProperty(ArenaConfig.DISPLAY_NAME, customName);
                             config.save();
                             s.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Display name st to: " + customName + "&7."));
@@ -267,7 +267,7 @@ public class SetCommand {
                                 return;
                             }
 
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
                             String material = item.getType().toString();
                             int data = CommonManager.getINSTANCE().getItemSupport().getItemData(item);
 
@@ -304,7 +304,7 @@ public class SetCommand {
                             }
                             ArenaTime time = ArenaTime.getByName(args[0]);
 
-                            SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(((Player) sender).getWorld().getName(), true);
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(((Player) sender).getWorld().getName(), true);
                             config.setProperty(ArenaConfig.MAP_TIME, time);
                             config.save();
                             assert time != null;

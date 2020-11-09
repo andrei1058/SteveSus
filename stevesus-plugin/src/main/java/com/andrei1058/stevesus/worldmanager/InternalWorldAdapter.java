@@ -5,7 +5,7 @@ import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.setup.SetupManager;
 import com.andrei1058.stevesus.worldmanager.generator.VoidChunkGenerator;
 import net.lingala.zip4j.ZipFile;
@@ -87,7 +87,7 @@ public class InternalWorldAdapter implements WorldAdapter {
             File[] fls = dir.listFiles();
             for (File fl : Objects.requireNonNull(fls)) {
                 if (fl.isDirectory()) {
-                    if (fl.getName().contains(ArenaHandler.WORLD_NAME_SEPARATOR)) {
+                    if (fl.getName().contains(ArenaManager.WORLD_NAME_SEPARATOR)) {
                         deleteFolder(fl);
                     }
                 }
@@ -99,7 +99,7 @@ public class InternalWorldAdapter implements WorldAdapter {
     public void onArenaEnableQueue(String worldToClone, Arena arena) {
         TaskChain<?> chain = SteveSus.newChain();
 
-        String gameSessionWorld = worldToClone + ArenaHandler.WORLD_NAME_SEPARATOR + arena.getGameId();
+        String gameSessionWorld = worldToClone + ArenaManager.WORLD_NAME_SEPARATOR + arena.getGameId();
         File worldTemplateFolder = new File(Bukkit.getWorldContainer(), worldToClone);
         File zipTemplate = new File(backupFolder, worldToClone + ".zip");
         File worldCloneFolder = new File(Bukkit.getWorldContainer(), gameSessionWorld);
@@ -121,13 +121,13 @@ public class InternalWorldAdapter implements WorldAdapter {
                     } catch (ZipException e) {
                         e.printStackTrace();
                         SteveSus.getInstance().getLogger().severe("Could not create zip cache for " + worldToClone + "!");
-                        SteveSus.newChain().sync(() -> ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
+                        SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                         chain.abortChain();
                     }
                 });
             } else {
                 SteveSus.getInstance().getLogger().severe(worldToClone + " world was requested by an arena but it was not found!");
-                ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
+                ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
                 return;
             }
         }
@@ -138,13 +138,13 @@ public class InternalWorldAdapter implements WorldAdapter {
                 SteveSus.getInstance().getLogger().info("Unzipping world backup(" + worldToClone + ") into " + gameSessionWorld + ".");
                 if (!unZip(worldToClone, gameSessionWorld)) {
                     SteveSus.getInstance().getLogger().severe("Could not unzip cache of  " + worldToClone + "!");
-                    SteveSus.newChain().sync(() -> ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
+                    SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                     chain.abortChain();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 SteveSus.getInstance().getLogger().severe("Could not unzip cache of  " + worldToClone + "!");
-                SteveSus.newChain().sync(() -> ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
+                SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                 chain.abortChain();
             }
         });
@@ -161,15 +161,15 @@ public class InternalWorldAdapter implements WorldAdapter {
                     Bukkit.createWorld(worldCreator);
                 } catch (Exception ex) {
                     SteveSus.getInstance().getLogger().severe("Could not load world: " + gameSessionWorld + " (" + worldToClone + ").");
-                    SteveSus.newChain().sync(() -> ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
-                    ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
+                    SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
+                    ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
                     chain.abortChain();
                 }
             });
         } else {
             // If the world is already loaded initialize the arena
             arena.init(Bukkit.getWorld(worldToClone));
-            ArenaHandler.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
+            ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
             chain.abortChain();
             return;
         }
@@ -290,7 +290,7 @@ public class InternalWorldAdapter implements WorldAdapter {
             for (File fl : Objects.requireNonNull(fls)) {
                 if (fl.isDirectory()) {
                     File dat = new File(fl.getName() + "/region");
-                    if (dat.exists() && !fl.getName().contains(ArenaHandler.WORLD_NAME_SEPARATOR)) {
+                    if (dat.exists() && !fl.getName().contains(ArenaManager.WORLD_NAME_SEPARATOR)) {
                         if (fl.getName().equals(fl.getName().toLowerCase())) {
                             // prevent usage of the main world
                             if (Bukkit.getWorlds().get(0).getName().equals(fl.getName())) {

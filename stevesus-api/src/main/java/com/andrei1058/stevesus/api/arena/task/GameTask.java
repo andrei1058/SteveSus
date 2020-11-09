@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.arena.task;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public abstract class GameTask {
     /**
      * Get task manager.
      */
-    public abstract TaskHandler getHandler();
+    public abstract TaskProvider getHandler();
 
     /**
      * Triggered when current task is cancelled.
@@ -37,4 +38,9 @@ public abstract class GameTask {
      * Get list of players having this task.
      */
     public abstract List<Player> getAssignedPlayers();
+
+    /**
+     * Game state listener.
+     */
+    public abstract void onGameStateChange(GameState oldState, GameState newState, Arena arena);
 }

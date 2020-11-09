@@ -6,7 +6,7 @@ import ch.jalu.configme.properties.Property;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.setup.SetupManager;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -39,7 +39,7 @@ public class ArenaCommands {
                         "\n&eDefault value: " + ArenaConfig.LOAD_AT_START_UP.getDefaultValue())
                 .withExecutor((s, args) -> {
                     Player player = (Player) s;
-                    SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                    SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
                     boolean current = config.getProperty(ArenaConfig.LOAD_AT_START_UP);
                     config.setProperty(ArenaConfig.LOAD_AT_START_UP, current = !current);
                     config.save();
@@ -70,12 +70,12 @@ public class ArenaCommands {
 
     protected static <T> T getCurrentProperty(Property<T> property, CommandSender player) {
         if (!(player instanceof Player)) return property.getDefaultValue();
-        SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(((Player) player).getWorld().getName(), true);
+        SettingsManager config = ArenaManager.getINSTANCE().getTemplate(((Player) player).getWorld().getName(), true);
         return config.getProperty(property);
     }
 
     protected static boolean isSet(OptionalProperty<?> property, CommandSender player) {
-        SettingsManager config = ArenaHandler.getINSTANCE().getTemplate(((Player) player).getWorld().getName(), true);
+        SettingsManager config = ArenaManager.getINSTANCE().getTemplate(((Player) player).getWorld().getName(), true);
         return config.getProperty(property).isPresent();
     }
 }

@@ -2,11 +2,11 @@ package com.andrei1058.stevesus.setup;
 
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.command.SlaveCommandManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -21,10 +21,10 @@ import com.andrei1058.stevesus.setup.listeners.SetupSessionListener;
 import com.andrei1058.stevesus.setup.listeners.WorldLoadListener;
 import com.andrei1058.stevesus.setup.listeners.WorldProtectListener;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -112,6 +112,7 @@ public class SetupManager implements SetupHandler {
             WorldManager.getINSTANCE().getWorldAdapter().onSetupSessionClose(setupSession);
             if (setupSessions.isEmpty() && setupSessionListener != null) {
                 setupSessionListener.unRegister();
+                setupSessionListener = null;
             }
         }
     }
@@ -143,32 +144,24 @@ public class SetupManager implements SetupHandler {
     }
 
     public void initializeSavedTasks(SetupSession setupSession, String world) {
-        ArenaHandler.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).forEach(task -> {
+        ArenaManager.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).forEach(task -> {
             String[] taskData = task.split(";");
             if (taskData.length == 4) {
-                TaskHandler taskHandler = ArenaHandler.getINSTANCE().getTask(taskData[1], taskData[2]);
-                if (taskHandler != null) {
-                    try {
-                        taskHandler.onSetupLoad(setupSession, taskData[0], (JSONObject) new JSONParser().parse(taskData[3]));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
+                TaskProvider taskProvider = ArenaManager.getINSTANCE().getTask(taskData[1], taskData[2]);
+                if (taskProvider != null) {
+                    taskProvider.onSetupLoad(setupSession, taskData[0], new JsonParser().parse(taskData[3]).getAsJsonObject());
                 }
             }
         });
     }
 
     private void unloadTasks(SetupSession setupSession, String world) {
-        ArenaHandler.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).forEach(task -> {
+        ArenaManager.getINSTANCE().getTemplate(world, false).getProperty(ArenaConfig.TASKS).forEach(task -> {
             String[] taskData = task.split(";");
             if (taskData.length == 4) {
-                TaskHandler taskHandler = ArenaHandler.getINSTANCE().getTask(taskData[1], taskData[2]);
-                if (taskHandler != null) {
-                    try {
-                        taskHandler.onSetupClose(setupSession, taskData[0], (JSONObject) new JSONParser().parse(taskData[3]));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
+                TaskProvider taskProvider = ArenaManager.getINSTANCE().getTask(taskData[1], taskData[2]);
+                if (taskProvider != null) {
+                    taskProvider.onSetupClose(setupSession, taskData[0], new JsonParser().parse(taskData[3]).getAsJsonObject());
                 }
             }
         });

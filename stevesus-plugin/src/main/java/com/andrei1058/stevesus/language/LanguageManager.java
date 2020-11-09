@@ -302,6 +302,11 @@ public class LanguageManager implements LocaleManager, CommonLocaleManager {
         return languageByPlayer.getOrDefault(player.getUniqueId(), getDefaultLocale()).formatDate(date);
     }
 
+    @Override
+    public String getMsg(Player player, String path) {
+        return getLocale(player).getMsg(player, path);
+    }
+
     public LanguageTable getLanguageTable() {
         return languageTable;
     }

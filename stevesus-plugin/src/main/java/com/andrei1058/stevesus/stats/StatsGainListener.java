@@ -5,7 +5,7 @@ import com.andrei1058.stevesus.api.event.GameFinishEvent;
 import com.andrei1058.stevesus.api.event.PlayerGameLeaveEvent;
 import com.andrei1058.stevesus.api.event.PlayerToSpectatorEvent;
 import com.andrei1058.stevesus.api.locale.Message;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.stats.PlayerStatsCache;
 import com.andrei1058.stevesus.common.stats.StatsManager;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -72,7 +72,7 @@ public class StatsGainListener implements Listener {
         e.getWinners().forEach(winner -> {
             Player playerWinner = Bukkit.getPlayer(winner);
             if (playerWinner != null) {
-                Arena winnerArena = ArenaHandler.getINSTANCE().getArenaByPlayer(playerWinner);
+                Arena winnerArena = ArenaManager.getINSTANCE().getArenaByPlayer(playerWinner);
                 if (winnerArena != null && winnerArena.equals(e.getArena())) {
                     if (PreventionManager.getInstance().canReceiveWin(winnerArena)) {
                         PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(winner);

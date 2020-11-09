@@ -2,7 +2,8 @@ package com.andrei1058.stevesus.arena.gametask.wiring;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
-import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -15,7 +16,7 @@ public class FixWiring extends GameTask {
     private final LinkedList<Player> assignedPlayers = new LinkedList<>();
 
     @Override
-    public TaskHandler getHandler() {
+    public TaskProvider getHandler() {
         return FixWiringProvider.getInstance();
     }
 
@@ -41,13 +42,20 @@ public class FixWiring extends GameTask {
         return assignedPlayers;
     }
 
+    @Override
+    public void onGameStateChange(GameState oldState, GameState newState, Arena arena) {
+
+    }
+
     /**
      * Some panels cannot be first and that's why flags were introduced.
      */
     public enum PanelFlag {
         NEVER_FIRST(ChatColor.AQUA + "Never First", 2),
-        NEVER_LAST(ChatColor.LIGHT_PURPLE + "Never Last", 1),
-        REGULAR(ChatColor.GOLD + "Regular", 0);
+        NEVER_LAST(ChatColor.DARK_GREEN + "Never Last", 1),
+        REGULAR(ChatColor.GOLD + "Regular", 0),
+        ALWAYS_FIRST(ChatColor.GREEN + "Always First", 3),
+        ALWAYS_LAST(ChatColor.LIGHT_PURPLE + "Always Last", 4);
 
         private final String description;
         private final int weight;

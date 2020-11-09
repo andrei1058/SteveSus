@@ -1,8 +1,9 @@
 package com.andrei1058.stevesus.setup.listeners;
 
+import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.setup.SetupManager;
 import org.bukkit.entity.Creature;
 import org.bukkit.event.EventHandler;
@@ -19,26 +20,28 @@ public class WorldLoadListener implements Listener {
         // start setup session waiting for this map
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(worldName);
         if (setupSession != null) {
-            setupSession.onStart(e.getWorld());
-            e.getWorld().getEntities().forEach(entity -> {
-                if (entity instanceof Creature) {
-                    entity.remove();
-                }
-            });
-            SetupManager.getINSTANCE().initializeSavedTasks(setupSession, e.getWorld().getName());
+            SteveSus.newChain().delay(10).sync(() -> {
+                setupSession.onStart(e.getWorld());
+                e.getWorld().getEntities().forEach(entity -> {
+                    if (entity instanceof Creature) {
+                        entity.remove();
+                    }
+                });
+            }).execute();
+            SteveSus.newChain().delay(20 * 4).sync(() -> SetupManager.getINSTANCE().initializeSavedTasks(setupSession, e.getWorld().getName())).execute();
         }
 
         // handle enable queue
-        Arena arena = ArenaHandler.getINSTANCE().getFromEnableQueue(worldName);
+        Arena arena = ArenaManager.getINSTANCE().getFromEnableQueue(worldName);
         if (arena != null) {
-            ArenaHandler.getINSTANCE().removeFromEnableQueue(worldName);
+            ArenaManager.getINSTANCE().removeFromEnableQueue(worldName);
             e.getWorld().getEntities().forEach(entity -> {
                 if (entity instanceof Creature) {
                     entity.remove();
                 }
             });
             arena.init(e.getWorld());
-            ArenaHandler.getINSTANCE().addArena(arena);
+            ArenaManager.getINSTANCE().addArena(arena);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.multiarena.listener;
 
 import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
@@ -54,7 +54,7 @@ public class JoinQuitListenerMultiArena implements Listener {
 
         // Show commands if player is op and there is no set arenas
         if (p.isOp()) {
-            if (ArenaHandler.getINSTANCE().getArenas().isEmpty()) {
+            if (ArenaManager.getINSTANCE().getArenas().isEmpty()) {
                 p.performCommand(CommonCmdManager.getINSTANCE().getMainCmd().getName());
             }
         }
@@ -63,7 +63,7 @@ public class JoinQuitListenerMultiArena implements Listener {
             // Hide new player to players and spectators, and vice versa
             // Players from lobby will remain visible
             for (Player online : Bukkit.getOnlinePlayers()) {
-                if (ArenaHandler.getINSTANCE().isInArena(online)) {
+                if (ArenaManager.getINSTANCE().isInArena(online)) {
                     online.hidePlayer(SteveSus.getInstance(), p);
                     p.hidePlayer(SteveSus.getInstance(), online);
                 } else {

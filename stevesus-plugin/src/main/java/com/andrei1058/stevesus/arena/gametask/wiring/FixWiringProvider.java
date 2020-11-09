@@ -3,13 +3,13 @@ package com.andrei1058.stevesus.arena.gametask.wiring;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
-import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskTriggerType;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
@@ -17,12 +17,11 @@ import com.andrei1058.stevesus.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.setup.command.AddCommand;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Hanging;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -47,7 +46,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.function.Function;
 
-public class FixWiringProvider extends TaskHandler {
+public class FixWiringProvider extends TaskProvider {
 
     private static FixWiringProvider instance;
 
@@ -63,7 +62,12 @@ public class FixWiringProvider extends TaskHandler {
 
     @Override
     public String getDefaultDisplayName() {
-        return "Fix Wiring";
+        return "&1&lFix Wiring";
+    }
+
+    @Override
+    public String getDefaultDescription() {
+        return "&fClick to open!";
     }
 
     @Override
@@ -168,6 +172,7 @@ public class FixWiringProvider extends TaskHandler {
         Function<Void, Void> saveAndCloseTaskSetup = (Void o) -> {
             if (preventCalledTwice[0]) return null;
             preventCalledTwice[0] = true;
+            setupSession.removeSetupListener("fix_wiring_setup_" + localName);
             if (panelEntities.size() < stagesAmount[0]) {
                 panelEntities.forEach(Entity::remove);
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()), ChatColor.RED + "Not saved!", 0, 60, 0);
@@ -188,19 +193,18 @@ public class FixWiringProvider extends TaskHandler {
             HashMap<String, Object> taskData = new HashMap<>();
             taskData.put("stages", stagesAmount[0]);
             taskData.put("panels", panels);
-            ArenaHandler.getINSTANCE().saveTaskData(this, setupSession, localName, new JSONObject(taskData));
+            ArenaManager.getINSTANCE().saveTaskData(this, setupSession, localName, new JSONObject(taskData));
             setupSession.setAllowCommands(true);
             InventoryBackup.restoreInventory(player);
             GameSound.JOIN_SOUND_CURRENT.playToPlayer(player);
             player.sendMessage(ChatColor.GRAY + "Command usage is now enabled!");
-            setupSession.removeSetupListener("fix_wiring_setup");
 
             // protect new added panels during setup
             registerItemFrameProtector(setupSession, localName);
             return null;
         };
 
-        setupSession.addSetupListener("fix_wiring_setup", new SetupListener() {
+        setupSession.addSetupListener("fix_wiring_setup_" + localName, new SetupListener() {
             @Override
             public void onPlayerInteract(PlayerInteractEvent event) {
                 ItemStack itemStack = CommonManager.getINSTANCE().getItemSupport().getInHand(event.getPlayer());
@@ -337,22 +341,38 @@ public class FixWiringProvider extends TaskHandler {
     }
 
     @Override
-    public void onSetupLoad(SetupSession setupSession, String localName, JSONObject configData) {
+    public void onSetupLoad(SetupSession setupSession, String localName, JsonObject configData) {
         registerItemFrameProtector(setupSession, localName);
     }
 
     @Override
-    public void onSetupClose(SetupSession setupSession, String localName, JSONObject configData) {
+    public void onSetupClose(SetupSession setupSession, String localName, JsonObject configData) {
 
     }
 
     @Override
-    public void onRemove(Player player, SetupSession setupSession, String localName, JSONObject configData) {
+    public void onRemove(SetupSession setupSession, String localName, JsonObject configData) {
         setupSession.removeSetupListener(localName + "_task_protect");
+        try {
+            JsonArray jsonArray = configData.get("panels").getAsJsonArray();
+            jsonArray.forEach(entry -> {
+                Location location = new OrphanLocationProperty().convert(entry.getAsJsonObject().get("location").getAsString(), null);
+                if (location != null) {
+                    location.setWorld(Bukkit.getWorld(setupSession.getWorldName()));
+                    for (Entity entity : location.getWorld().getNearbyEntities(location, 1, 1, 1)) {
+                        if (entity.getType() == EntityType.ITEM_FRAME && entity.hasMetadata("wiring_name")) {
+                            entity.remove();
+                        }
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
-    public @Nullable GameTask init(Arena arena, JSONObject configuration) {
+    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
         return null;
     }
 

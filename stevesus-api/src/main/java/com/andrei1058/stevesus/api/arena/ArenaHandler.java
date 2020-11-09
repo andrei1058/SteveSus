@@ -1,6 +1,6 @@
 package com.andrei1058.stevesus.api.arena;
 
-import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -214,14 +214,14 @@ public interface ArenaHandler {
     /**
      * Register a custom task.
      *
-     * @param taskHandler custom task manager.
+     * @param taskProvider custom task manager.
      */
-    boolean registerGameTask(TaskHandler taskHandler);
+    boolean registerGameTask(TaskProvider taskProvider);
 
     /**
      * Get unmodifiable list of registered tasks.
      */
-    List<TaskHandler> getRegisteredTasks();
+    List<TaskProvider> getRegisteredTasks();
 
     /**
      * Get a game task.
@@ -230,7 +230,7 @@ public interface ArenaHandler {
      * @param task     task identifier.
      */
     @Nullable
-    TaskHandler getTask(String provider, String task);
+    TaskProvider getTask(String provider, String task);
 
     /**
      * Save a task data. Should be used when a player finished setting up a task.
@@ -239,5 +239,12 @@ public interface ArenaHandler {
      * @param setupSession setup session instance.
      * @param givenName    local identifier used by server owner to identify this configuration.
      */
-    void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName, JSONObject taskConfiguration);
+    void saveTaskData(TaskProvider task, SetupSession setupSession, String givenName, JSONObject taskConfiguration);
+
+    /**
+     * Delete task related data.
+     *  @param setupSession setup session instance.
+     * @param givenName    local identifier used by server owner to identify this configuration.
+     */
+    void deleteTaskData(SetupSession setupSession, String givenName);
 }

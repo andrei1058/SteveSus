@@ -66,6 +66,11 @@ public interface SetupSession {
     void cacheValue(String identifier, Object value);
 
     /**
+     * Remove a cached data.
+     */
+    void removeCacheValue(String identifier);
+
+    /**
      * Get a cached value.
      */
     @Nullable
@@ -90,7 +95,6 @@ public interface SetupSession {
     /**
      * Get setup listener.
      * Used by main plugin to trigger events.
-     * @return
      */
     Collection<SetupListener> getSetupListeners();
 }

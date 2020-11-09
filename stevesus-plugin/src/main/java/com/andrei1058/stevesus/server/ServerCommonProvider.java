@@ -3,7 +3,7 @@ package com.andrei1058.stevesus.server;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.server.ServerType;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
@@ -57,7 +57,7 @@ public class ServerCommonProvider implements CommonProvider {
 
     @Override
     public boolean isInGame(Player player) {
-        return ArenaHandler.getINSTANCE().isInArena(player);
+        return ArenaManager.getINSTANCE().isInArena(player);
     }
 
     @Override
@@ -117,17 +117,17 @@ public class ServerCommonProvider implements CommonProvider {
 
     @Override
     public int getPlayerCount() {
-        return ArenaHandler.getINSTANCE().getPlayerCount();
+        return ArenaManager.getINSTANCE().getPlayerCount();
     }
 
     @Override
     public int getSpectatorCount() {
-        return ArenaHandler.getINSTANCE().getSpectatorCount();
+        return ArenaManager.getINSTANCE().getSpectatorCount();
     }
 
     @Override
     public int getOnlineCount() {
-        return ArenaHandler.getINSTANCE().getOnlineCount();
+        return ArenaManager.getINSTANCE().getOnlineCount();
     }
 
     public void remove(DisplayableArena arena) {

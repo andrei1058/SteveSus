@@ -1,7 +1,7 @@
 package com.andrei1058.stevesus.teleporter;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.arena.command.TeleporterCmd;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.stats.config.StatsConfig;
@@ -48,7 +48,7 @@ public class TeleporterManager {
      * @param arena  player's arena.
      */
     public static void openToPlayer(@NotNull Player player, @NotNull Arena arena) {
-        String guiName = ArenaHandler.getINSTANCE().getTemplate(arena.getTemplateWorld(), true).getProperty(ArenaConfig.TELEPORTER_LAYOUT);
+        String guiName = ArenaManager.getINSTANCE().getTemplate(arena.getTemplateWorld(), true).getProperty(ArenaConfig.TELEPORTER_LAYOUT);
         if (!getInstance().hasTeleporter(guiName)){
             guiName = "main";
         }

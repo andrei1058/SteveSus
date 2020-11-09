@@ -43,12 +43,12 @@ public class ImposterTeam implements Team {
 
     @Override
     public String getDisplayName(Player player) {
-        return LanguageManager.getINSTANCE().getLocale(player).getMsg(player, Message.TEAM_NAME_PATH + getIdentifier());
+        return LanguageManager.getINSTANCE().getLocale(player).getMsg(player, Message.TEAM_NAME_PATH_ + getIdentifier());
     }
 
     @Override
     public String getDisplayName(Locale locale) {
-        return locale.getMsg(null, Message.TEAM_NAME_PATH + getIdentifier());
+        return locale.getMsg(null, Message.TEAM_NAME_PATH_ + getIdentifier());
     }
 
     @Override

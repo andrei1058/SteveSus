@@ -6,7 +6,7 @@ import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.setup.SetupManager;
@@ -45,7 +45,7 @@ public class GameCmd {
         game.withSubNode(list
                 .withClickAction(ClickEvent.Action.RUN_COMMAND)
                 .withDescription((s) -> "&8- &eShow game instances.")
-                .withDisplayHover((s) -> "&fActive games: &a" + ArenaHandler.getINSTANCE().getArenas().size())
+                .withDisplayHover((s) -> "&fActive games: &a" + ArenaManager.getINSTANCE().getArenas().size())
                 .withPermissions(game.getPerms())
                 .withExecutor((sender, args) -> {
                     int page = 1;
@@ -58,8 +58,8 @@ public class GameCmd {
                         } catch (Exception ignored) {
                         }
                     }
-                    List<Arena> arenas = new ArrayList<>(ArenaHandler.getINSTANCE().getEnableQueue());
-                    arenas.addAll(ArenaHandler.getINSTANCE().getArenas());
+                    List<Arena> arenas = new ArrayList<>(ArenaManager.getINSTANCE().getEnableQueue());
+                    arenas.addAll(ArenaManager.getINSTANCE().getArenas());
 
                     if (arenas.isEmpty()) {
                         sender.sendMessage(ChatColor.RED + "No arenas to display.");
@@ -116,20 +116,20 @@ public class GameCmd {
                         sender.sendMessage(color("&7Usage: &b" + ICommandNode.getClickCommand(create) + "<template>"));
                         return;
                     }
-                    if (!ArenaHandler.getINSTANCE().getTemplateFile(args[0]).exists()) {
+                    if (!ArenaManager.getINSTANCE().getTemplateFile(args[0]).exists()) {
                         sender.sendMessage(color("&7Template not found: &c" + args[0]));
-                        sender.sendMessage(color("&7Available templates: &b" + ArenaHandler.getINSTANCE().getTemplates()));
+                        sender.sendMessage(color("&7Available templates: &b" + ArenaManager.getINSTANCE().getTemplates()));
                         return;
                     }
-                    if (!(ArenaHandler.getINSTANCE().validateTemplate(args[0]) || WorldManager.getINSTANCE().getWorldAdapter().hasWorld(args[0]))) {
+                    if (!(ArenaManager.getINSTANCE().validateTemplate(args[0]) || WorldManager.getINSTANCE().getWorldAdapter().hasWorld(args[0]))) {
                         sender.sendMessage(color("&7Cannot start new arena from template: &c" + args[0] + "&8."));
                         sender.sendMessage(color("&7It does not have a valid configuration. Make sure to set all required parts!"));
                         return;
                     }
-                    ArenaHandler.getINSTANCE().startArenaFromTemplate(args[0]);
+                    ArenaManager.getINSTANCE().startArenaFromTemplate(args[0]);
                     sender.sendMessage(color("&7Starting arena from template: &b" + args[0] + "&7..."));
                 })
-                .withTabSuggestions(s -> ArenaHandler.getINSTANCE().getTemplates())
+                .withTabSuggestions(s -> ArenaManager.getINSTANCE().getTemplates())
         );
     }
 

@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.api.arena.task;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaHandler;
 import com.andrei1058.stevesus.api.setup.SetupSession;
+import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
@@ -10,10 +11,10 @@ import org.json.simple.JSONObject;
 
 /**
  * A task handler is able to manage a single task.
- * Register your custom task using {@link ArenaHandler#registerGameTask(TaskHandler)}.
+ * Register your custom task using {@link ArenaHandler#registerGameTask(TaskProvider)}.
  */
 @SuppressWarnings("unused")
-public abstract class TaskHandler {
+public abstract class TaskProvider {
 
     ///////////////       GENERAL
 
@@ -22,6 +23,12 @@ public abstract class TaskHandler {
      * Automatically saved in language files.
      */
     public abstract String getDefaultDisplayName();
+
+    /**
+     * Task's default description string.
+     * Automatically saved in language files.
+     */
+    public abstract String getDefaultDescription();
 
     /**
      * Get task name.
@@ -71,7 +78,7 @@ public abstract class TaskHandler {
      * <p>
      * IMPORTANT: when task setup is done, mark it as finished (to allow commands usage)
      * via {@link SetupSession#setAllowCommands(boolean)} - set to true.
-     * Also make sure to save your data using {@link ArenaHandler#saveTaskData(TaskHandler, SetupSession, String, JSONObject)}.
+     * Also make sure to save your data using {@link ArenaHandler#saveTaskData(TaskProvider, SetupSession, String, JSONObject)}.
      *
      * @param player       admin doing setup.
      * @param setupSession setup session.
@@ -87,20 +94,20 @@ public abstract class TaskHandler {
      * <p>
      * Can be ignored, especially if you're using meta data on your placed entities or tags etc.
      */
-    public abstract void onSetupLoad(SetupSession setupSession, String localName, JSONObject configData);
+    public abstract void onSetupLoad(SetupSession setupSession, String localName, JsonObject configData);
 
     /**
      * This is called when a setup session is interrupted.
      * Use it to cancel your tasks etc.
      */
-    public abstract void onSetupClose(SetupSession setupSession, String localName, JSONObject configData);
+    public abstract void onSetupClose(SetupSession setupSession, String localName, JsonObject configData);
 
     /**
      * IMPORTANT.
      * This is triggered when a player used the remove command.
      * Use this method to clear your task map modifications etc.
      */
-    public abstract void onRemove(Player player, SetupSession setupSession, String localName, JSONObject configData);
+    public abstract void onRemove(SetupSession setupSession, String localName, JsonObject configData);
 
 
     ///////////////       GAME USAGE
@@ -111,17 +118,18 @@ public abstract class TaskHandler {
      *
      * @param arena         target arena.
      * @param configuration configuration loaded from config.
+     * @param localName
      * @return null if cannot initialize. Otherwise return a new instance that can be used per arena.
      */
     @Nullable
-    public abstract GameTask init(Arena arena, JSONObject configuration);
+    public abstract GameTask onGameInit(Arena arena, JsonObject configuration, String localName);
 
 
     ////////////////////////////////
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TaskHandler) {
-            return ((TaskHandler) obj).getProvider().equals(getProvider()) && ((TaskHandler) obj).getIdentifier().equals(getIdentifier());
+        if (obj instanceof TaskProvider) {
+            return ((TaskProvider) obj).getProvider().equals(getProvider()) && ((TaskProvider) obj).getIdentifier().equals(getIdentifier());
         }
         return false;
     }

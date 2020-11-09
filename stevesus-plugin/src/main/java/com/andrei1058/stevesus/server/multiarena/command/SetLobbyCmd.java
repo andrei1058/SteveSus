@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.multiarena.command;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.server.ServerManager;
@@ -22,7 +22,7 @@ public class SetLobbyCmd {
         root.withSubNode(setLobby);
         setLobby.setPriority(-1.1);
         setLobby.withPermissions(new String[]{CommonPermission.ADMIN.get(), CommonPermission.ALL.get()})
-                .withPermAdditions((s) -> (s instanceof Player) && !SetupManager.getINSTANCE().isInSetup(s) && !ArenaHandler.getINSTANCE().isInArena((Player) s))
+                .withPermAdditions((s) -> (s instanceof Player) && !SetupManager.getINSTANCE().isInSetup(s) && !ArenaManager.getINSTANCE().isInArena((Player) s))
                 .withDescription((s) -> "&8- &eSet player spawn point.")
                 .withDisplayHover((s) -> "&eSet player spawn point in the main world.")
                 .withExecutor((sender, args) -> {

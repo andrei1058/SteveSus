@@ -1,7 +1,7 @@
 package com.andrei1058.stevesus.arena.listener.spectator;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.gui.CustomHolder;
@@ -33,7 +33,7 @@ public class SpectatorListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (arena == null) return;
 
         // disable spectator interact
@@ -63,7 +63,7 @@ public class SpectatorListener implements Listener {
 
         } else if (!(e.getClickedInventory().getHolder() instanceof CustomHolder)) {
             // cancel usage of inventory if not custom
-            if (e.getWhoClicked() instanceof Player && ArenaHandler.getINSTANCE().isSpectating((Player) e.getWhoClicked())) {
+            if (e.getWhoClicked() instanceof Player && ArenaManager.getINSTANCE().isSpectating((Player) e.getWhoClicked())) {
                 e.setCancelled(true);
             }
         }
@@ -75,7 +75,7 @@ public class SpectatorListener implements Listener {
         if (e.isCancelled()) return;
         if (e.getRightClicked().getType() != EntityType.PLAYER) return;
 
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (arena == null) return;
         e.setCancelled(true);
         arena.startFirstPersonSpectate(e.getPlayer(), (Player) e.getRightClicked());
@@ -84,7 +84,7 @@ public class SpectatorListener implements Listener {
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (arena == null) return;
         if (arena.isSpectator(e.getPlayer()) && arena.isFirstPersonSpectate(e.getPlayer())) {
             arena.stopFirstPersonSpectate(e.getPlayer());
@@ -93,7 +93,7 @@ public class SpectatorListener implements Listener {
 
     @EventHandler
     public void onSpectatorInteract(PlayerInteractEntityEvent e) {
-        Arena a = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        Arena a = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (a == null) return;
         if (a.isPlayer(e.getPlayer())) return;
         e.setCancelled(true);
@@ -102,7 +102,7 @@ public class SpectatorListener implements Listener {
     // stop first person
     @EventHandler
     public void onTargetDeath(PlayerDeathEvent e) {
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getEntity());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getEntity());
         if (arena == null) return;
         arena.getSpectators().forEach(spectator -> {
             if (spectator.getSpectatorTarget() != null && spectator.getSpectatorTarget().equals(e.getEntity())) {
@@ -115,7 +115,7 @@ public class SpectatorListener implements Listener {
     @EventHandler
     public void onDamageByEntity(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaHandler.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
+        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
         if (arena == null) return;
 
         Player damager = null;

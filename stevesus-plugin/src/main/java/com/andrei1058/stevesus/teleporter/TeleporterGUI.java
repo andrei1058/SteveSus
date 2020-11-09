@@ -3,7 +3,7 @@ package com.andrei1058.stevesus.teleporter;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.gui.BaseGUI;
 import com.andrei1058.stevesus.common.api.gui.CustomHolder;
@@ -183,7 +183,7 @@ public class TeleporterGUI extends BaseGUI {
             }
             tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, NBT_TELEPORTER_TARGET_UUID);
             if (tag != null && !tag.isEmpty()) {
-                Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(player);
+                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
                 if (arena != null) {
                     player.closeInventory();
                     UUID targetUUID;
@@ -196,7 +196,7 @@ public class TeleporterGUI extends BaseGUI {
                     if (target == null) {
                         return;
                     }
-                    Arena targetArena = ArenaHandler.getINSTANCE().getArenaByPlayer(target);
+                    Arena targetArena = ArenaManager.getINSTANCE().getArenaByPlayer(target);
                     // in case player stayed with open GUI a long time and target left
                     if (targetArena == null || !targetArena.equals(arena)) {
                         return;

@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.bungee.remote;
 
 import co.aikar.taskchain.TaskChain;
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.common.api.packet.PacketChannel;
@@ -93,8 +93,8 @@ public class RemoteLobby implements RawSocket {
         SteveSus.debug("Connected new remote lobby: " + hostAndPort);
 
         // send existing arenas
-        if (ArenaHandler.getINSTANCE() != null) {
-            ArenaHandler.getINSTANCE().getArenas().forEach(arena -> CommonManager.getINSTANCE().getCommonProvider().getPacketsHandler().sendPacket(this, DefaultChannel.ARENA_FULL_DATA.toString(), new FullDataArenaPacket(arena), false));
+        if (ArenaManager.getINSTANCE() != null) {
+            ArenaManager.getINSTANCE().getArenas().forEach(arena -> CommonManager.getINSTANCE().getCommonProvider().getPacketsHandler().sendPacket(this, DefaultChannel.ARENA_FULL_DATA.toString(), new FullDataArenaPacket(arena), false));
         }
 
         // listen for incoming data

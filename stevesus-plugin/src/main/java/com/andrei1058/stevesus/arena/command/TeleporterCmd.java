@@ -5,7 +5,7 @@ import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.PluginPermission;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.teleporter.TeleporterManager;
@@ -25,12 +25,12 @@ public class TeleporterCmd {
         FastSubCommand teleporter = new FastSubCommand("teleporter");
         root.withSubNode(teleporter
                 .withPermissions(new String[]{PluginPermission.CMD_TELEPORTER.get(), PluginPermission.CMD_ADMIN.get(), CommonPermission.ALL.get()})
-                .withPermAdditions(s -> s instanceof Player && ArenaHandler.getINSTANCE().isSpectating((Player) s))
+                .withPermAdditions(s -> s instanceof Player && ArenaManager.getINSTANCE().isSpectating((Player) s))
                 .withDescription(s -> LanguageManager.getINSTANCE().getMsg(s, Message.CMD_TELEPORTER_DESC))
                 .withDisplayHover(s -> LanguageManager.getINSTANCE().getMsg(s, Message.CMD_TELEPORTER_DESC))
                 .withClickAction(ClickEvent.Action.RUN_COMMAND)
                 .withExecutor((s, args) -> {
-                    Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer((Player) s);
+                    Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer((Player) s);
                     assert arena != null;
                     TeleporterManager.openToPlayer(((Player) s), arena);
                 })

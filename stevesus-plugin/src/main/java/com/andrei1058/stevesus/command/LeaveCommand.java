@@ -5,7 +5,7 @@ import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.ServerType;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -26,7 +26,7 @@ public class LeaveCommand extends FastRootCommand {
     public void execute(@NotNull CommandSender s, @NotNull String[] args, @NotNull String st) {
         Player p = (Player) s;
         if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
-            Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(p);
+            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
             if (arena == null) {
                 // move to hub server
                 ServerManager.getINSTANCE().getDisconnectHandler().performDisconnect(p);
@@ -55,7 +55,7 @@ public class LeaveCommand extends FastRootCommand {
                         .withExecutor((s, args)->{
                             Player p = (Player) s;
                             if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
-                                Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(p);
+                                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
                                 if (arena == null) {
                                     // move to hub server
                                     ServerManager.getINSTANCE().getDisconnectHandler().performDisconnect(p);

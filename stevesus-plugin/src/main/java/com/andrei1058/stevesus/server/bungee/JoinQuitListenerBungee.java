@@ -4,7 +4,7 @@ import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.api.server.CommonPermission;
@@ -40,7 +40,7 @@ public class JoinQuitListenerBungee implements Listener {
             // If is logging in trough BedWarsProxy
             Locale playerLang = proxyUser.getLanguage() == null ? LanguageManager.getINSTANCE().getDefaultLocale() : proxyUser.getLanguage();
 
-            Arena arena = ArenaHandler.getINSTANCE().getArenaById(proxyUser.getArenaId());
+            Arena arena = ArenaManager.getINSTANCE().getArenaById(proxyUser.getArenaId());
             // check if arena is not available, time out etc.
             if (arena == null || proxyUser.isTimedOut() || arena.getGameState() == GameState.ENDING) {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, playerLang.getMsg(e.getPlayer(), CommonMessage.ARENA_STATUS_ENDING_NAME));
@@ -51,10 +51,10 @@ public class JoinQuitListenerBungee implements Listener {
             // Player logic
             if (arena.getGameState() == GameState.STARTING || arena.getGameState() == GameState.WAITING) {
                 // Vip join/ kick feature
-                if (arena.isFull() && ArenaHandler.getINSTANCE().hasVipJoin(p)) {
+                if (arena.isFull() && ArenaManager.getINSTANCE().hasVipJoin(p)) {
                     boolean canJoin = false;
                     for (Player inGame : arena.getPlayers()) {
-                        if (!ArenaHandler.getINSTANCE().hasVipJoin(inGame)) {
+                        if (!ArenaManager.getINSTANCE().hasVipJoin(inGame)) {
                             canJoin = true;
                             inGame.kickPlayer(LanguageManager.getINSTANCE().getMsg(inGame, Message.VIP_JOIN_KICKED));
                             break;
@@ -94,7 +94,7 @@ public class JoinQuitListenerBungee implements Listener {
                 // hide admin to in game users
                 for (Player inGame : Bukkit.getOnlinePlayers()) {
                     if (inGame.equals(p)) continue;
-                    if (ArenaHandler.getINSTANCE().isInArena(inGame)) {
+                    if (ArenaManager.getINSTANCE().isInArena(inGame)) {
                         inGame.hidePlayer(SteveSus.getInstance(), p);
                         p.hidePlayer(SteveSus.getInstance(), inGame);
                     }
@@ -108,7 +108,7 @@ public class JoinQuitListenerBungee implements Listener {
             Locale playerLang = proxyUser.getLanguage() == null ? LanguageManager.getINSTANCE().getDefaultLocale() : proxyUser.getLanguage();
 
             // There's nothing to re-join, so he might want to join an arena
-            Arena arena = ArenaHandler.getINSTANCE().getArenaById(proxyUser.getArenaId());
+            Arena arena = ArenaManager.getINSTANCE().getArenaById(proxyUser.getArenaId());
 
             // Check if the arena is still available or request time-out etc.
             if (arena == null || proxyUser.isTimedOut() || arena.getGameState() == GameState.ENDING) {

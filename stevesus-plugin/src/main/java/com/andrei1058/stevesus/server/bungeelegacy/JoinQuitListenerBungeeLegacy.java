@@ -4,7 +4,7 @@ import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
@@ -47,14 +47,14 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
         final Player p = e.getPlayer();
 
         // Do not allow login if the arena wasn't loaded yet
-        if (ArenaHandler.getINSTANCE().getArenas().isEmpty()) {
-            if (!ArenaHandler.getINSTANCE().getEnableQueue().isEmpty()) {
+        if (ArenaManager.getINSTANCE().getArenas().isEmpty()) {
+            if (!ArenaManager.getINSTANCE().getEnableQueue().isEmpty()) {
                 e.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, LanguageManager.getINSTANCE().getMsg(p, CommonMessage.ARENA_STATUS_ENDING_NAME));
                 return;
             }
         }
 
-        Arena arena = ArenaHandler.getINSTANCE().getArenas().get(0);
+        Arena arena = ArenaManager.getINSTANCE().getArenas().get(0);
         if (arena != null) {
 
             // Player logic
@@ -62,10 +62,10 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
                 // If arena is full
                 if (arena.isFull()) {
                     // Vip join feature
-                    if (ArenaHandler.getINSTANCE().hasVipJoin(p)) {
+                    if (ArenaManager.getINSTANCE().hasVipJoin(p)) {
                         boolean canJoin = false;
                         for (Player inGame : arena.getPlayers()) {
-                            if (!ArenaHandler.getINSTANCE().hasVipJoin(inGame)) {
+                            if (!ArenaManager.getINSTANCE().hasVipJoin(inGame)) {
                                 canJoin = true;
                                 inGame.kickPlayer(LanguageManager.getINSTANCE().getMsg(inGame, Message.VIP_JOIN_KICKED));
                                 break;
@@ -96,8 +96,8 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
 
         // Do not allow login if the arena wasn't loaded yet
         // I know this code is already in the login event but other plugins may allow login
-        if (ArenaHandler.getINSTANCE().getArenas().isEmpty()) {
-            if (!ArenaHandler.getINSTANCE().getEnableQueue().isEmpty()) {
+        if (ArenaManager.getINSTANCE().getArenas().isEmpty()) {
+            if (!ArenaManager.getINSTANCE().getEnableQueue().isEmpty()) {
                 p.kickPlayer(LanguageManager.getINSTANCE().getMsg(p, CommonMessage.ARENA_STATUS_ENDING_NAME));
                 return;
             }
@@ -105,13 +105,13 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
 
         JoinCommonListener.displayCustomerDetails(p);
 
-        if (ArenaHandler.getINSTANCE().getArenas().isEmpty()) {
+        if (ArenaManager.getINSTANCE().getArenas().isEmpty()) {
             // Show setup commands if there is no arena available
             if (CommonCmdManager.getINSTANCE().getMainCmd().hasPermission(p)) {
                 p.performCommand(CommonCmdManager.getINSTANCE().getMainCmd().getName());
             }
         } else {
-            Arena arena = ArenaHandler.getINSTANCE().getArenas().get(0);
+            Arena arena = ArenaManager.getINSTANCE().getArenas().get(0);
             // Add player if the game is in waiting
             if (arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING) {
                 if (!arena.addPlayer(p, false)) {

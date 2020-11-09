@@ -163,4 +163,13 @@ public interface LocaleManager {
      * @param date   date to be formatted.
      */
     String formatDate(Player player, @Nullable Date date);
+
+    /**
+     * Get a message in player's language.
+     *
+     * @param player  target player.
+     * @param path message.
+     * @return Chat color translated message in player's language.
+     */
+    String getMsg(Player player, String path);
 }

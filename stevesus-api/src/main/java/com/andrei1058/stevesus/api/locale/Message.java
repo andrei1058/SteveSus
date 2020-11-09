@@ -84,7 +84,9 @@ public enum Message {
             "&7{date}", "&8{game_tag}", "", "&fMap: &b{name}", "", "", "", "&7Spectators: &f{spectating}", "", "&b{server_name}")),
 
     PREVENTION_GAME_TOO_SHORT("prevention-game-too-short", " \n \n {prefix}&cUnfortunately your play-time on &f{map} &cwas too short and no stats will be applied!\n "),
-    TEAM_NAME_PATH(true, "team-name-", "");
+    TEAM_NAME_PATH_(true, "team-name-", ""),
+    GAME_TASK_NAME_PATH_(true, "game-task-name-", ""),
+    GAME_TASK_DESCRIPTION_PATH_(true, "game-task-description-", "");
 
     private final String path;
     private final boolean manual;

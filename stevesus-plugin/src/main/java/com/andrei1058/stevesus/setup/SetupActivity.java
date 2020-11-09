@@ -9,7 +9,7 @@ import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.server.ServerManager;
@@ -34,7 +34,7 @@ public class SetupActivity implements SetupSession {
     private SettingsManager config;
     private Hologram meetingButtonHologram;
     private BukkitTask setupTask;
-    private boolean allowCommands;
+    private boolean allowCommands = true;
     private final LinkedHashMap<String, Object> cachedValues = new LinkedHashMap<>();
     private final LinkedHashMap<String, SetupListener> setupListeners = new LinkedHashMap<>();
     private ArenaTime time;
@@ -60,7 +60,7 @@ public class SetupActivity implements SetupSession {
 
     @Override
     public void onStart(World world) {
-        config = ArenaHandler.getINSTANCE().getTemplate(worldName, true);
+        config = ArenaManager.getINSTANCE().getTemplate(worldName, true);
         if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
             InventoryBackup.createInventoryBackup(player);
         }
@@ -134,6 +134,11 @@ public class SetupActivity implements SetupSession {
     }
 
     @Override
+    public void removeCacheValue(String identifier) {
+        cachedValues.remove(identifier);
+    }
+
+    @Override
     public @Nullable Object getCachedValue(String identifier) {
         return cachedValues.get(identifier);
     }
@@ -164,7 +169,7 @@ public class SetupActivity implements SetupSession {
         // the first page is created automatically
         Location location = config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).get();
         location.setWorld(player.getWorld());
-        meetingButtonHologram = new Hologram(location, 2);
+        meetingButtonHologram = new Hologram(location.clone().add(0, 1.3, 0), 2);
         page = meetingButtonHologram.getPage(0);
         // setting first line content
         assert page != null;

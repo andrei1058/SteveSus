@@ -12,7 +12,7 @@ import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.PluginPermission;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.command.SlaveCommandManager;
 import com.andrei1058.stevesus.command.filter.CommandFilter;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
@@ -136,7 +136,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
         HookManager.onEnable(true, "stevesus", new PlaceholderAdditions());
 
         // Initialize Arena Manager after commons
-        ArenaHandler.onEnable();
+        ArenaManager.onEnable();
 
         // load arena selector if enabled & change config location if needed
         if (CommonManager.getINSTANCE().getCommonProvider().isEnableArenaSelector()) {
@@ -224,7 +224,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
         long startTime = System.currentTimeMillis();
         DatabaseManager.onDisable();
         ServerManager.onDisable();
-        ArenaHandler.onDisable();
+        ArenaManager.onDisable();
         SteveSus.debug("Took " + (System.currentTimeMillis() - startTime) + "ms to disable this plugin.");
     }
 
@@ -271,7 +271,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
 
     @Override
     public com.andrei1058.stevesus.api.arena.ArenaHandler getArenaHandler() {
-        return ArenaHandler.getINSTANCE();
+        return ArenaManager.getINSTANCE();
     }
 
     public static SteveSus getInstance() {

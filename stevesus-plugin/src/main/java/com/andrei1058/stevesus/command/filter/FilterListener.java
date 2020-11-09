@@ -1,7 +1,7 @@
 package com.andrei1058.stevesus.command.filter;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,7 +12,7 @@ public class FilterListener implements Listener {
     @EventHandler
     public void onPreCommand(PlayerCommandPreprocessEvent e){
         if (e.isCancelled()) return;
-        Arena a = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        Arena a = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (a == null) return;
         if (a.getGameState() == GameState.WAITING || a.getGameState() == GameState.STARTING){
             if (CommandFilter.getPreGame().checkCommand(e.getPlayer(), e.getMessage())){

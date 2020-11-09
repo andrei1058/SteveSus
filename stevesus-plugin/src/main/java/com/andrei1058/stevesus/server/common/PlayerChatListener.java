@@ -3,7 +3,7 @@ package com.andrei1058.stevesus.server.common;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.ServerType;
-import com.andrei1058.stevesus.arena.ArenaHandler;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.multiarena.listener.LobbyProtectionListener;
@@ -19,7 +19,7 @@ public class PlayerChatListener implements Listener {
         if (e == null) return;
         if (e.isCancelled()) return;
         final Player player = e.getPlayer();
-        final Arena arena = ArenaHandler.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        final Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
 
         if (arena == null) {
             if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA && LobbyProtectionListener.getLobbyWorld() != null) {

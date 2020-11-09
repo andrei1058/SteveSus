@@ -5,19 +5,19 @@ import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.task.GameTask;
-import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskTriggerType;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
-import com.andrei1058.stevesus.arena.ArenaHandler;
-import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.server.multiarena.InventoryBackup;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
-public class SubmitScanProvider extends TaskHandler {
+public class SubmitScanProvider extends TaskProvider {
 
     private static SubmitScanProvider instance;
 
@@ -60,7 +60,12 @@ public class SubmitScanProvider extends TaskHandler {
 
     @Override
     public String getDefaultDisplayName() {
-        return "Submit Scan";
+        return "&2&lSubmit Scan";
+    }
+
+    @Override
+    public String getDefaultDescription() {
+        return "&fShift to start scan!";
     }
 
     @Override
@@ -149,24 +154,23 @@ public class SubmitScanProvider extends TaskHandler {
             taskData.put("radius", currentRange[0]);
             taskData.put("seconds", currentSeconds[0]);
             taskData.put("location", new OrphanLocationProperty().toExportValue(scanCapsuleLocation[0]));
-            ArenaHandler.getINSTANCE().saveTaskData(this, setupSession, localName, new JSONObject(taskData));
+            ArenaManager.getINSTANCE().saveTaskData(this, setupSession, localName, new JSONObject(taskData));
             setupSession.setAllowCommands(true);
             InventoryBackup.restoreInventory(player);
             GameSound.JOIN_SOUND_CURRENT.playToPlayer(player);
             player.sendMessage(ChatColor.GRAY + "Command usage is now enabled!");
             setupSession.removeSetupListener("submit_scan_setup");
             GameSound.JOIN_SOUND_CURRENT.playToPlayer(player);
+            setupSession.cacheValue("submit_scan_" + localName, scanCapsuleHologram[0]);
             return null;
         };
 
         List<Location> particleLocations = new ArrayList<>();
-        int particlesTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> {
-            particleLocations.forEach(loc -> {
-                loc.getWorld().playEffect(loc.clone().add(0, 1, 0), Effect.HAPPY_VILLAGER, 2);
-                loc.getWorld().playEffect(loc.clone().add(0, 2, 0), Effect.HAPPY_VILLAGER, 2);
-            });
-        }, 0L, 10).getTaskId();
-        setupSession.cacheValue("submit_scan_task_id", particlesTask);
+        int particlesTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> particleLocations.forEach(loc -> {
+            loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 1, 0), 2);
+            loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 2, 0), 2);
+        }), 0L, 10).getTaskId();
+        setupSession.cacheValue("submit_scan_task_id_" + localName, particlesTask);
 
         Function<Location, Void> setScanLoc = location -> {
             if (scanCapsuleHologram[0] != null) {
@@ -299,48 +303,70 @@ public class SubmitScanProvider extends TaskHandler {
     }
 
     @Override
-    public void onSetupLoad(SetupSession setupSession, String localName, JSONObject configData) {
-        int range = (int) configData.get("radius");
-        Location location = new OrphanLocationProperty().convert(configData.get("location"), null);
+    public void onSetupLoad(SetupSession setupSession, String localName, JsonObject configData) {
+        double range = configData.get("radius").getAsDouble();
+        Location location = new OrphanLocationProperty().convert(configData.get("location").getAsString(), null);
         if (location == null) return;
         location.setWorld(Bukkit.getWorld(setupSession.getWorldName()));
 
         List<Location> particleLocations = new ArrayList<>(getCircle(location, range, 20));
-        int particlesTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> {
-            particleLocations.forEach(loc -> {
-                loc.getWorld().playEffect(loc, Effect.HAPPY_VILLAGER, 2);
-                loc.getWorld().playEffect(loc.clone().add(0, 4, 0), Effect.HAPPY_VILLAGER, 2);
-            });
-        }, 0L, 10).getTaskId();
-        setupSession.cacheValue("submit_scan_task_id", particlesTask);
+        int particlesTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> particleLocations.forEach(loc -> {
+            loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 1, 0), 2);
+            loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 2, 0), 2);
+        }), 0L, 10).getTaskId();
+        setupSession.cacheValue("submit_scan_task_id_" + localName, particlesTask);
 
-        Hologram hologram = new Hologram(location, 2);
+        Hologram hologram = new Hologram(location.add(0, 1.7, 0), 2);
         HologramPage page = hologram.getPage(0);
         assert page != null;
         page.setLineContent(0, new LineTextContent(s -> "&b&lSubmit Scan"));
-        page.setLineContent(1, new LineTextContent(s -> "&fSet here!"));
+        page.setLineContent(1, new LineTextContent(s -> "&fSet here! (" + localName + ")"));
+        hologram.hide(setupSession.getPlayer());
+        hologram.show(setupSession.getPlayer());
+        setupSession.cacheValue("submit_scan_" + localName, hologram);
     }
 
     @Override
-    public void onSetupClose(SetupSession setupSession, String localName, JSONObject configData) {
-        Object cached = setupSession.getCachedValue("submit_scan_task_id");
+    public void onSetupClose(SetupSession setupSession, String localName, JsonObject configData) {
+        Object cached = setupSession.getCachedValue("submit_scan_task_id_" + localName);
         if (cached != null) {
             Bukkit.getScheduler().cancelTask((Integer) cached);
         }
     }
 
     @Override
-    public void onRemove(Player player, SetupSession setupSession, String localName, JSONObject configData) {
-
+    public void onRemove(SetupSession setupSession, String localName, JsonObject configData) {
+        Hologram hologram = (Hologram) setupSession.getCachedValue("submit_scan_" + localName);
+        if (hologram != null) {
+            hologram.hide();
+            setupSession.removeCacheValue("submit_scan_" + localName);
+        }
+        Object cached = setupSession.getCachedValue("submit_scan_task_id_" + localName);
+        if (cached != null) {
+            Bukkit.getScheduler().cancelTask((Integer) cached);
+            setupSession.removeCacheValue("submit_scan_task_id_" + localName);
+        }
     }
 
     @Override
-    public @Nullable GameTask init(Arena arena, JSONObject configuration) {
+    public @Nullable SubmitScan onGameInit(Arena arena, JsonObject configuration, String localName) {
+        try {
+            JsonElement radius = configuration.get("radius");
+            if (radius == null) return null;
+            JsonElement scanDuration = configuration.get("seconds");
+            if (scanDuration == null) return null;
+            JsonElement capsule = configuration.get("location");
+            if (capsule == null) return null;
+            Location location = new OrphanLocationProperty().convert(capsule.getAsString(), null);
+            if (location == null) return null;
+            location.setWorld(arena.getWorld());
+            return new SubmitScan(radius.getAsDouble(), scanDuration.getAsInt(), location, arena);
+        } catch (Exception ignored) {
+        }
         return null;
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private ArrayList<Location> getCircle(Location center, double radius, int amount) {
+    public ArrayList<Location> getCircle(Location center, double radius, int amount) {
         World world = center.getWorld();
         double increment = (2 * Math.PI) / amount;
         ArrayList<Location> locations = new ArrayList<>();

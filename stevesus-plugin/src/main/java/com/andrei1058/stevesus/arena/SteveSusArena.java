@@ -5,6 +5,8 @@ import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.arena.Team;
+import com.andrei1058.stevesus.api.arena.task.GameTask;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -33,6 +35,8 @@ import com.andrei1058.stevesus.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.sidebar.GameSidebarManager;
 import com.andrei1058.stevesus.sidebar.SidebarType;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -90,12 +94,13 @@ public class SteveSusArena implements Arena {
     private final SettingsManager config;
 
     private final LinkedList<Team> teams = new LinkedList<>();
+    private final LinkedList<GameTask> gameTasks = new LinkedList<>();
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
         this.gameId = gameId;
         this.gameTag = ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA ? ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.BUNGEE_AUTO_SCALE_PROXIED_NAME) + ":" : "" + getGameId();
-        config = ArenaHandler.getINSTANCE().getTemplate(templateWorld, false);
+        config = ArenaManager.getINSTANCE().getTemplate(templateWorld, false);
 
         waitingLocations.addAll(config.getProperty(ArenaConfig.WAITING_LOBBY_LOCATIONS));
         spectatingLocations.addAll(config.getProperty(ArenaConfig.SPECTATE_LOCATIONS));
@@ -144,6 +149,7 @@ public class SteveSusArena implements Arena {
             world.setTime(getTime().getStartTick());
         }
 
+        initTasks();
         switchState(GameState.WAITING);
     }
 
@@ -181,7 +187,7 @@ public class SteveSusArena implements Arena {
             Bukkit.getScheduler().cancelTask(gameTask);
         }
         SteveSus.debug("Restarting game " + getGameId() + "(" + getTemplateWorld() + ").");
-        ArenaHandler.getINSTANCE().removeArena(this);
+        ArenaManager.getINSTANCE().removeArena(this);
         GameRestartEvent gameRestartEvent = new GameRestartEvent(getGameId(), this);
         Bukkit.getPluginManager().callEvent(gameRestartEvent);
         WorldManager.getINSTANCE().getWorldAdapter().onArenaRestart(this);
@@ -250,7 +256,7 @@ public class SteveSusArena implements Arena {
     @Override
     public boolean addPlayer(Player player, boolean ignoreParty) {
         if (player == null) return false;
-        if (ArenaHandler.getINSTANCE().isInArena(player)) return false;
+        if (ArenaManager.getINSTANCE().isInArena(player)) return false;
         if (getGameState() == GameState.LOADING || getGameState() == GameState.ENDING) return false;
 
         // Handle party adapter and add members to this game if possible
@@ -263,7 +269,7 @@ public class SteveSusArena implements Arena {
                         Player playerMember = Bukkit.getPlayer(member);
 
                         // Add party members to current game if they are in lobby
-                        if (playerMember != null && !ArenaHandler.getINSTANCE().isInArena(playerMember)) {
+                        if (playerMember != null && !ArenaManager.getINSTANCE().isInArena(playerMember)) {
                             addPlayer(playerMember, true);
                             playerMember.sendMessage(LanguageManager.getINSTANCE().getMsg(playerMember, CommonMessage.ARENA_JOIN_VIA_PARTY).replace("{arena}", getDisplayName()));
                         }
@@ -288,11 +294,11 @@ public class SteveSusArena implements Arena {
 
             // Handle Vip Join-Kick Feature
             if (isFull()) {
-                if (!ArenaHandler.getINSTANCE().hasVipJoin(player)) {
+                if (!ArenaManager.getINSTANCE().hasVipJoin(player)) {
                     player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, CommonMessage.ARENA_JOIN_DENIED_GAME_FULL));
                     return false;
                 }
-                List<Player> canBeKicked = getPlayers().stream().filter(on -> !ArenaHandler.getINSTANCE().hasVipJoin(on)).collect(Collectors.toList());
+                List<Player> canBeKicked = getPlayers().stream().filter(on -> !ArenaManager.getINSTANCE().hasVipJoin(on)).collect(Collectors.toList());
 
                 if (canBeKicked.isEmpty()) {
                     player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.VIP_JOIN_DENIED));
@@ -330,7 +336,7 @@ public class SteveSusArena implements Arena {
             GameSound.JOIN_SOUND_CURRENT.playToPlayers(getPlayers());
 
             players.add(player);
-            ArenaHandler.getINSTANCE().setArenaByPlayer(player, this);
+            ArenaManager.getINSTANCE().setArenaByPlayer(player, this);
 
             for (Player on : players) {
                 on.sendMessage(LanguageManager.getINSTANCE().getMsg(on, Message.ARENA_JOIN_ANNOUNCE).replace("{player}", player.getDisplayName())
@@ -388,7 +394,7 @@ public class SteveSusArena implements Arena {
     @Override
     public boolean addSpectator(Player player, @Nullable Location target) {
         if (!(getSpectatePermission().trim().isEmpty() || player.hasPermission(getSpectatePermission()))) return false;
-        if (ArenaHandler.getINSTANCE().isInArena(player)) return false;
+        if (ArenaManager.getINSTANCE().isInArena(player)) return false;
         if (getGameState() == GameState.LOADING || getGameState() == GameState.ENDING) return false;
         PlayerGameJoinEvent playerGameJoinEvent = new PlayerGameJoinEvent(this, player, true);
         Bukkit.getPluginManager().callEvent(playerGameJoinEvent);
@@ -413,7 +419,7 @@ public class SteveSusArena implements Arena {
         GameSidebarManager.getInstance().setSidebar(player, SidebarType.SPECTATOR, this, ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA);
 
         spectators.add(player);
-        ArenaHandler.getINSTANCE().setArenaByPlayer(player, this);
+        ArenaManager.getINSTANCE().setArenaByPlayer(player, this);
         player.setGameMode(GameMode.ADVENTURE);
 
         SteveSus.newChain().delay(5).sync(() -> {
@@ -510,7 +516,7 @@ public class SteveSusArena implements Arena {
         Bukkit.getPluginManager().callEvent(playerGameLeaveEvent);
 
         players.remove(player);
-        ArenaHandler.getINSTANCE().setArenaByPlayer(player, null);
+        ArenaManager.getINSTANCE().setArenaByPlayer(player, null);
 
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
@@ -529,7 +535,7 @@ public class SteveSusArena implements Arena {
                 InventoryBackup.restoreInventory(player);
                 SteveSus.newChain().sync(() -> {
                     for (Player inLobby : player.getWorld().getPlayers()) {
-                        if (!ArenaHandler.getINSTANCE().isInArena(inLobby)) {
+                        if (!ArenaManager.getINSTANCE().isInArena(inLobby)) {
                             inLobby.showPlayer(SteveSus.getInstance(), player);
                             player.showPlayer(SteveSus.getInstance(), inLobby);
                         }
@@ -590,7 +596,7 @@ public class SteveSusArena implements Arena {
         Bukkit.getPluginManager().callEvent(playerGameLeaveEvent);
 
         spectators.remove(player);
-        ArenaHandler.getINSTANCE().setArenaByPlayer(player, null);
+        ArenaManager.getINSTANCE().setArenaByPlayer(player, null);
 
         InventoryUtil.wipePlayer(player);
 
@@ -603,7 +609,7 @@ public class SteveSusArena implements Arena {
                 InventoryBackup.restoreInventory(player);
                 SteveSus.newChain().sync(() -> {
                     for (Player inLobby : player.getWorld().getPlayers()) {
-                        if (!ArenaHandler.getINSTANCE().isInArena(inLobby)) {
+                        if (!ArenaManager.getINSTANCE().isInArena(inLobby)) {
                             inLobby.showPlayer(SteveSus.getInstance(), player);
                             player.showPlayer(SteveSus.getInstance(), inLobby);
                         }
@@ -652,6 +658,7 @@ public class SteveSusArena implements Arena {
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskRestarting(this), 0L, 20L).getTaskId();
         }
 
+        gameTasks.forEach(task -> task.onGameStateChange(oldState, gameState, this));
         GameStateChangeEvent gameStateChangeEvent = new GameStateChangeEvent(this, oldState, gameState);
         Bukkit.getPluginManager().callEvent(gameStateChangeEvent);
         return true;
@@ -797,6 +804,7 @@ public class SteveSusArena implements Arena {
         return spectatingLocations.get(++currentSpectatePos >= spectatingLocations.size() ? currentSpectatePos = 0 : currentSpectatePos);
     }
 
+    @SuppressWarnings("unused")
     public Location getNextMeetingSpawn() {
         if (meetingLocations.size() == 1) {
             return meetingLocations.get(0);
@@ -850,5 +858,33 @@ public class SteveSusArena implements Arena {
         return in.replace("{name}", getDisplayName()).replace("{template}", getTemplateWorld()).replace("{status}", lang.getMsg(null, getGameState().getTranslatePath()))
                 .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers()))
                 .replace("{spectating}", String.valueOf(getSpectators().size())).replace("{game_tag}", getTag()).replace("{game_id}", String.valueOf(getGameId()));
+    }
+
+    private void initTasks() {
+        config.getProperty(ArenaConfig.TASKS).forEach(taskString -> {
+            String[] taskData = taskString.split(";");
+            if (taskData.length == 4) {
+                String taskName = taskData[0];
+                String providerName = taskData[1];
+                String taskIdentifier = taskData[2];
+                JsonObject taskConfiguration = new JsonParser().parse(taskData[3]).getAsJsonObject();
+                TaskProvider taskProvider = ArenaManager.getINSTANCE().getTask(providerName, taskIdentifier);
+                if (taskProvider == null) {
+                    SteveSus.getInstance().getLogger().warning("Could not load game task " + taskName + " on " + getTemplateWorld() + " on id:" + getTag() + " because task provider (" + providerName + ") was not found!");
+                } else {
+                    GameTask result = taskProvider.onGameInit(this, taskConfiguration, taskName);
+                    if (result == null) {
+                        SteveSus.debug("Could not initialize game task " + taskName + " on " + getTemplateWorld() + " id: " + getTag());
+                    } else {
+                        this.gameTasks.add(result);
+                        SteveSus.debug("Initialized game task " + taskName + " on " + getTemplateWorld() + " id: " + getTag());
+                    }
+                }
+            } else {
+                if (taskData.length > 0) {
+                    SteveSus.getInstance().getLogger().warning("Could not load game task " + taskData[0] + " on " + getTemplateWorld() + " id: " + getTag() + ". Bad data!");
+                }
+            }
+        });
     }
 }

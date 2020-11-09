@@ -4,13 +4,13 @@ import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.task.TaskHandler;
+import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.event.GameInitializedEvent;
+import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
-import com.andrei1058.stevesus.arena.gametask.scan.SubmitScan;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
@@ -18,9 +18,11 @@ import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.MainConfig;
+import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.common.ServerQuitListener;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +33,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHandler {
+public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHandler {
 
-    private static ArenaHandler INSTANCE;
+    private static ArenaManager INSTANCE;
     private static final LinkedList<Arena> arenas = new LinkedList<>();
     private static final HashMap<String, Arena> enableQueue = new HashMap<>();
     private static final HashMap<UUID, Arena> arenaByPlayer = new HashMap<>();
     private static final HashMap<String, Arena> arenaByWorldName = new HashMap<>();
     private static final Random randomInstance = new Random();
-    private static final LinkedList<TaskHandler> registeredTasks = new LinkedList<>();
+    private static final LinkedList<TaskProvider> registeredTasks = new LinkedList<>();
 
     private static long lastPlayerCountRequest = 0L;
     private static int lastPlayerCount = 0;
@@ -53,7 +55,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
 
     private static int gameId = 0;
 
-    private ArenaHandler() {
+    private ArenaManager() {
 
         // change templates path eventually
         String newPath = ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.TEMPLATES_PATH);
@@ -75,7 +77,7 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
 
     public static void onEnable() {
         if (INSTANCE != null) return;
-        INSTANCE = new ArenaHandler();
+        INSTANCE = new ArenaManager();
 
         // register internal quit listener
         ServerQuitListener.registerInternalQuit((p) -> {
@@ -135,10 +137,10 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
         SteveSus.getInstance().getLogger().info("Disabling arenas..");
         new ArrayList<>(INSTANCE.getEnableQueue()).forEach(arena -> INSTANCE.disableArena(arena));
         new ArrayList<>(INSTANCE.getArenas()).forEach(arena -> INSTANCE.disableArena(arena));
-        SteveSus.debug("Took " + (System.currentTimeMillis() - startTime) + "ms to disable " + ArenaHandler.class.getSimpleName() + ".");
+        SteveSus.debug("Took " + (System.currentTimeMillis() - startTime) + "ms to disable " + ArenaManager.class.getSimpleName() + ".");
     }
 
-    public static ArenaHandler getINSTANCE() {
+    public static ArenaManager getINSTANCE() {
         return INSTANCE;
     }
 
@@ -348,28 +350,52 @@ public class ArenaHandler implements com.andrei1058.stevesus.api.arena.ArenaHand
     }
 
     @Override
-    public boolean registerGameTask(TaskHandler taskHandler) {
-        if (registeredTasks.contains(taskHandler)) return false;
-        return registeredTasks.add(taskHandler);
+    public boolean registerGameTask(TaskProvider taskProvider) {
+        if (registeredTasks.contains(taskProvider)) return false;
+        LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_NAME_PATH_.toString() + taskProvider.getIdentifier(), taskProvider.getDefaultDisplayName());
+        LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_DESCRIPTION_PATH_.toString() + taskProvider.getIdentifier(), taskProvider.getDefaultDescription());
+        return registeredTasks.add(taskProvider);
     }
 
     @Override
-    public List<TaskHandler> getRegisteredTasks() {
+    public List<TaskProvider> getRegisteredTasks() {
         return Collections.unmodifiableList(registeredTasks);
     }
 
     @Override
     @Nullable
-    public TaskHandler getTask(String provider, String task2) {
+    public TaskProvider getTask(String provider, String task2) {
         return registeredTasks.stream().filter(task -> task.getProvider().getName().equals(provider) && task.getIdentifier().equals(task2)).findFirst().orElse(null);
     }
 
     @Override
-    public void saveTaskData(TaskHandler task, SetupSession setupSession, String givenName, JSONObject taskConfiguration) {
+    public void saveTaskData(TaskProvider task, SetupSession setupSession, String givenName, JSONObject taskConfiguration) {
         SettingsManager config = getTemplate(setupSession.getWorldName(), true);
         List<String> tasks = new ArrayList<>(config.getProperty(ArenaConfig.TASKS));
         SteveSus.debug("Saving " + task.getIdentifier() + "(" + givenName + ") task data on " + setupSession.getWorldName() + ".");
         tasks.add(givenName + ";" + task.getProvider().getName() + ";" + task.getIdentifier() + ";" + taskConfiguration.toJSONString());
+        config.setProperty(ArenaConfig.TASKS, tasks);
+        config.save();
+    }
+
+    @Override
+    public void deleteTaskData(SetupSession setupSession, String givenName) {
+        SettingsManager config = getTemplate(setupSession.getWorldName(), true);
+        List<String> tasks = new ArrayList<>(config.getProperty(ArenaConfig.TASKS));
+        SteveSus.debug("Removing " + givenName + " task data from " + setupSession.getWorldName() + ".");
+        tasks.removeIf(taskString -> {
+            if (taskString.startsWith(givenName + ";")) {
+                String[] taskData = taskString.split(";");
+                if (taskData.length == 4) {
+                    TaskProvider taskProvider = ArenaManager.getINSTANCE().getTask(taskData[1], taskData[2]);
+                    if (taskProvider != null) {
+                        taskProvider.onRemove(setupSession, givenName, new JsonParser().parse(taskData[3]).getAsJsonObject());
+                    }
+                }
+                return true;
+            }
+            return false;
+        });
         config.setProperty(ArenaConfig.TASKS, tasks);
         config.save();
     }
