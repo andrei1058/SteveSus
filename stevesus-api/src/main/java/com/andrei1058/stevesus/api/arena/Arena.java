@@ -1,5 +1,7 @@
 package com.andrei1058.stevesus.api.arena;
 
+import com.andrei1058.stevesus.api.arena.task.GameTask;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
@@ -14,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -336,4 +339,67 @@ public interface Arena extends DisplayableArena {
      */
     @Nullable
     ArenaTime getTime();
+
+    /**
+     * Check if visual tasks are enabled.
+     */
+    boolean isVisualTasksEnabled();
+
+    /**
+     * Toggle visual tasks.
+     */
+    void setVisualTasksEnabled(boolean toggle);
+
+    /**
+     * Get number of common tasks.
+     */
+    int getCommonTasks();
+
+    /**
+     * Set number of common tasks.
+     * Changes allowed during waiting and starting phase.
+     */
+    void setCommonTasks(int commonTasks);
+
+    /**
+     * Get amount of short tasks.
+     */
+    int getShortTasks();
+
+    /**
+     * Set number of tasks.
+     * Changes allowed during waiting and starting phase.
+     */
+    void setShortTasks(int shortTasks);
+
+    /**
+     * Get amount of long tasks.
+     */
+    int getLongTasks();
+
+    /**
+     * Set number of tasks.
+     * Changes allowed during waiting and starting phase.
+     */
+    void setLongTasks(int longTasks);
+
+    /**
+     * Get loaded game tasks.
+     */
+    LinkedList<GameTask> getLoadedGameTasks();
+
+    /**
+     * Get a player team.
+     */
+    Team getPlayerTeam(Player player);
+
+    /**
+     * Get team by technical name.
+     */
+    Team getTeamByName(String name);
+
+    /**
+     * Get arena teams.
+     */
+    List<Team> getGameTeams();
 }

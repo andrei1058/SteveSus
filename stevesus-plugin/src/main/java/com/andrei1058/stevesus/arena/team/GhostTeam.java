@@ -8,23 +8,21 @@ import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CrewTeam implements Team {
+public class GhostTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
-    private boolean canVote = true;
     private final Arena arena;
 
-    public CrewTeam(Arena arena){
+    public GhostTeam(Arena arena) {
         this.arena = arena;
     }
 
     @Override
     public List<Player> getMembers() {
-        return Collections.unmodifiableList(members);
+        return members;
     }
 
     @Override
@@ -39,7 +37,7 @@ public class CrewTeam implements Team {
 
     @Override
     public boolean addPlayer(Player player, boolean gameStartAssign) {
-        if (!gameStartAssign) return false;
+        if (gameStartAssign) return false;
         if (getArena().getGameState() != GameState.IN_GAME) return false;
         if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
@@ -63,12 +61,12 @@ public class CrewTeam implements Team {
 
     @Override
     public String getIdentifier() {
-        return "crew";
+        return "ghost";
     }
 
     @Override
     public boolean canVote() {
-        return canVote;
+        return false;
     }
 
     @Override
@@ -78,7 +76,7 @@ public class CrewTeam implements Team {
 
     @Override
     public void setCanVote(boolean toggle) {
-        this.canVote = toggle;
+
     }
 
     @Override

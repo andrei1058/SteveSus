@@ -1,5 +1,8 @@
 # SteveSus - A Minecraft Spigot mini-game.
-A murder mystery mini-game based on the famous and trending "Red Sus" game.
+A murder mystery mini-game based on the famous and trending impostor game.
+
+# Known issues
+-
 
 
 # WiKi  
@@ -105,3 +108,12 @@ player_count_game_TAG (will return 0 if not found), spectator_count_game_TAG (wi
  
 ## Custom scoreboard per template  
 Just copy a scoreboard and add -tempalteName to its path.
+
+## Custom scoreboard task string per template
+Just copy "game-task-scoreboard-format" and add -templateName to its path.
+
+## Scoreboard task string placeholders
+{task_name}, {task_stage}, {stage_stages}
+
+## 3rd party dependencies
+- spigot-maps by JohnnyJayJay

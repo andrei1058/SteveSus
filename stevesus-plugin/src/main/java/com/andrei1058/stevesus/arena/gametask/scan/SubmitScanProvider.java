@@ -360,7 +360,7 @@ public class SubmitScanProvider extends TaskProvider {
             Location location = new OrphanLocationProperty().convert(capsule.getAsString(), null);
             if (location == null) return null;
             location.setWorld(arena.getWorld());
-            return new SubmitScan(radius.getAsDouble(), scanDuration.getAsInt(), location, arena);
+            return new SubmitScan(radius.getAsDouble(), scanDuration.getAsInt(), location, arena, localName);
         } catch (Exception ignored) {
         }
         return null;

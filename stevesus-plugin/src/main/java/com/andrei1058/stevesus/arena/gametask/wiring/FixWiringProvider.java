@@ -2,7 +2,6 @@ package com.andrei1058.stevesus.arena.gametask.wiring;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskTriggerType;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
@@ -41,9 +40,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 import org.json.simple.JSONObject;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.function.Function;
 
 public class FixWiringProvider extends TaskProvider {
@@ -372,7 +369,26 @@ public class FixWiringProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable FixWiring onGameInit(Arena arena, JsonObject configuration, String localName) {
+        if (!validateElements(configuration, "stages", "panels")) {
+            return null;
+        }
+        int stages = configuration.get("stages").getAsInt();
+        List<WiringPanel> panelList = new ArrayList<>();
+        JsonArray panels = configuration.get("panels").getAsJsonArray();
+        panels.forEach(panel -> {
+            JsonObject panelObject = panel.getAsJsonObject();
+            if (validateElements(panelObject, "location", "wires", "flag")) {
+                Location location = new OrphanLocationProperty().convert(panelObject.get("location").getAsString(), null);
+                if (location != null) {
+                    WiringPanel wiringPanel = new WiringPanel(arena, location.getBlockX(), location.getBlockY(), location.getBlockZ(), panelObject.get("wires").getAsInt(), FixWiring.PanelFlag.valueOf(panelObject.get("flag").getAsString().toUpperCase()));
+                    panelList.add(wiringPanel);
+                }
+            }
+        });
+        if (!panelList.isEmpty()) {
+            return new FixWiring(panelList, stages, localName);
+        }
         return null;
     }
 

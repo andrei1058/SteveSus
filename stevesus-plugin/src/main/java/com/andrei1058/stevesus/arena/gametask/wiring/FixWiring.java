@@ -3,21 +3,34 @@ package com.andrei1058.stevesus.arena.gametask.wiring;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
-import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class FixWiring extends GameTask {
 
-    private final LinkedList<Player> assignedPlayers = new LinkedList<>();
+    // player, player current stage. max stage == finished
+    private final LinkedHashMap<UUID, Integer> assignedPlayers = new LinkedHashMap<>();
+
+    private final List<WiringPanel> wiringPanels = new ArrayList<>();
+    private final int stages;
+    private final String localName;
+
+    public FixWiring(List<WiringPanel> panelList, int stages, String localName) {
+        wiringPanels.addAll(panelList);
+        this.stages = stages;
+        this.localName = localName;
+    }
 
     @Override
     public TaskProvider getHandler() {
         return FixWiringProvider.getInstance();
+    }
+
+    @Override
+    public String getLocalName() {
+        return localName;
     }
 
     @Override
@@ -26,25 +39,35 @@ public class FixWiring extends GameTask {
     }
 
     @Override
+    public int getCurrentStage(Player player) {
+        return assignedPlayers.getOrDefault(player.getUniqueId(), 0);
+    }
+
+    @Override
+    public int getTotalStages(Player player) {
+        return stages;
+    }
+
+    @Override
     public void assignToPlayer(Player player, Arena arena) {
-        assignedPlayers.remove(player);
-        assignedPlayers.add(player);
+        assignedPlayers.remove(player.getUniqueId());
+        assignedPlayers.put(player.getUniqueId(), 0);
     }
 
     @Override
     public void assignToPlayers(List<Player> players, Arena arena) {
-        players.forEach(assignedPlayers::remove);
-        assignedPlayers.addAll(players);
+        players.forEach(player -> assignedPlayers.remove(player.getUniqueId()));
+        players.forEach(player -> assignedPlayers.put(player.getUniqueId(), 0));
     }
 
     @Override
-    public List<Player> getAssignedPlayers() {
-        return assignedPlayers;
+    public Set<UUID> getAssignedPlayers() {
+        return Collections.unmodifiableSet(assignedPlayers.keySet());
     }
 
     @Override
-    public void onGameStateChange(GameState oldState, GameState newState, Arena arena) {
-
+    public boolean hasTask(Player player) {
+        return assignedPlayers.containsKey(player.getUniqueId());
     }
 
     /**

@@ -133,4 +133,18 @@ public abstract class TaskProvider {
         }
         return false;
     }
+
+    /**
+     * Check if given json has required sub elements.
+     *
+     * @return true if all fine.
+     */
+    protected static boolean validateElements(JsonObject json, String... child) {
+        for (String entry : child) {
+            if (json.get(entry) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

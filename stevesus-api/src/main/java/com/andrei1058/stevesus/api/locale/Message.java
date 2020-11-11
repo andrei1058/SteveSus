@@ -75,7 +75,7 @@ public enum Message {
             "&7{date}", "&8{game_tag}", "", "&fMap: &b{name}", "&fPlayers: &b{on}/{max}", "", "Starting in &b{countdown}s", "", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_IN_GAME("scoreboard-sidebar-playing", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "", "", "", "", "", "", "", "", "", "", "&b{server_name}")),
+            " ", "{task}", "", "{task}", "", "{task}", "", "{task}", "", "{task}", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_ENDING("scoreboard-sidebar-ending", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
             "&7{date}", "&8{game_tag}", "", "&7Game Ended", "&fMap: &b{name}", "&7Spectators: &f{spectating}", "", "", "", "&b{server_name}")),
@@ -86,7 +86,8 @@ public enum Message {
     PREVENTION_GAME_TOO_SHORT("prevention-game-too-short", " \n \n {prefix}&cUnfortunately your play-time on &f{map} &cwas too short and no stats will be applied!\n "),
     TEAM_NAME_PATH_(true, "team-name-", ""),
     GAME_TASK_NAME_PATH_(true, "game-task-name-", ""),
-    GAME_TASK_DESCRIPTION_PATH_(true, "game-task-description-", "");
+    GAME_TASK_DESCRIPTION_PATH_(true, "game-task-description-", ""),
+    GAME_TASK_SCOREBOARD_FORMAT("game-task-scoreboard-format", "&b{task_name} &f({task_stage}/{task_stages})");
 
     private final String path;
     private final boolean manual;

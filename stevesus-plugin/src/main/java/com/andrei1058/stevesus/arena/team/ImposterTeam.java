@@ -1,8 +1,10 @@
 package com.andrei1058.stevesus.arena.team;
 
-import com.andrei1058.stevesus.api.arena.Team;
+import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.entity.Player;
 
@@ -14,6 +16,13 @@ public class ImposterTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
     private boolean canVote = true;
+    private final Arena arena;
+    private int teamSize;
+
+    public ImposterTeam(Arena arena, int teamSize) {
+        this.arena = arena;
+        this.teamSize = teamSize;
+    }
 
     @Override
     public List<Player> getMembers() {
@@ -31,9 +40,12 @@ public class ImposterTeam implements Team {
     }
 
     @Override
-    public void addPlayer(Player player) {
+    public boolean addPlayer(Player player, boolean gameStartAssign) {
+        if (!gameStartAssign) return false;
+        if (getArena().getGameState() != GameState.IN_GAME) return false;
+        if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
-        members.add(player);
+        return members.add(player);
     }
 
     @Override
@@ -62,7 +74,25 @@ public class ImposterTeam implements Team {
     }
 
     @Override
+    public boolean canHaveTasks() {
+        return false;
+    }
+
+    @Override
     public void setCanVote(boolean toggle) {
         this.canVote = toggle;
+    }
+
+    @Override
+    public Arena getArena() {
+        return arena;
+    }
+
+    public int getTeamSize() {
+        return teamSize;
+    }
+
+    public void setTeamSize(int teamSize) {
+        this.teamSize = teamSize;
     }
 }

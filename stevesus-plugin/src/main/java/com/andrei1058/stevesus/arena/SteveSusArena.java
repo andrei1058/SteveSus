@@ -4,18 +4,22 @@ import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
-import com.andrei1058.stevesus.api.arena.Team;
+import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.ServerType;
+import com.andrei1058.stevesus.api.arena.task.GameTaskAssigner;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskPlaying;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskRestarting;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskStarting;
 import com.andrei1058.stevesus.arena.team.CrewTeam;
+import com.andrei1058.stevesus.arena.team.GhostTeam;
 import com.andrei1058.stevesus.arena.team.ImposterTeam;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
@@ -52,10 +56,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SteveSusArena implements Arena {
@@ -95,6 +96,10 @@ public class SteveSusArena implements Arena {
 
     private final LinkedList<Team> teams = new LinkedList<>();
     private final LinkedList<GameTask> gameTasks = new LinkedList<>();
+    private boolean visualTasksEnabled;
+    private int commonTasks = 1;
+    private int shortTasks = 2;
+    private int longTasks = 1;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -126,6 +131,7 @@ public class SteveSusArena implements Arena {
         }
 
         this.mapTime = config.getProperty(ArenaConfig.MAP_TIME);
+        this.visualTasksEnabled = config.getProperty(ArenaConfig.DEFAULT_TASKS_VISUAL_ENABLED);
     }
 
     private void restoreCountDown() {
@@ -142,14 +148,19 @@ public class SteveSusArena implements Arena {
         spectatingLocations.forEach(location -> location.setWorld(this.world));
         meetingLocations.forEach(location -> location.setWorld(this.world));
 
-        teams.add(new CrewTeam());
-        teams.add(new ImposterTeam());
+        teams.add(new CrewTeam(this));
+        teams.add(new ImposterTeam(this, 1));
+        teams.add(new GhostTeam(this));
 
         if (getTime() != null) {
             world.setTime(getTime().getStartTick());
         }
 
         initTasks();
+        commonTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_TASKS_COMMON), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count());
+        shortTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_TASKS_SHORT), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count());
+        longTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_TASKS_LONG), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count());
+
         switchState(GameState.WAITING);
     }
 
@@ -385,6 +396,10 @@ public class SteveSusArena implements Arena {
                 }
             }).execute();
 
+            // trigger game task event
+            // so they can send their custom data etc.
+            gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, false));
+
             SteveSus.debug("Player " + player.getName() + " was added as player to game " + getGameId() + "(" + getTemplateWorld() + ").");
             return true;
         }
@@ -442,6 +457,10 @@ public class SteveSusArena implements Arena {
         }).execute();
 
         player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.ARENA_JOIN_SPECTATOR).replace("{arena}", this.getDisplayName()));
+
+        // trigger game task event
+        // so they can send their custom data etc.
+        gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, true));
 
         SteveSus.debug("Player " + player.getName() + " was added as spectator to game " + getGameId() + "(" + getTemplateWorld() + ").");
         return true;
@@ -648,10 +667,19 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.STARTING, this, false));
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskStarting(this), 0L, 20L).getTaskId();
         } else if (gameState == GameState.IN_GAME) {
-            getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.IN_GAME, this, false));
             gameStart = Instant.now();
-            getPlayers().forEach(p -> p.getInventory().clear());
+            getPlayers().forEach(p -> {
+                p.getInventory().clear();
+                p.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            });
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskPlaying(this), 0L, 20L).getTaskId();
+            // assign teams
+            GameTeamAssigner teamAssigner = new GameTeamAssigner(this);
+            teamAssigner.assignTeams();
+            // assign tasks
+            GameTaskAssigner gameTaskAssigner = new GameTaskAssigner(this);
+            teams.forEach(gameTaskAssigner::assignTasks);
+            getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.IN_GAME, this, false));
         } else if (gameState == GameState.ENDING) {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
             getSpectators().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
@@ -788,6 +816,81 @@ public class SteveSusArena implements Arena {
     @Override
     public @Nullable ArenaTime getTime() {
         return mapTime;
+    }
+
+    @Override
+    public boolean isVisualTasksEnabled() {
+        return visualTasksEnabled;
+    }
+
+    @Override
+    public void setVisualTasksEnabled(boolean toggle) {
+        this.visualTasksEnabled = toggle;
+    }
+
+    @Override
+    public int getCommonTasks() {
+        return commonTasks;
+    }
+
+    @Override
+    public void setCommonTasks(int commonTasks) {
+        if (commonTasks < 0) return;
+        if (!(getGameState() == GameState.WAITING || getGameState() == GameState.STARTING)) return;
+        if ((int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count() < commonTasks) {
+            return;
+        }
+        this.commonTasks = commonTasks;
+    }
+
+    @Override
+    public int getShortTasks() {
+        return shortTasks;
+    }
+
+    @Override
+    public void setShortTasks(int shortTasks) {
+        if (shortTasks < 0) return;
+        if (!(getGameState() == GameState.WAITING || getGameState() == GameState.STARTING)) return;
+        if ((int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count() < shortTasks) {
+            return;
+        }
+        this.shortTasks = shortTasks;
+    }
+
+    @Override
+    public int getLongTasks() {
+        return longTasks;
+    }
+
+    @Override
+    public void setLongTasks(int longTasks) {
+        if (longTasks < 0) return;
+        if (!(getGameState() == GameState.WAITING || getGameState() == GameState.STARTING)) return;
+        if ((int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count() < longTasks) {
+            return;
+        }
+        this.longTasks = longTasks;
+    }
+
+    @Override
+    public LinkedList<GameTask> getLoadedGameTasks() {
+        return gameTasks;
+    }
+
+    @Override
+    public Team getPlayerTeam(Player player) {
+        return teams.stream().filter(team -> team.isMember(player)).findFirst().orElse(null);
+    }
+
+    @Override
+    public Team getTeamByName(String name) {
+        return teams.stream().filter(team -> team.getIdentifier().equals(name)).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<Team> getGameTeams() {
+        return teams;
     }
 
     public Location getNextWaitingSpawn() {

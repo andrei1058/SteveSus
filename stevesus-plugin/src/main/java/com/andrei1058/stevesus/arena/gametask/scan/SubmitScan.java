@@ -15,9 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class SubmitScan extends GameTask {
 
@@ -25,8 +23,10 @@ public class SubmitScan extends GameTask {
     private int scanDuration;
     private final int preGameTaskId;
     private final Hologram taskHologram;
+    private final String localName;
 
-    public SubmitScan(double radius, int scanDuration, Location capsuleLocation, Arena arena) {
+    public SubmitScan(double radius, int scanDuration, Location capsuleLocation, Arena arena, String localName) {
+        this.localName = localName;
         this.taskHologram = new Hologram(capsuleLocation.clone().add(0, 1.8, 0), 2);
         HologramPage page = taskHologram.getPage(0);
         assert page != null;
@@ -40,11 +40,17 @@ public class SubmitScan extends GameTask {
         }), 0L, 10).getTaskId();
     }
 
-    private final LinkedList<Player> assignedPlayers = new LinkedList<>();
+    // player, player current stage. max stage == finished
+    private final LinkedHashMap<UUID, Integer> assignedPlayers = new LinkedHashMap<>();
 
     @Override
     public TaskProvider getHandler() {
         return SubmitScanProvider.getInstance();
+    }
+
+    @Override
+    public String getLocalName() {
+        return localName;
     }
 
     @Override
@@ -53,20 +59,35 @@ public class SubmitScan extends GameTask {
     }
 
     @Override
+    public int getCurrentStage(Player player) {
+        return assignedPlayers.getOrDefault(player.getUniqueId(), 0);
+    }
+
+    @Override
+    public int getTotalStages(Player player) {
+        return 1;
+    }
+
+    @Override
     public void assignToPlayer(Player player, Arena arena) {
-        assignedPlayers.remove(player);
-        assignedPlayers.add(player);
+        assignedPlayers.remove(player.getUniqueId());
+        assignedPlayers.put(player.getUniqueId(), 0);
     }
 
     @Override
     public void assignToPlayers(List<Player> players, Arena arena) {
-        players.forEach(assignedPlayers::remove);
-        assignedPlayers.addAll(players);
+        players.forEach(player -> assignedPlayers.remove(player.getUniqueId()));
+        players.forEach(player -> assignedPlayers.put(player.getUniqueId(), 0));
     }
 
     @Override
-    public List<Player> getAssignedPlayers() {
-        return assignedPlayers;
+    public Set<UUID> getAssignedPlayers() {
+        return Collections.unmodifiableSet(assignedPlayers.keySet());
+    }
+
+    @Override
+    public boolean hasTask(Player player) {
+        return assignedPlayers.containsKey(player.getUniqueId());
     }
 
     @Override
@@ -77,4 +98,6 @@ public class SubmitScan extends GameTask {
             // todo hide hologram for those who do not have this task
         }
     }
+
+
 }

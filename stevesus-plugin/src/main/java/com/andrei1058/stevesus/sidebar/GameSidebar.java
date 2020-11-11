@@ -6,9 +6,12 @@ import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarLineAnimated;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.task.GameTask;
+import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.hook.HookManager;
 import com.andrei1058.stevesus.common.stats.StatsManager;
+import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GameSidebar {
 
@@ -30,6 +34,7 @@ public class GameSidebar {
     private SimpleDateFormat dateFormat;
     // player arena. Nullable.
     private Arena arena;
+    private String taskFormatCache = null;
 
     /**
      * Create a sidebar instance.
@@ -56,6 +61,15 @@ public class GameSidebar {
      * Set and parse scoreboard lines.
      */
     public void setLines(@NotNull List<String> content) {
+        if (arena != null) {
+            if (LanguageManager.getINSTANCE().getLocale(player).hasPath(Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld())) {
+                this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld());
+            } else if (LanguageManager.getINSTANCE().getDefaultLocale().hasPath(Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld())) {
+                this.taskFormatCache = LanguageManager.getINSTANCE().getDefaultLocale().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld());
+            } else {
+                this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString());
+            }
+        }
         // remove previous lines
         while (handle.linesAmount() > 0) {
             handle.removeLine(0);
@@ -63,13 +77,13 @@ public class GameSidebar {
 
         // Remove previous placeholders
         List<String> placeholdersToRemove = new LinkedList<>();
-        Arrays.asList("{on}", "{spectating}", "{countdown}").forEach(toUnregister -> {
-            handle.getPlaceholders().forEach(placeholder -> {
-                if (placeholder.getPlaceholder().equals(toUnregister)) {
-                    placeholdersToRemove.add(placeholder.getPlaceholder());
-                }
-            });
-        });
+        Arrays.asList("{on}", "{spectating}", "{countdown}").forEach(toUnregister -> handle.getPlaceholders().forEach(placeholder -> {
+            if (placeholder.getPlaceholder().equals(toUnregister)) {
+                placeholdersToRemove.add(placeholder.getPlaceholder());
+            } else if (placeholder.getPlaceholder().startsWith("{task_")) {
+                placeholdersToRemove.add(placeholder.getPlaceholder());
+            }
+        }));
         placeholdersToRemove.forEach(placeholder -> handle.removePlaceholder(placeholder));
 
 
@@ -99,11 +113,39 @@ public class GameSidebar {
             }
         }
 
+        List<GameTask> playerTasks = null;
+        if (arena != null && arena.getGameState() == GameState.IN_GAME) {
+            playerTasks = arena.getLoadedGameTasks().stream().filter(task -> task.hasTask(player)).collect(Collectors.toList());
+        }
+
 
         // Set lines
         for (String line : content) {
             line = ChatColor.translateAlternateColorCodes('&', line);
             if (arena != null) {
+                if (line.contains("{task}")) {
+                    GameTask currentTask = playerTasks == null ? null : (playerTasks.isEmpty() ? null : playerTasks.remove(0));
+                    if (currentTask == null) {
+                        line = line.replace("{task}", "");
+                    } else {
+                        final String taskName = ChatColor.stripColor(LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_NAME_PATH_.toString() + currentTask.getHandler().getIdentifier()));
+                        PlaceholderProvider taskPlaceholder = new PlaceholderProvider("{task_" + currentTask.getLocalName() + "}", () -> {
+                            int currentStage;
+                            int totalStages;
+                            boolean isDone = (totalStages = currentTask.getTotalStages(player)) == (currentStage = currentTask.getCurrentStage(player));
+                            return taskFormatCache.replace("{task_name}", isDone ? ChatColor.STRIKETHROUGH + taskName : taskName).replace("{task_stage}", String.valueOf(currentStage)).replace("{task_stages}", String.valueOf(totalStages));
+                        });
+                        handle.addPlaceholder(taskPlaceholder);
+                        handle.addLine(new SidebarLine() {
+                            @NotNull
+                            @Override
+                            public String getLine() {
+                                return "{task_" + currentTask.getLocalName() + "}";
+                            }
+                        });
+                        continue;
+                    }
+                }
                 line = line.replace("{template}", arena.getTemplateWorld()).replace("{name}", arena.getDisplayName())
                         .replace("{status}", arena.getDisplayState(player)).replace("{on}", String.valueOf(arena.getCurrentPlayers()))
                         .replace("{max}", String.valueOf(arena.getMaxPlayers())).replace("{spectating}", String.valueOf(arena.getCurrentSpectators()))

@@ -67,6 +67,15 @@ public class ArenaConfig implements SettingsHolder {
     })
     public static final StringListProperty TASKS = new StringListProperty("crew-tasks", Collections.emptyList());
 
+    @Comment("Amount of common tasks.")
+    public static final IntegerProperty DEFAULT_TASKS_COMMON = new IntegerProperty("default-task-data.common-amount", 1);
+    @Comment("Amount of short tasks.")
+    public static final IntegerProperty DEFAULT_TASKS_SHORT = new IntegerProperty("default-task-data.short-amount", 2);
+    @Comment("Amount of long tasks.")
+    public static final IntegerProperty DEFAULT_TASKS_LONG = new IntegerProperty("default-task-data.long-amount", 2);
+    @Comment("Should visual effects be enabled for visual tasks?")
+    public static final BooleanProperty DEFAULT_TASKS_VISUAL_ENABLED = new BooleanProperty("default-task-data.enable-visual", true);
+
     @Comment({
             " ",
             "Set gameplay time. Available choices: DAY, NIGHT."
@@ -101,5 +110,6 @@ public class ArenaConfig implements SettingsHolder {
     public void registerComments(CommentsConfiguration conf) {
         // header
         conf.setComment("", "Plugin by andrei1058.", " ", " ");
+        conf.setComment("default-task-data", " ", "Default tasks amount.", "These values can suffer modification from addons.");
     }
 }

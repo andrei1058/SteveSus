@@ -1,10 +1,12 @@
-package com.andrei1058.stevesus.api.arena;
+package com.andrei1058.stevesus.api.arena.team;
 
+import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public interface Team {
 
     /**
@@ -25,8 +27,11 @@ public interface Team {
 
     /**
      * Add a player to this team. Used to assign player to this team.
+     *
+     * @param gameStartAssign will be true if trying to assign a player to this team at game start.
+     * @return false if player could not be assigned to that team.
      */
-    void addPlayer(Player player);
+    boolean addPlayer(Player player, boolean gameStartAssign);
 
     /**
      * Remove a player from this team. Used when a player leaves the arena.
@@ -56,8 +61,18 @@ public interface Team {
     boolean canVote();
 
     /**
+     * Check if team has tasks.
+     */
+    boolean canHaveTasks();
+
+    /**
      * Set if a team can vote.
      * Useful if you add a detective team and you want to disable voting for crew and imposters.
      */
     void setCanVote(boolean toggle);
+
+    /**
+     * Get game arena.
+     */
+    Arena getArena();
 }
