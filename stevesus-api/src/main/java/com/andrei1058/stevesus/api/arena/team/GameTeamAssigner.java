@@ -12,7 +12,7 @@ public class GameTeamAssigner {
     }
 
     public void assignTeams() {
-        //todo add changes in the future
+        //todo add changes in the future. player chance etc
         for (Player player : arena.getPlayers()) {
             boolean teamFound = false;
             for (Team team : arena.getGameTeams()) {

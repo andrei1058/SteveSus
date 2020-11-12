@@ -2,15 +2,17 @@ package com.andrei1058.stevesus.api;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.api.arena.ArenaHandler;
+import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 @SuppressWarnings("UnstableApiUsage")
-public interface SteveSusAPI {
+public interface SteveSusAPI extends Plugin {
 
     /**
      * Server Setup Manager.
@@ -56,9 +58,14 @@ public interface SteveSusAPI {
     ArenaHandler getArenaHandler();
 
     /**
+     * Get locale manager.
+     */
+    LocaleManager getLocaleHandler();
+
+    /**
      * Get API instance.
      */
     static SteveSusAPI getInstance() {
-        return (SteveSusAPI) Bukkit.getServicesManager().getRegistration(SteveSusAPI.class);
+        return (SteveSusAPI) Bukkit.getPluginManager().getPlugin("SteveSus");
     }
 }

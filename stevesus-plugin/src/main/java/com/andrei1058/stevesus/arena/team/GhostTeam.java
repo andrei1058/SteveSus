@@ -80,6 +80,16 @@ public class GhostTeam implements Team {
     }
 
     @Override
+    public boolean canReportBody() {
+        return false;
+    }
+
+    @Override
+    public boolean canUseMeetingButton() {
+        return false;
+    }
+
+    @Override
     public Arena getArena() {
         return arena;
     }

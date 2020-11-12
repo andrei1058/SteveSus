@@ -31,20 +31,28 @@
             <groupId>com.andrei1058.dbi</groupId>
             <artifactId>DataBaseInterface</artifactId>
             <version>[0.1-SNAPSHOT,)</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <!-- Plugin Common -->
         <dependency>
             <groupId>com.andrei1058.stevesus</groupId>
             <artifactId>stevesus-common</artifactId>
             <version>${project.version}</version>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
+        <!-- Command Lib -->
         <dependency>
             <groupId>com.andrei1058.spigot.commandlib</groupId>
             <artifactId>CommandLib</artifactId>
             <version>[1.0-SNAPSHOT,)</version>
-            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Hologram API -->
+        <dependency>
+            <groupId>com.andrei1058.hologramapi</groupId>
+            <artifactId>hologram-api</artifactId>
+            <version>[1.0-SNAPSHOT,)</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

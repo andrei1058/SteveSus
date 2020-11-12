@@ -84,6 +84,16 @@ public class ImposterTeam implements Team {
     }
 
     @Override
+    public boolean canReportBody() {
+        return true;
+    }
+
+    @Override
+    public boolean canUseMeetingButton() {
+        return true;
+    }
+
+    @Override
     public Arena getArena() {
         return arena;
     }

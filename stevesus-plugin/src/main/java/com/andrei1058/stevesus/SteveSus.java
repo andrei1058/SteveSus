@@ -6,6 +6,7 @@ import co.aikar.taskchain.TaskChainFactory;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.versionsupport.ChatSupport;
 import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.server.GameSound;
@@ -40,6 +41,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.command.Command;
 import org.bukkit.plugin.java.annotation.dependency.SoftDependency;
@@ -104,6 +106,9 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
             Bukkit.getPluginManager().disablePlugin(INSTANCE);
             return;
         }
+
+        // Initialize API
+        Bukkit.getServicesManager().register(SteveSusAPI.class, getInstance(), this, ServicePriority.Normal);
 
         // Initialize task chain
         taskChainFactory = BukkitTaskChainFactory.create(this);
@@ -225,6 +230,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
         DatabaseManager.onDisable();
         ServerManager.onDisable();
         ArenaManager.onDisable();
+        Bukkit.getServicesManager().unregister(SteveSusAPI.class);
         SteveSus.debug("Took " + (System.currentTimeMillis() - startTime) + "ms to disable this plugin.");
     }
 
@@ -272,6 +278,11 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
     @Override
     public com.andrei1058.stevesus.api.arena.ArenaHandler getArenaHandler() {
         return ArenaManager.getINSTANCE();
+    }
+
+    @Override
+    public LocaleManager getLocaleHandler() {
+        return LanguageManager.getINSTANCE();
     }
 
     public static SteveSus getInstance() {

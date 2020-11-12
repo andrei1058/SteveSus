@@ -1,16 +1,22 @@
 package com.andrei1058.stevesus.common.gui;
 
 import com.andrei1058.stevesus.common.CommonManager;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import org.apache.commons.codec.binary.Base64;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ItemUtil {
 
@@ -80,4 +86,33 @@ public class ItemUtil {
     public static String getMaterial(String mat1_12, String mat1_13) {
         return CommonManager.SERVER_VERSION < 13 ? mat1_12 : mat1_13;
     }
+
+    /**
+     * Create a skull with custom skin.
+     *
+     * @param url  skin url from mojang.
+     * @param name skull name.
+     */
+    public static ItemStack createSkullWithSkin(String url, String name) {
+        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+
+        if (url.isEmpty()) return head;
+
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        headMeta.setDisplayName(name);
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
+        Field profileField;
+        try {
+            profileField = headMeta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(headMeta, profile);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+            e1.printStackTrace();
+        }
+        head.setItemMeta(headMeta);
+        return head;
+    }
+
 }

@@ -72,6 +72,16 @@ public interface Team {
     void setCanVote(boolean toggle);
 
     /**
+     * Check if this team can report bodies.
+     */
+    boolean canReportBody();
+
+    /**
+     * Check if this team can use meeting button.
+     */
+    boolean canUseMeetingButton();
+
+    /**
      * Get game arena.
      */
     Arena getArena();

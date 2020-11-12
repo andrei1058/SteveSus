@@ -25,8 +25,8 @@ public abstract class GameTask {
     public abstract String getLocalName();
 
     /**
-     * Triggered when current task is cancelled.
-     * If player gets killed, emergency meeting etc.
+     * Triggered on emergency meeting, player leave, player kill etc.
+     * Check if given player has task assigned and was doing this task here.
      */
     public abstract void onInterrupt(Player player, Arena arena);
 
@@ -36,9 +36,19 @@ public abstract class GameTask {
     public abstract int getCurrentStage(Player player);
 
     /**
+     * Get player current stage.
+     */
+    public abstract int getCurrentStage(UUID player);
+
+    /**
      * Get stages.
      */
     public abstract int getTotalStages(Player player);
+
+    /**
+     * Get stages.
+     */
+    public abstract int getTotalStages(UUID player);
 
     /**
      * Use eventually when game starts.
@@ -73,6 +83,13 @@ public abstract class GameTask {
      * Use it to send your custom packets/ content etc.
      */
     public void onPlayerJoin(Arena arena, Player player, boolean spectator) {
+    }
+
+    /**
+     * Listen to player sneak event.
+     */
+    public void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
+
     }
 
 

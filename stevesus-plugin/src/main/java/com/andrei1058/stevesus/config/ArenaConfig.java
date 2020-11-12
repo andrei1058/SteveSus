@@ -68,13 +68,21 @@ public class ArenaConfig implements SettingsHolder {
     public static final StringListProperty TASKS = new StringListProperty("crew-tasks", Collections.emptyList());
 
     @Comment("Amount of common tasks.")
-    public static final IntegerProperty DEFAULT_TASKS_COMMON = new IntegerProperty("default-task-data.common-amount", 1);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON = new IntegerProperty("default-game-option.common-task-amount", 1);
     @Comment("Amount of short tasks.")
-    public static final IntegerProperty DEFAULT_TASKS_SHORT = new IntegerProperty("default-task-data.short-amount", 2);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT = new IntegerProperty("default-game-option.short-task-amount", 2);
     @Comment("Amount of long tasks.")
-    public static final IntegerProperty DEFAULT_TASKS_LONG = new IntegerProperty("default-task-data.long-amount", 2);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_LONG = new IntegerProperty("default-game-option.long-task-amount", 2);
     @Comment("Should visual effects be enabled for visual tasks?")
-    public static final BooleanProperty DEFAULT_TASKS_VISUAL_ENABLED = new BooleanProperty("default-task-data.enable-visual", true);
+    public static final BooleanProperty DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED = new BooleanProperty("default-game-option.enable-visual-tasks", true);
+    @Comment("Cooldown before using emergency button again after a meeting. In seconds.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN = new IntegerProperty("default-game-option.meeting-button-cooldown", 15);
+    @Comment("How many meetings can a player start.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_PER_PLAYER = new IntegerProperty("default-game-option.meetings-per-player", 2);
+    @Comment("Talking time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_TALK_TIME = new IntegerProperty("default-game-option.meeting-talk-timer", 45);
+    @Comment("Voting time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_VOTE_TIME = new IntegerProperty("default-game-option.meeting-voting-timer", 25);
 
     @Comment({
             " ",
@@ -110,6 +118,6 @@ public class ArenaConfig implements SettingsHolder {
     public void registerComments(CommentsConfiguration conf) {
         // header
         conf.setComment("", "Plugin by andrei1058.", " ", " ");
-        conf.setComment("default-task-data", " ", "Default tasks amount.", "These values can suffer modification from addons.");
+        conf.setComment("default-game-option", " ", "Default game options.", "These values can suffer modification from addons.");
     }
 }

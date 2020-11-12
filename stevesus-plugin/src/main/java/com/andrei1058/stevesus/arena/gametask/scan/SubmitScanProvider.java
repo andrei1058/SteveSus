@@ -15,6 +15,7 @@ import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
+import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.multiarena.InventoryBackup;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -45,6 +46,10 @@ import java.util.List;
 import java.util.function.Function;
 
 public class SubmitScanProvider extends TaskProvider {
+
+    public static final String MSG_CANNOT_SCAN = "game-task-scan-in-use";
+        public static final String MSG_SCANNING_DONE = "game-task-scan-completed";
+    public static final String MSG_SCANNING_SUBTITLE = "game-task-scanning-subtitle";
 
     private static SubmitScanProvider instance;
 
@@ -350,6 +355,15 @@ public class SubmitScanProvider extends TaskProvider {
 
     @Override
     public @Nullable SubmitScan onGameInit(Arena arena, JsonObject configuration, String localName) {
+        if (!LanguageManager.getINSTANCE().getDefaultLocale().hasPath(MSG_CANNOT_SCAN)) {
+            LanguageManager.getINSTANCE().getDefaultLocale().setMsg(MSG_CANNOT_SCAN, "&cCapsule already in use!");
+        }
+        if (!LanguageManager.getINSTANCE().getDefaultLocale().hasPath(MSG_SCANNING_SUBTITLE)) {
+            LanguageManager.getINSTANCE().getDefaultLocale().setMsg(MSG_SCANNING_SUBTITLE, "&6Scan complete in {time}s.");
+        }
+        if (!LanguageManager.getINSTANCE().getDefaultLocale().hasPath(MSG_SCANNING_DONE)) {
+            LanguageManager.getINSTANCE().getDefaultLocale().setMsg(MSG_SCANNING_DONE, "&a&lScan complete!");
+        }
         try {
             JsonElement radius = configuration.get("radius");
             if (radius == null) return null;

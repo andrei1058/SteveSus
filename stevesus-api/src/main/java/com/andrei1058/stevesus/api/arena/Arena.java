@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.arena;
 
 import com.andrei1058.stevesus.api.arena.task.GameTask;
+import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.common.CommonManager;
@@ -402,4 +403,98 @@ public interface Arena extends DisplayableArena {
      * Get arena teams.
      */
     List<Team> getGameTeams();
+
+    /**
+     * Freeze a player.
+     * This will prevent players from moving to another block.
+     * Can be used for med bay task etc.
+     */
+    void setCantMove(Player player, boolean toggle);
+
+    /**
+     * Check if a player cannot move.
+     * This will prevent players from moving to another block.
+     */
+    boolean isCantMove(Player player);
+
+    /**
+     * Refresh task boss bar.
+     * Update policy is handled internally so you don't need to do checks.
+     */
+    void refreshTaskMeter();
+
+    /**
+     * Get arena task meter policy.
+     */
+    TaskMeterUpdatePolicy getTaskMeterUpdatePolicy();
+
+    /**
+     * Change task meter update policy.
+     */
+    void setTaskMeterUpdatePolicy(TaskMeterUpdatePolicy taskMeterPolicy);
+
+    /**
+     * Get current meeting stage.
+     */
+    MeetingStage getMeetingStage();
+
+    /**
+     * Change meeting stage.
+     */
+    void setMeetingStage(MeetingStage meetingStage);
+
+    /**
+     * Start meeting.
+     *
+     * @param requester meeting requester.
+     * @param deadBody  found body if "dead body report", otherwise emergency meeting.
+     * @return false if cannot start meeting. (can return false only if no body provided).
+     */
+    boolean startMeeting(Player requester, @Nullable Player deadBody);
+
+    /**
+     * Get player meetings left.
+     */
+    int getMeetingsLeft(Player player);
+
+    /**
+     * Get meeting button.
+     */
+    @Nullable
+    MeetingButton getMeetingButton();
+
+    /**
+     * Get how many meetings can a player start.
+     */
+    int getMeetingsPerPlayer();
+
+    /**
+     * Set meetings per player.
+     * Can do that only if the game didn't start already.
+     * If you want to give a player more meetings use {@link #setMeetingsLeft(Player, int)}.
+     */
+    void setMeetingsPerPlayer(int value);
+
+    /**
+     * Set how many meetings can a player start.
+     */
+    void setMeetingsLeft(Player player, int amount);
+
+    /* How long meeting talk takes.*/
+    void setMeetingTalkDuration(int value);
+
+    /**
+     * How long meeting talk takes.
+     */
+    int getMeetingTalkDuration();
+
+    /**
+     * How long voting takes.
+     */
+    void setMeetingVotingDuration(int value);
+
+    /**
+     * How long voting takes.
+     */
+    int getMeetingVotingDuration();
 }

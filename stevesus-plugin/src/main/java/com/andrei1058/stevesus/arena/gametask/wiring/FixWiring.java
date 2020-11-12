@@ -44,7 +44,17 @@ public class FixWiring extends GameTask {
     }
 
     @Override
+    public int getCurrentStage(UUID player) {
+        return assignedPlayers.getOrDefault(player, 0);
+    }
+
+    @Override
     public int getTotalStages(Player player) {
+        return stages;
+    }
+
+    @Override
+    public int getTotalStages(UUID player) {
         return stages;
     }
 

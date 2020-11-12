@@ -87,7 +87,15 @@ public enum Message {
     TEAM_NAME_PATH_(true, "team-name-", ""),
     GAME_TASK_NAME_PATH_(true, "game-task-name-", ""),
     GAME_TASK_DESCRIPTION_PATH_(true, "game-task-description-", ""),
-    GAME_TASK_SCOREBOARD_FORMAT("game-task-scoreboard-format", "&b{task_name} &f({task_stage}/{task_stages})");
+    GAME_TASK_SCOREBOARD_FORMAT("game-task-scoreboard-format", "&b{task_name} &f({task_stage}/{task_stages})"),
+    GAME_TASK_METER_NAME("game-task-meter-bar", "Total Tasks Completed"),
+    EMERGENCY_BUTTON_HOLO1("emergency-button-holo1", "&4&lEmergency Button"),
+    EMERGENCY_BUTTON_HOLO2("emergency-button-holo2", "&fClick to start a meeting!"),
+    EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT("emergency-button-status1", "&bYou have &6&l{amount} &bmeeteings left!"),
+    EMERGENCY_BUTTON_STATUS_VOTING_STARTS_IN("emergency-button-status2", "&eVoting starts in &6&l{time}&es!"),
+    EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN("emergency-button-status3", "&cVoting ends in &f&l{time}&cs!"),
+    EMERGENCY_DENIED_NO_MEETINGS_LEFT("emergency-button-denied-no-left", "&cYou have &f&l0 &cemergency meetings left!"),
+    EMERGENCY_DENIED_COOL_DOWN("emergency-button-denied-cooldown", "&cCrewmates must wait &f&l{time}s &cbefore next emergency.");
 
     private final String path;
     private final boolean manual;

@@ -4,17 +4,16 @@ import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
+import com.andrei1058.stevesus.api.arena.MeetingButton;
+import com.andrei1058.stevesus.api.arena.MeetingStage;
+import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
-import com.andrei1058.stevesus.api.arena.task.GameTask;
-import com.andrei1058.stevesus.api.arena.task.TaskProvider;
-import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.ServerType;
-import com.andrei1058.stevesus.api.arena.task.GameTaskAssigner;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskPlaying;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskRestarting;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskStarting;
@@ -47,6 +46,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -100,6 +102,16 @@ public class SteveSusArena implements Arena {
     private int commonTasks = 1;
     private int shortTasks = 2;
     private int longTasks = 1;
+    private TaskMeterUpdatePolicy taskMeterUpdatePolicy = TaskMeterUpdatePolicy.ALWAYS;
+    private MeetingStage meetingStage = MeetingStage.NO_MEETING;
+    private BossBar taskMeterBar;
+
+    private final List<UUID> freeze = new ArrayList<>(); // list of players that cannot move
+    private final HashMap<UUID, Integer> meetingsLeft = new HashMap<>();
+    private MeetingButton meetingButton;
+    private int meetingsPerPlayer;
+    private int talkingDuration;
+    private int votingDuration;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -131,7 +143,11 @@ public class SteveSusArena implements Arena {
         }
 
         this.mapTime = config.getProperty(ArenaConfig.MAP_TIME);
-        this.visualTasksEnabled = config.getProperty(ArenaConfig.DEFAULT_TASKS_VISUAL_ENABLED);
+        this.visualTasksEnabled = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED);
+        setTaskMeterUpdatePolicy(TaskMeterUpdatePolicy.ALWAYS);
+        this.meetingsPerPlayer = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_PER_PLAYER);
+        this.talkingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME);
+        this.votingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME);
     }
 
     private void restoreCountDown() {
@@ -157,11 +173,21 @@ public class SteveSusArena implements Arena {
         }
 
         initTasks();
-        commonTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_TASKS_COMMON), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count());
-        shortTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_TASKS_SHORT), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count());
-        longTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_TASKS_LONG), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count());
+        commonTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count());
+        shortTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count());
+        longTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count());
+
+        spawnMeetingButton(world);
 
         switchState(GameState.WAITING);
+    }
+
+    private void spawnMeetingButton(World world) {
+        Location location = config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).orElse(null);
+        if (location != null) {
+            location.setWorld(world);
+            meetingButton = new MeetingButton(SteveSus.getInstance(), location, this, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_COOL_DOWN));
+        }
     }
 
     @Override
@@ -603,7 +629,8 @@ public class SteveSusArena implements Arena {
             inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
                     .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
         }
-
+        setCantMove(player, false);
+        meetingsLeft.remove(player.getUniqueId());
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -644,7 +671,8 @@ public class SteveSusArena implements Arena {
                 ServerManager.getINSTANCE().getDisconnectHandler().performDisconnect(player);
             }
         }
-
+        setCantMove(player, false);
+        meetingsLeft.remove(player.getUniqueId());
         SteveSus.debug("Player " + player.getName() + " was removed as spectator from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -667,10 +695,14 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.STARTING, this, false));
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskStarting(this), 0L, 20L).getTaskId();
         } else if (gameState == GameState.IN_GAME) {
+            if (getTaskMeterUpdatePolicy() != TaskMeterUpdatePolicy.NEVER) {
+                createTaskMeterBar();
+            }
             gameStart = Instant.now();
             getPlayers().forEach(p -> {
                 p.getInventory().clear();
                 p.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                meetingsLeft.putIfAbsent(p.getUniqueId(), getMeetingsPerPlayer());
             });
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskPlaying(this), 0L, 20L).getTaskId();
             // assign teams
@@ -680,6 +712,9 @@ public class SteveSusArena implements Arena {
             GameTaskAssigner gameTaskAssigner = new GameTaskAssigner(this);
             teams.forEach(gameTaskAssigner::assignTasks);
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.IN_GAME, this, false));
+            if (getMeetingButton() != null) {
+                getMeetingButton().refreshLines(this);
+            }
         } else if (gameState == GameState.ENDING) {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
             getSpectators().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
@@ -893,6 +928,167 @@ public class SteveSusArena implements Arena {
         return teams;
     }
 
+    @Override
+    public void setCantMove(Player player, boolean toggle) {
+        if (toggle) {
+            if (!freeze.contains(player.getUniqueId())) {
+                freeze.add(player.getUniqueId());
+            }
+        } else {
+            freeze.remove(player.getUniqueId());
+        }
+    }
+
+    @Override
+    public boolean isCantMove(Player player) {
+        return freeze.contains(player.getUniqueId());
+    }
+
+    @Override
+    public void refreshTaskMeter() {
+        if (taskMeterUpdatePolicy == TaskMeterUpdatePolicy.NEVER) return;
+        if (taskMeterUpdatePolicy == TaskMeterUpdatePolicy.MEETINGS && getMeetingStage() == MeetingStage.NO_MEETING) {
+            return;
+        }
+        final double[] assignedTasks = {0};
+        final double[] completedTasks = {0};
+        getLoadedGameTasks().forEach(task -> {
+            if (!task.getAssignedPlayers().isEmpty()) {
+                task.getAssignedPlayers().forEach(assignedPlayer -> {
+                    assignedTasks[0]++;
+                    if (task.getCurrentStage(assignedPlayer) == task.getTotalStages(assignedPlayer)) {
+                        completedTasks[0]++;
+                    }
+                });
+            }
+        });
+        taskMeterBar.setProgress(completedTasks[0] / assignedTasks[0]);
+    }
+
+    @Override
+    public TaskMeterUpdatePolicy getTaskMeterUpdatePolicy() {
+        return taskMeterUpdatePolicy;
+    }
+
+    @Override
+    public void setTaskMeterUpdatePolicy(TaskMeterUpdatePolicy taskMeterPolicy) {
+        if (this.taskMeterUpdatePolicy == TaskMeterUpdatePolicy.NEVER && taskMeterPolicy != TaskMeterUpdatePolicy.NEVER) {
+            if (getGameState() == GameState.IN_GAME) {
+                createTaskMeterBar();
+            }
+        }
+        if (this.taskMeterUpdatePolicy == TaskMeterUpdatePolicy.NEVER) {
+            if (this.taskMeterBar != null) {
+                this.taskMeterBar.removeAll();
+                this.taskMeterBar = null;
+            }
+        }
+        this.taskMeterUpdatePolicy = taskMeterPolicy;
+    }
+
+    @Override
+    public MeetingStage getMeetingStage() {
+        return meetingStage;
+    }
+
+    @Override
+    public void setMeetingStage(MeetingStage meetingStage) {
+        this.meetingStage = meetingStage;
+        if (meetingStage == MeetingStage.NO_MEETING) {
+            if (getMeetingButton() != null) {
+                getMeetingButton().refreshLines(this);
+            }
+            getPlayers().forEach(player -> setCantMove(player, false));
+        } else if (meetingStage == MeetingStage.TALKING) {
+            setCountdown(getMeetingTalkDuration());
+            getPlayers().forEach(player -> setCantMove(player, true));
+        } else if (meetingStage == MeetingStage.VOTING) {
+            setCountdown(getMeetingVotingDuration());
+            getPlayers().forEach(player -> setCantMove(player, true));
+        } else if (meetingStage == MeetingStage.EXCLUSION_SCREEN) {
+            setCountdown(4);
+            getPlayers().forEach(player -> setCantMove(player, true));
+        }
+    }
+
+    @Override
+    public boolean startMeeting(Player requester, @Nullable Player deadBody) {
+        if (getGameState() != GameState.IN_GAME) return false;
+        if (getMeetingStage() != MeetingStage.NO_MEETING) return false;
+        Team playerTeam = getPlayerTeam(requester);
+        if (playerTeam == null) return false;
+        if (deadBody == null) {
+            if (!playerTeam.canUseMeetingButton()) {
+                return false;
+            }
+        } else {
+            if (!playerTeam.canReportBody()) {
+                return false;
+            }
+        }
+        if (deadBody == null) {
+            if (getMeetingsLeft(requester) <= 0) return false;
+            getPlayers().forEach(player -> player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN));
+            setMeetingStage(MeetingStage.TALKING);
+
+            int meetings = meetingsLeft.remove(requester.getUniqueId());
+            meetings--;
+            if (meetings > 0) {
+                meetingsLeft.put(requester.getUniqueId(), 0);
+            }
+            // todo title, sound, chat
+        }
+        return true;
+    }
+
+    @Override
+    public int getMeetingsLeft(Player player) {
+        return meetingsLeft.getOrDefault(player.getUniqueId(), 0);
+    }
+
+    @Override
+    public @Nullable MeetingButton getMeetingButton() {
+        return meetingButton;
+    }
+
+    @Override
+    public int getMeetingsPerPlayer() {
+        return meetingsPerPlayer;
+    }
+
+    @Override
+    public void setMeetingsPerPlayer(int value) {
+        if (getGameState() == GameState.IN_GAME) return;
+        this.meetingsPerPlayer = value;
+    }
+
+    @Override
+    public void setMeetingsLeft(Player player, int amount) {
+        if (!isPlayer(player)) return;
+        meetingsLeft.remove(player.getUniqueId());
+        meetingsLeft.put(player.getUniqueId(), amount);
+    }
+
+    @Override
+    public void setMeetingTalkDuration(int value) {
+        this.talkingDuration = value;
+    }
+
+    @Override
+    public int getMeetingTalkDuration() {
+        return talkingDuration;
+    }
+
+    @Override
+    public void setMeetingVotingDuration(int value) {
+        this.votingDuration = value;
+    }
+
+    @Override
+    public int getMeetingVotingDuration() {
+        return votingDuration;
+    }
+
     public Location getNextWaitingSpawn() {
         if (waitingLocations.size() == 1) {
             return waitingLocations.get(0);
@@ -989,5 +1185,13 @@ public class SteveSusArena implements Arena {
                 }
             }
         });
+    }
+
+    private void createTaskMeterBar() {
+        if (taskMeterBar == null) {
+            taskMeterBar = Bukkit.createBossBar(LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, Message.GAME_TASK_METER_NAME), BarColor.GREEN, BarStyle.SOLID);
+        }
+        taskMeterBar.setProgress(0);
+        getPlayers().forEach(player -> taskMeterBar.addPlayer(player));
     }
 }
