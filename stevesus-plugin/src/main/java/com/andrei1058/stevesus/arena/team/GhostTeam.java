@@ -93,4 +93,15 @@ public class GhostTeam implements Team {
     public Arena getArena() {
         return arena;
     }
+
+    @Override
+    public boolean chatFilter(Player player) {
+        Team playerTeam = getArena().getPlayerTeam(player);
+        return playerTeam == null || !playerTeam.equals(this);
+    }
+
+    @Override
+    public boolean isInnocent() {
+        return true;
+    }
 }

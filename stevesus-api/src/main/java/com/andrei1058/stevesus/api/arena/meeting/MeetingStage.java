@@ -1,4 +1,4 @@
-package com.andrei1058.stevesus.api.arena;
+package com.andrei1058.stevesus.api.arena.meeting;
 
 public enum MeetingStage {
 

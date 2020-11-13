@@ -65,7 +65,7 @@ public class ImposterTeam implements Team {
 
     @Override
     public String getIdentifier() {
-        return "imposter";
+        return "impostor";
     }
 
     @Override
@@ -96,6 +96,16 @@ public class ImposterTeam implements Team {
     @Override
     public Arena getArena() {
         return arena;
+    }
+
+    @Override
+    public boolean chatFilter(Player player) {
+        return false;
+    }
+
+    @Override
+    public boolean isInnocent() {
+        return false;
     }
 
     public int getTeamSize() {

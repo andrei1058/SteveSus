@@ -33,6 +33,7 @@ public class JoinItemsManager {
     public static final String CATEGORY_WAITING = "game-waiting";
     public static final String CATEGORY_STARTING = "game-starting";
     public static final String CATEGORY_SPECTATING = "game-spectating";
+    public static final String CATEGORY_VOTING = "game-voting";
 
     private static final String MATERIAL = ".material";
     private static final String DATA = ".data";
@@ -59,7 +60,7 @@ public class JoinItemsManager {
             }
         }
 
-        config = new File(itemsDir, "join_items.yml");
+        config = new File(itemsDir, "command_items.yml");
         if (!config.exists()) {
             firstTime = true;
             SteveSus.getInstance().getLogger().log(Level.INFO, "Creating " + config.getPath());
@@ -90,6 +91,8 @@ public class JoinItemsManager {
             saveCommandItem(CATEGORY_SPECTATING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"));
             saveCommandItem(CATEGORY_SPECTATING, "teleporter", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " teleporter", "", "", false, getMaterial("COMPASS", "COMPASS"), 0, 4, "&b&lTeleporter", Arrays.asList(" ", "&fRight click to select a target!"));
             saveCommandItem(CATEGORY_SPECTATING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"));
+
+            saveCommandItem(CATEGORY_VOTING, "vote", "ss vote", "", "", false, CommonManager.SERVER_VERSION < 13 ? "ELYTRA" : "ELYTRA", 0, 4, "&a&lVote", Arrays.asList(" ", "&fRight click to open!"));
         }
 
         save();

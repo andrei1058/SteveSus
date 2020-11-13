@@ -14,6 +14,7 @@ import com.andrei1058.stevesus.api.server.PluginPermission;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupHandler;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.arena.meeting.VoteGUIManager;
 import com.andrei1058.stevesus.command.SlaveCommandManager;
 import com.andrei1058.stevesus.command.filter.CommandFilter;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
@@ -222,6 +223,20 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
             this.getLogger().severe("Could not initialize Sidebar Manager. Server version not supported!");
             Bukkit.getPluginManager().disablePlugin(INSTANCE);
         }
+
+        // Initialize Vote GUI Manager
+        File directory = this.getDataFolder();
+        String customDir;
+        if (!(customDir = ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.EXCLUSION_PATH)).isEmpty()) {
+            File newPath = new File(customDir);
+            if (newPath.isDirectory()) {
+                directory = newPath;
+                this.getLogger().info("Set exclusion vote configuration path to: " + directory);
+            } else {
+                this.getLogger().warning("Tried to set exclusion vote configuration path to: " + directory + " but it does not seem like a directory.");
+            }
+        }
+        VoteGUIManager.init(directory);
     }
 
     @Override

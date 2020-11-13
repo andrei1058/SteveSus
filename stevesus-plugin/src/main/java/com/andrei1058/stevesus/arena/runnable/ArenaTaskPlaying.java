@@ -1,8 +1,8 @@
 package com.andrei1058.stevesus.arena.runnable;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.MeetingStage;
-import org.bukkit.Bukkit;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
+import com.andrei1058.stevesus.arena.meeting.ExclusionGUI;
 
 public class ArenaTaskPlaying implements Runnable {
 
@@ -36,6 +36,17 @@ public class ArenaTaskPlaying implements Runnable {
                 }
             } else {
                 getArena().setCountdown(getArena().getCountdown() - 1);
+                if (getArena().getMeetingStage() == MeetingStage.VOTING){
+                    getArena().getWorld().getPlayers().forEach(player -> {
+                        if (player.getOpenInventory() != null){
+                            if (player.getOpenInventory().getTopInventory().getHolder() != null){
+                                if (player.getOpenInventory().getTopInventory().getHolder() instanceof ExclusionGUI.ExclusionHolder){
+                                    ((ExclusionGUI.ExclusionHolder) player.getOpenInventory().getTopInventory().getHolder()).refresh();
+                                }
+                            }
+                        }
+                    });
+                }
             }
         }
     }

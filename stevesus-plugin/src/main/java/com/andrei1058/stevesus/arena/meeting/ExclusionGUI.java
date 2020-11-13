@@ -1,57 +1,64 @@
-package com.andrei1058.stevesus.teleporter;
+package com.andrei1058.stevesus.arena.meeting;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.gui.BaseGUI;
 import com.andrei1058.stevesus.common.api.gui.CustomHolder;
-import com.andrei1058.stevesus.common.api.gui.slot.StaticSlot;
+import com.andrei1058.stevesus.common.api.gui.slot.RefreshableSlotHolder;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
-import com.andrei1058.stevesus.teleporter.config.TeleporterConfig;
+import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class TeleporterGUI extends BaseGUI {
+public class ExclusionGUI extends BaseGUI {
 
-    private static final String NBT_TELEPORTER_TARGET_UUID = "autt-1058-a";
+    private static final String NBT_EXCLUSION_TARGET_UUID = "autt-1058-ex";
+    private final LinkedHashMap<Integer, RefreshableSlotHolder> playerSlots = new LinkedHashMap<>();
 
-
-    public TeleporterGUI(String guiName, List<String> pattern, Player player, Locale lang, Arena arena) {
-        super(pattern, lang, new TeleporterSelectorHolder(), (lang.hasPath(Message.TELEPORTER_GUI_NAME + "-" + guiName) ?
-                lang.getMsg(player,Message.TELEPORTER_GUI_NAME + "-" + guiName) : lang.getMsg(player, Message.TELEPORTER_GUI_NAME))
-                .replace("{spectator}", player.getDisplayName()).replace("{spectator_raw}", player.getName()));
+    public ExclusionGUI(String guiName, List<String> pattern, Player player, Locale lang, Arena arena) {
+        super(pattern, lang, new ExclusionHolder(), (lang.hasPath(Message.EXCLUSION_GUI_NAME + "-" + guiName) ?
+                lang.getMsg(player, Message.EXCLUSION_GUI_NAME + "-" + guiName) : lang.getMsg(player, Message.EXCLUSION_GUI_NAME))
+                .replace("{spectator}", player.getDisplayName()).replace("{spectator_raw}", player.getName())
+                .replace("{time}", String.valueOf(arena.getCountdown())));
 
         // load content
-        YamlConfiguration yml = TeleporterManager.getInstance().getTeleporterConfig().getYml();
-        String path = guiName + "." + TeleporterConfig.TELEPORTER_GENERIC_REPLACE_PATH;
+        YamlConfiguration yml = VoteGUIManager.getInstance().getConfig().getYml();
+        String path = guiName + "." + VoteLayoutConfig.VOTE_GENERIC_REPLACE_PATH;
 
         for (String replacementString : yml.getConfigurationSection(path).getKeys(false)) {
             if (replacementString.toCharArray().length > 1) {
-                CommonManager.getINSTANCE().getPlugin().getLogger().warning("Invalid char '" + replacementString + "' on statsGUI replacements: " + guiName);
+                CommonManager.getINSTANCE().getPlugin().getLogger().warning("Invalid char '" + replacementString + "' on voteGUI replacements: " + guiName);
                 continue;
             }
 
-            if (yml.getBoolean(path + "." + replacementString + ".teleporter")) {
+            if (yml.getBoolean(path + "." + replacementString + ".vote")) {
                 final int[] currentPlayer = {-1};
                 List<Integer> slots = this.getReplacementSlots(replacementString.charAt(0));
-                slots.forEach(slot -> this.getInventory().setItem(slot, getItemStack(yml, path, arena, replacementString, ++currentPlayer[0], player, guiName)));
+
+                slots.forEach(slot -> {
+                    final int currentPlayerFinal = ++currentPlayer[0];
+                    RefreshableSlotHolder itemHolder = (slot1, lang12, filter) -> getItemStack(yml, path, arena, replacementString, currentPlayerFinal, player, guiName);
+                    ItemStack itemStack = itemHolder.getSlotItem(slot, lang, null);
+                    if (itemStack != null && itemStack.getType() != Material.AIR) {
+                        playerSlots.put(slot, itemHolder);
+                    }
+                    this.getInventory().setItem(slot, itemStack);
+                });
             } else {
-                withReplacement(replacementString.charAt(0), new StaticSlot(getItemStack(yml, path, arena, replacementString, 0, player, guiName)));
+                withReplacement(replacementString.charAt(0), (slot, lang1, filter) -> getItemStack(yml, path, arena, replacementString, 0, player, guiName));
             }
         }
     }
@@ -60,7 +67,7 @@ public class TeleporterGUI extends BaseGUI {
         Player targetPlayer = null;
 
         // if current item should point to a player
-        if (yml.getBoolean(path + "." + replacementString + ".teleporter")) {
+        if (yml.getBoolean(path + "." + replacementString + ".vote")) {
             if (arena.getPlayers().size() > currentPlayer) {
                 targetPlayer = arena.getPlayers().get(currentPlayer);
             } else {
@@ -72,7 +79,7 @@ public class TeleporterGUI extends BaseGUI {
         List<String> tags = new ArrayList<>();
         String cmdP = yml.getString(path + "." + replacementString + ".commands.as-player");
         if (targetPlayer != null) {
-            tags.add(NBT_TELEPORTER_TARGET_UUID);
+            tags.add(NBT_EXCLUSION_TARGET_UUID);
             tags.add(targetPlayer.getUniqueId().toString());
         }
         if (cmdP != null && !cmdP.isEmpty()) {
@@ -93,8 +100,8 @@ public class TeleporterGUI extends BaseGUI {
             tags.add(command);
         }
 
-        String namePath = Message.TELEPORTER_REPLACEMENT_ITEM_NAME_PATH.toString().replace("{s}", guiName).replace("{r}", replacementString);
-        String lorePath = Message.TELEPORTER_REPLACEMENT_ITEM_LORE_PATH.toString().replace("{s}", guiName).replace("{r}", replacementString);
+        String namePath = Message.EXCLUSION_REPLACEMENT_ITEM_NAME_PATH.toString().replace("{s}", guiName).replace("{r}", replacementString);
+        String lorePath = Message.EXCLUSION_REPLACEMENT_ITEM_LORE_PATH.toString().replace("{s}", guiName).replace("{r}", replacementString);
         if (!CommonManager.getINSTANCE().getCommonProvider().getCommonLocaleManager().getDefaultLocale().hasPath(namePath)) {
             // create path on default language
             CommonManager.getINSTANCE().getCommonProvider().getCommonLocaleManager().getDefaultLocale().setMsg(namePath, "&7" + replacementString);
@@ -126,16 +133,17 @@ public class TeleporterGUI extends BaseGUI {
 
             // if target item
             if (targetPlayer != null) {
-                displayName = displayName.replace("{target}", targetPlayer.getDisplayName()).replace("{target_raw}", targetPlayer.getName()).replace("{target_uuid}", targetPlayer.getUniqueId().toString());
+                displayName = displayName.replace("{target}", targetPlayer.getDisplayName()).replace("{target_raw}", targetPlayer.getName()).replace("{target_uuid}", targetPlayer.getUniqueId().toString()).replace("{time}", String.valueOf(arena.getCountdown()));
             }
             meta.setDisplayName(displayName);
-            List<String> newLore = new LinkedList<>();
 
-            if (targetPlayer == null){
-                meta.setLore(getLang().getMsgList(player, lorePath, new String[]{"{player}", player.getDisplayName(), "{player_raw}", player.getName(), "{player_uuid}", player.getUniqueId().toString()}));
+            if (targetPlayer == null) {
+                meta.setLore(getLang().getMsgList(player, lorePath, new String[]{"{player}", player.getDisplayName(), "{player_raw}", player.getName(), "{player_uuid}", player.getUniqueId().toString(),
+                        "{time}", String.valueOf(arena.getCountdown())}));
             } else {
                 meta.setLore(getLang().getMsgList(targetPlayer, lorePath, new String[]{"{player}", player.getDisplayName(), "{player_raw}", player.getName(), "{player_uuid}", player.getUniqueId().toString(),
-                "{target}", targetPlayer.getDisplayName(), "{target_raw}", targetPlayer.getName(), "{target_uuid}", targetPlayer.getUniqueId().toString()}));
+                        "{target}", targetPlayer.getDisplayName(), "{target_raw}", targetPlayer.getName(), "{target_uuid}", targetPlayer.getUniqueId().toString(), "{time}", String.valueOf(arena.getCountdown()),
+                        "{status}", getStatusReplacement(LanguageManager.getINSTANCE().getLocale(player), player, targetPlayer, arena)}));
             }
 
             item.setItemMeta(meta);
@@ -143,48 +151,73 @@ public class TeleporterGUI extends BaseGUI {
         return item;
     }
 
-    public static class TeleporterSelectorHolder implements CustomHolder {
+    private static String getStatusReplacement(Locale playerLocale, Player guiHolder, Player target, Arena arena) {
+        if (target.isOnline()) {
+            StringBuilder result = new StringBuilder("\n");
+            if (arena.getMeetingButton() != null) {
+                if (arena.getMeetingButton().isLastRequester(target)) {
+                    result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_REQUESTER)).append("\n");
+                }
+                if (arena.getCurrentVoting() != null && !arena.isAnonymousVotes()) {
+                    Set<Player> votes = arena.getCurrentVoting().getVotes(target);
+                    if (!votes.isEmpty()) {
+                        result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_VOTERS)).append("\n");
+                        for (Player player : votes) {
+                            result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_VOTE_LIST).replace("{player}", player.getDisplayName())).append("\n");
+                        }
+                    }
+                }
+            }
+            return result.toString();
+        } else {
+            return playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_DISCONNECTED);
+        }
+    }
+
+    public static class ExclusionHolder implements CustomHolder {
+
+        private BaseGUI handler;
 
         @Override
         public Inventory getInventory() {
-            return null;
+            return getGui().getInventory();
         }
 
         @Override
         public BaseGUI getGui() {
-            return null;
+            return handler;
         }
 
         @Override
         public void setGui(BaseGUI gui) {
+            handler = gui;
         }
 
         @Override
         public void onClick(Player player, ItemStack itemStack, ClickType clickType) {
             String tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, SelectorManager.NBT_P_CMD_KEY);
             if (tag != null && !tag.isEmpty()) {
+                player.closeInventory();
                 for (String cmd : tag.split("\\n")) {
                     Bukkit.dispatchCommand(player, cmd);
-                }
-                if (player.getOpenInventory() != null) {
-                    player.closeInventory();
                 }
             }
             tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, SelectorManager.NBT_C_CMD_KEY);
             if (tag != null && !tag.isEmpty()) {
+                player.closeInventory();
                 for (String cmd : tag.split("\\n")) {
                     // {player} is the one who clicks, {target} is the target's head.
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
                 }
-                if (player.getOpenInventory() != null) {
-                    player.closeInventory();
-                }
             }
-            tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, NBT_TELEPORTER_TARGET_UUID);
+            tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, NBT_EXCLUSION_TARGET_UUID);
             if (tag != null && !tag.isEmpty()) {
                 Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
                 if (arena != null) {
-                    player.closeInventory();
+                    if (arena.getCurrentVoting() == null) return;
+
+                    Team playerTeam = arena.getPlayerTeam(player);
+                    if (playerTeam == null) return;
                     UUID targetUUID;
                     try {
                         targetUUID = UUID.fromString(tag);
@@ -200,15 +233,22 @@ public class TeleporterGUI extends BaseGUI {
                     if (targetArena == null || !targetArena.equals(arena)) {
                         return;
                     }
-
-                    player.teleport(target, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    if (arena.getCurrentVoting().addVote(player, target, arena)) {
+                        player.closeInventory();
+                    }
                 }
             }
         }
 
         @Override
         public boolean isStatic() {
-            return true;
+            return false;
         }
+    }
+
+    @Override
+    public void refresh() {
+        playerSlots.forEach((slot, holder) -> this.getInventory().setItem(slot, holder.getSlotItem(slot, getLang(), null)));
+        super.refresh();
     }
 }

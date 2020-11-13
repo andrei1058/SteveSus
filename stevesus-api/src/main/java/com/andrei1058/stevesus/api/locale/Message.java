@@ -54,6 +54,33 @@ public enum Message {
     TELEPORTER_REPLACEMENT_ITEM_LORE_PATH(true, "teleporterGUI-{s}-replacement-{r}-lore", Collections.singletonList("")),
     // {player} player display name, {name} raw name, {spectator} the current spectator display name, {spectator_raw} the current spectator raw name.
     TELEPORTER_GUI_NAME("statsGUI-gui-name", "&8Teleport to a player"),
+    EXCLUSION_GUI_NAME("voteGUI-gui-name", "&0Who is the imposter?"),
+    // Path placeholders: {s} selector name, {r} replacement item.
+    EXCLUSION_REPLACEMENT_ITEM_NAME_PATH(true, "voteGUI-{s}-replacement-{r}-name", "#"),
+    EXCLUSION_REPLACEMENT_ITEM_LORE_PATH(true, "voteGUI-{s}-replacement-{r}-lore", Collections.singletonList("")),
+    EXCLUSION_GUI_STATUS_DISCONNECTED(false, "voteGUI-player-status-disconnected", "&c&lThis player disconnected"),
+    EXCLUSION_GUI_STATUS_REQUESTER(false, "voteGUI-player-status-requester", "&6Meeting requester"),
+    EXCLUSION_GUI_STATUS_VOTERS(false, "voteGUI-player-status-voters", "&cVoted by:"),
+    EXCLUSION_GUI_STATUS_VOTE_LIST(false, "voteGUI-player-status-vote-FORMAT", "&7 - &o{player}"),
+    EXCLUSION_CHAT_ANNOUNCEMENT_ANONYMOUS(false, "vote-announce-anonymous", "&8{player} &7has voted!"),
+    EXCLUSION_CHAT_ANNOUNCEMENT_REGULAR(false, "vote-announce-regular", "&8{player} &7voted &c{target}&7."),
+    EXCLUSION_CHAT_ANNOUNCEMENT_SKIP(false, "vote-announce-skip", "&8{player} &7has skipped."),
+
+    EXCLUSION_RESULT_CHAT(false, "vote-result-chat", Arrays.asList(" ", " ", "                     &e&lVoting Results", " ", "{votes}", " ", "{exclusion}", " ")),
+    EXCLUSION_RESULT_FORMAT_VOTE(false, "vote-result-chat-format-vote", "&b                  {player} &8- &e{amount} votes "),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP(false, "vote-result-chat-format-skipped", "&b&l                  No one was ejected!"),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_ANONYMOUS(false, "vote-result-chat-format-ejected-anonymous", "&b                  {player} &bwas ejected!"),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_INNOCENT(false, "vote-result-chat-format-ejected-anonymous", "&c      {player} &cwas ejected! He wasn't an Impostor.."),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR(false, "vote-result-chat-format-ejected-impostor", "&a      {player} &cwas ejected! He wasn an Impostor!!!"),
+    EXCLUSION_RESULT_TITLE_SKIPPED(false, "vote-result-title-skipped", " "),
+    EXCLUSION_RESULT_SUBTITLE_SKIPPED(false, "vote-result-subtitle-skipped", "&6No one was ejected!"),
+    EXCLUSION_RESULT_TITLE_ANONYMOUS(false, "vote-result-title-anonymous", " "),
+    EXCLUSION_RESULT_SUBTITLE_ANONYMOUS(false, "vote-result-subtitle-anonymous", "&b{player} &bwas ejected"),
+    EXCLUSION_RESULT_TITLE_INNOCENT(false, "vote-result-title-innocent", "&c{player} &cwas ejected"),
+    EXCLUSION_RESULT_SUBTITLE_INNOCENT(false, "vote-result-subtitle-innocent", "&f&lHe was not an Impostor!"),
+    EXCLUSION_RESULT_TITLE_IMPOSTOR(false, "vote-result-title-impostor", "&a{player} &awas ejected"),
+    EXCLUSION_RESULT_SUBTITLE_IMPOSTOR(false, "vote-result-subtitle-impostor", "&fHe was an Impostor!"),
+
     // Placeholders: {target}, {target_raw}
     TITLE_SPECTATE_FIRST_PERSON_START("title-spectate-first-person-start", "&aSpectating &7{target}"),
     // Placeholders: {target}, {target_raw}
@@ -87,15 +114,18 @@ public enum Message {
     TEAM_NAME_PATH_(true, "team-name-", ""),
     GAME_TASK_NAME_PATH_(true, "game-task-name-", ""),
     GAME_TASK_DESCRIPTION_PATH_(true, "game-task-description-", ""),
-    GAME_TASK_SCOREBOARD_FORMAT("game-task-scoreboard-format", "&b{task_name} &f({task_stage}/{task_stages})"),
+    GAME_TASK_SCOREBOARD_FORMAT("game-task-scoreboard-format", "&b{task_name}&f ({task_stage}/{task_stages})"),
     GAME_TASK_METER_NAME("game-task-meter-bar", "Total Tasks Completed"),
     EMERGENCY_BUTTON_HOLO1("emergency-button-holo1", "&4&lEmergency Button"),
     EMERGENCY_BUTTON_HOLO2("emergency-button-holo2", "&fClick to start a meeting!"),
-    EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT("emergency-button-status1", "&bYou have &6&l{amount} &bmeeteings left!"),
+    EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT("emergency-button-status1", "&eYou have &6&l{amount} &bmeeteings left!"),
     EMERGENCY_BUTTON_STATUS_VOTING_STARTS_IN("emergency-button-status2", "&eVoting starts in &6&l{time}&es!"),
     EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN("emergency-button-status3", "&cVoting ends in &f&l{time}&cs!"),
     EMERGENCY_DENIED_NO_MEETINGS_LEFT("emergency-button-denied-no-left", "&cYou have &f&l0 &cemergency meetings left!"),
-    EMERGENCY_DENIED_COOL_DOWN("emergency-button-denied-cooldown", "&cCrewmates must wait &f&l{time}s &cbefore next emergency.");
+    EMERGENCY_DENIED_COOL_DOWN("emergency-button-denied-cooldown", "&cCrewmates must wait &f&l{time}s &cbefore next emergency."),
+    EMERGENCY_MEETING_TITLE("emergency-meeting-title", "&4&lEMERGENCY MEETING"),
+    EMERGENCY_MEETING_SUBTITLE("emergency-meeting-subtitle", "Requested by {player}"),
+    TALK_ALLOWED_DURING_MEETINGS("chat-denied-no-meeting", "&cYou can talk during meetings only!");
 
     private final String path;
     private final boolean manual;

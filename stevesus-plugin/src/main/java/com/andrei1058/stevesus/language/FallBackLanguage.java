@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.language;
 
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.Arrays;
@@ -47,6 +48,16 @@ public class FallBackLanguage extends Language {
 
         Message.TELEPORTER_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "*"}, "&b&l{target}");
         Message.TELEPORTER_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "*"}, Arrays.asList(" ", "&fClick to teleport", "&fto this player!"));
+
+        Message.EXCLUSION_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "*"}, "&a&lVote {target}");
+        Message.EXCLUSION_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "*"}, Arrays.asList("&fClick to vote!", "{status}", "", "&eVoting ends in &6{time}&es."));
+
+        Message.EXCLUSION_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "k"}, "&a&lVote &6&lSkip");
+        Message.EXCLUSION_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "k"}, Arrays.asList("&fClick to vote!", "", "&eVoting ends in &6{time}&es."));
+
+        Message.EXCLUSION_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "-"}, "&eLet me talk");
+        Message.EXCLUSION_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "-"}, Arrays.asList(" ", "&fClick to close!"));
+
 
         lang.getYml().addDefault(Message.COUNT_DOWN_TITLE_PATH.toString() + "50", "&b50");
         lang.getYml().addDefault(Message.COUNT_DOWN_TITLE_PATH.toString() + "40", "&b40");

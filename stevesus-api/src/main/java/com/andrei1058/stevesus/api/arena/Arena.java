@@ -1,5 +1,8 @@
 package com.andrei1058.stevesus.api.arena;
 
+import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
 import com.andrei1058.stevesus.api.arena.team.Team;
@@ -480,7 +483,9 @@ public interface Arena extends DisplayableArena {
      */
     void setMeetingsLeft(Player player, int amount);
 
-    /* How long meeting talk takes.*/
+    /**
+     * How long meeting talk takes.
+     */
     void setMeetingTalkDuration(int value);
 
     /**
@@ -497,4 +502,26 @@ public interface Arena extends DisplayableArena {
      * How long voting takes.
      */
     int getMeetingVotingDuration();
+
+    /**
+     * Get current voting data.
+     */
+    @Nullable
+    ExclusionVoting getCurrentVoting();
+
+    /**
+     * Set current vote keeper.
+     * Usually set to null when meeting ended.
+     */
+    void setCurrentVoting(@Nullable ExclusionVoting exclusionVoting);
+
+    /**
+     * Check if votes are confidential.
+     */
+    boolean isAnonymousVotes();
+
+    /**
+     * Set if votes are confidential.
+     */
+    void setAnonymousVotes(boolean toggle);
 }

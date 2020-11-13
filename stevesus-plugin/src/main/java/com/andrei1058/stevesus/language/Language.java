@@ -113,7 +113,7 @@ public class Language extends YamlConfiguration implements Locale {
                     for (int i = 0; i < replacements.length; i += 2) {
                         toAdd = toAdd.replace(replacements[i], replacements[i + 1]);
                     }
-                    list.add(ChatColor.translateAlternateColorCodes('&', replacePlaceholders(player, toAdd)));
+                    Collections.addAll(list, ChatColor.translateAlternateColorCodes('&', replacePlaceholders(player, toAdd)).split("\\n"));
                 }
                 return list;
             }

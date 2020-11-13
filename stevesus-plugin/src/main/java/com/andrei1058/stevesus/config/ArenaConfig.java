@@ -41,6 +41,9 @@ public class ArenaConfig implements SettingsHolder {
     @Comment({" ", "Which teleporter layout to use in this arena?", "Leave empty for default."})
     public static final Property<String> TELEPORTER_LAYOUT = new StringProperty("teleporter-layout", "");
 
+    @Comment({" ", "Which exclusion layout to use in this arena?", "Leave empty for default."})
+    public static final Property<String> EXCLUSION_LAYOUT = new StringProperty("exclusion-layout", "");
+
     @Comment({" ", "Will spawn players in sequence if you set more than one location."})
     public static final ListProperty<Location> WAITING_LOBBY_LOCATIONS = new ListProperty<>("waiting-lobby.spawn-locations", new OrphanLocationProperty(), new ArrayList<>());
 

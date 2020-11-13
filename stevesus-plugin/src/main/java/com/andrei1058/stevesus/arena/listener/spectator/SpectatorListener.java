@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.gui.CustomHolder;
+import com.andrei1058.stevesus.teleporter.TeleporterGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -61,7 +62,7 @@ public class SpectatorListener implements Listener {
             // cancel usage of gm3 tools
             e.setCancelled(true);
 
-        } else if (!(e.getClickedInventory().getHolder() instanceof CustomHolder)) {
+        } else if (e.getClickedInventory() != null && !(e.getClickedInventory().getHolder() instanceof TeleporterGUI.TeleporterSelectorHolder)) {
             // cancel usage of inventory if not custom
             if (e.getWhoClicked() instanceof Player && ArenaManager.getINSTANCE().isSpectating((Player) e.getWhoClicked())) {
                 e.setCancelled(true);

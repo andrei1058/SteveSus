@@ -4,8 +4,9 @@ import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
-import com.andrei1058.stevesus.api.arena.MeetingButton;
-import com.andrei1058.stevesus.api.arena.MeetingStage;
+import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
@@ -14,6 +15,7 @@ import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.ServerType;
+import com.andrei1058.stevesus.arena.meeting.VoteGUIManager;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskPlaying;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskRestarting;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskStarting;
@@ -112,6 +114,8 @@ public class SteveSusArena implements Arena {
     private int meetingsPerPlayer;
     private int talkingDuration;
     private int votingDuration;
+    private ExclusionVoting currentExclusionVoting;
+    private boolean anonymousVotes = false;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -487,7 +491,7 @@ public class SteveSusArena implements Arena {
         // trigger game task event
         // so they can send their custom data etc.
         gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, true));
-
+        sendTaskMeter(player);
         SteveSus.debug("Player " + player.getName() + " was added as spectator to game " + getGameId() + "(" + getTemplateWorld() + ").");
         return true;
     }
@@ -631,6 +635,7 @@ public class SteveSusArena implements Arena {
         }
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
+        removeTaskMeter(player);
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -673,6 +678,7 @@ public class SteveSusArena implements Arena {
         }
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
+        removeTaskMeter(player);
         SteveSus.debug("Player " + player.getName() + " was removed as spectator from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -997,17 +1003,34 @@ public class SteveSusArena implements Arena {
         if (meetingStage == MeetingStage.NO_MEETING) {
             if (getMeetingButton() != null) {
                 getMeetingButton().refreshLines(this);
+                getMeetingButton().setLastUsage(System.currentTimeMillis());
             }
-            getPlayers().forEach(player -> setCantMove(player, false));
+            getPlayers().forEach(player -> {
+                setCantMove(player, false);
+                player.closeInventory();
+                player.getInventory().clear();
+            });
         } else if (meetingStage == MeetingStage.TALKING) {
             setCountdown(getMeetingTalkDuration());
             getPlayers().forEach(player -> setCantMove(player, true));
         } else if (meetingStage == MeetingStage.VOTING) {
             setCountdown(getMeetingVotingDuration());
-            getPlayers().forEach(player -> setCantMove(player, true));
+            getPlayers().forEach(player -> {
+                setCantMove(player, true);
+                VoteGUIManager.openToPlayer(player, this);
+                JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_VOTING);
+            });
         } else if (meetingStage == MeetingStage.EXCLUSION_SCREEN) {
-            setCountdown(4);
-            getPlayers().forEach(player -> setCantMove(player, true));
+            setCountdown(5);
+            getPlayers().forEach(player -> {
+                setCantMove(player, false);
+                player.closeInventory();
+                player.getInventory().clear();
+            });
+            if (currentExclusionVoting != null) {
+                currentExclusionVoting.performExclusion(this, getTeamByName("ghost"));
+                setCurrentVoting(null);
+            }
         }
     }
 
@@ -1026,6 +1049,7 @@ public class SteveSusArena implements Arena {
                 return false;
             }
         }
+        setCurrentVoting(new ExclusionVoting(this));
         if (deadBody == null) {
             if (getMeetingsLeft(requester) <= 0) return false;
             getPlayers().forEach(player -> player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN));
@@ -1034,9 +1058,13 @@ public class SteveSusArena implements Arena {
             int meetings = meetingsLeft.remove(requester.getUniqueId());
             meetings--;
             if (meetings > 0) {
-                meetingsLeft.put(requester.getUniqueId(), 0);
+                meetingsLeft.put(requester.getUniqueId(), meetings);
             }
-            // todo title, sound, chat
+            GameSound.EMERGENCY_MEETING.playToPlayers(getPlayers());
+            GameSound.EMERGENCY_MEETING.playToPlayers(getSpectators());
+            getPlayers().forEach(player -> player.sendTitle(LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_TITLE).replace("{player}", requester.getDisplayName()), LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_SUBTITLE).replace("{player}", requester.getDisplayName()), 0, 80, 0));
+            getSpectators().forEach(player -> player.sendTitle(LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_TITLE).replace("{player}", requester.getDisplayName()), LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_SUBTITLE).replace("{player}", requester.getDisplayName()), 0, 80, 0));
+            // todo chat, tell who triggered
         }
         return true;
     }
@@ -1087,6 +1115,26 @@ public class SteveSusArena implements Arena {
     @Override
     public int getMeetingVotingDuration() {
         return votingDuration;
+    }
+
+    @Override
+    public @Nullable ExclusionVoting getCurrentVoting() {
+        return currentExclusionVoting;
+    }
+
+    @Override
+    public void setCurrentVoting(@Nullable ExclusionVoting exclusionVoting) {
+        this.currentExclusionVoting = exclusionVoting;
+    }
+
+    @Override
+    public boolean isAnonymousVotes() {
+        return anonymousVotes;
+    }
+
+    @Override
+    public void setAnonymousVotes(boolean toggle) {
+        this.anonymousVotes = toggle;
     }
 
     public Location getNextWaitingSpawn() {
@@ -1193,5 +1241,18 @@ public class SteveSusArena implements Arena {
         }
         taskMeterBar.setProgress(0);
         getPlayers().forEach(player -> taskMeterBar.addPlayer(player));
+        getSpectators().forEach(spectator -> taskMeterBar.addPlayer(spectator));
+    }
+
+    private void removeTaskMeter(Player player) {
+        if (taskMeterBar != null) {
+            taskMeterBar.removePlayer(player);
+        }
+    }
+
+    private void sendTaskMeter(Player player) {
+        if (taskMeterBar != null) {
+            taskMeterBar.addPlayer(player);
+        }
     }
 }

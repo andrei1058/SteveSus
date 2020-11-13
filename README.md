@@ -23,6 +23,12 @@ List: blocks TNTs, blocks entity explosions, blocks entity spawn (only CUSTOM an
 - {player} holder display name, {player_raw} holder raw name, {player_uuid} holder uuid  
 - And if it is a teleporter item: {target} display name, {target_raw} raw name, {target_uuid} target uuid.
 
+## Placeholders that can be used in ExclusionGUI item commands or/ and names/ lores
+- {time} countdown vote ends.
+- {player} holder display name, {player_raw} holder raw name, {player_uuid} holder uuid
+- And if it is a teleporter item: {target} display name, {target_raw} raw name, {target_uuid} target uuid.
+
+
 ## Placeholders that can be used in arena display item name and lore  
 - {name} arena display name, {template} arena template name, {status} game state, {on} current players (spectators excluded),
  {max} player limit, {spectating} among of players spectating, {game_tag}, {game_id}
@@ -92,6 +98,9 @@ add code example and how to register active sessions
  - Where to set statsGUI replacement items name and lore?
    - teeleporterGUI-[guiName]-replacement-[replacementCharacter]-name
    - teeleporterGUI-[guiName]-replacement-[replacementCharacter]-lore
+
+- Custom exclusin gui name:
+  - exclusionrGUI-gui-name-[nameHere] accepted placeholders: {time} time till vote ends.
 
 - Custom count down title/ subtitles:  
 You can add custom title and subtitle for certain seconds at language paths: `count-down-title-` and `count-down-subtitle-`. So a custom title for second 32 would be `count-down-title-32: "It is 32"`;

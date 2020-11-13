@@ -50,6 +50,9 @@ public class MainConfig implements SettingsHolder {
     public static final Property<String> TELEPORTER_PATH = new StringProperty("custom-path.teleporter-path", "");
     @Comment("Abuse prevention configuration path.")
     public static final Property<String> ABUSE_PREVENTION_PATH = new StringProperty("custom-path.abuse-prevention-path", "");
+    @Comment("Exclusion vote configuration path.")
+    public static final Property<String> EXCLUSION_PATH = new StringProperty("custom-path.exclusion-vote-path", "");
+
 
     // COMMON
     @Comment("Set this to true if you want to store player data on a database.")

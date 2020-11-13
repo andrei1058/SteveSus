@@ -46,7 +46,11 @@ public enum GameSound {
      * Play game starting tick sound.
      * This is a path and can be used using {@link #playManual(String, Player)}.
      */
-    COUNT_DOWN_TICK_(true, "count-down-tick-", "ENTITY_CHICKEN_EGG", "ENTITY_CHICKEN_EGG", 1, 1);
+    COUNT_DOWN_TICK_(true, "count-down-tick-", "ENTITY_CHICKEN_EGG", "ENTITY_CHICKEN_EGG", 1, 1),
+
+    EMERGENCY_MEETING(false, "emergency-meeting", "ENTITY_ELDER_GUARDIAN_CURSE", "ENTITY_ELDER_GUARDIAN_CURSE", 1, (float) 0.5),
+    VOTE_SOUND(false, "vote-sound", "UI_BUTTON_CLICK", "UI_BUTTON_CLICK", 1, (float) 1.2),
+    ;
 
     // server version
     static byte SERVER_VERSION;

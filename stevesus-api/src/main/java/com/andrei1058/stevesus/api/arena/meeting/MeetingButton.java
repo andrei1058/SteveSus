@@ -1,9 +1,10 @@
-package com.andrei1058.stevesus.api.arena;
+package com.andrei1058.stevesus.api.arena.meeting;
 
 import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
@@ -17,10 +18,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class MeetingButton {
@@ -30,16 +30,17 @@ public class MeetingButton {
 
     private final Location buttonLocation;
     private final Hologram buttonHologram;
-    private Instant lastUsage;
+    private long lastUsage;
     private int coolDown;
     private List<Location> particleLocations;
     private int currentEntry = -1;
+    private UUID lastRequester;
 
     public MeetingButton(Plugin plugin, Location location, Arena arena, int coolDown) {
         this.buttonLocation = location;
         this.buttonLocation.setX(location.getBlockX() + 0.5);
         this.buttonLocation.setZ(location.getBlockZ() + 0.5);
-        this.coolDown = coolDown;
+        this.coolDown = coolDown * 1000;
         ArmorStand buttonKeeper = location.getWorld().spawn(location.clone().subtract(0, 1.5, 0), ArmorStand.class);
         buttonKeeper.setRemoveWhenFarAway(false);
         buttonKeeper.setVisible(false);
@@ -72,7 +73,7 @@ public class MeetingButton {
         if (buttonHologram != null) {
             arena.getPlayers().forEach(buttonHologram::refreshLines);
         }
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             Location loc = particleLocations.get(particleLocations.size() == ++currentEntry ? currentEntry = 0 : currentEntry);
             loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 0, 1, 1, 0, 1);
         }
@@ -90,9 +91,12 @@ public class MeetingButton {
             return;
         }
         // check cool down
-        if (lastUsage != null && lastUsage.plusSeconds(coolDown).isBefore(Instant.now())) {
-            player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EMERGENCY_DENIED_COOL_DOWN).replace("{time}", String.valueOf(Instant.now().until(lastUsage.plusSeconds(coolDown), ChronoUnit.SECONDS))));
-            return;
+        if (lastUsage != 0) {
+            if (System.currentTimeMillis() - lastUsage < coolDown) {
+                int seconds = (int) ((coolDown - (System.currentTimeMillis() - lastUsage)) / 1000);
+                player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EMERGENCY_DENIED_COOL_DOWN).replace("{time}", String.valueOf(seconds + 1)));
+                return;
+            }
         }
         // check usage limit per player
         if (arena.getMeetingsLeft(player) == 0) {
@@ -100,18 +104,24 @@ public class MeetingButton {
             return;
         }
 
-        if (!arena.startMeeting(player, null)) {
+        if (arena.startMeeting(player, null)) {
+            lastRequester = player.getUniqueId();
+        } else {
             return;
         }
-
-        lastUsage = Instant.now();
+        lastUsage = System.currentTimeMillis();
     }
 
     /**
      * Set button cool down.
      */
     public void setCoolDown(int coolDown) {
-        this.coolDown = coolDown;
+        this.coolDown = coolDown * 1000;
+    }
+
+    public void setLastUsage(long lastUsage) {
+        this.lastRequester = null;
+        this.lastUsage = lastUsage;
     }
 
     public ArrayList<Location> getCircle(Location center, double radius, int amount) {
@@ -125,5 +135,20 @@ public class MeetingButton {
             locations.add(new Location(world, x, center.getY(), z));
         }
         return locations;
+    }
+
+    public void setLastRequester(UUID lastRequester) {
+        this.lastRequester = lastRequester;
+    }
+
+    public UUID getLastRequester() {
+        return lastRequester;
+    }
+
+    public boolean isLastRequester(Player player) {
+        if (lastRequester == null) {
+            return false;
+        }
+        return lastRequester.equals(player.getUniqueId());
     }
 }

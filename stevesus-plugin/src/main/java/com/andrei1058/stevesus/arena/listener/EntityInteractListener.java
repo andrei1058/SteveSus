@@ -1,7 +1,7 @@
 package com.andrei1058.stevesus.arena.listener;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.MeetingButton;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;

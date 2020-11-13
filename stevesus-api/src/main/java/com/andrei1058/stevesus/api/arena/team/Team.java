@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.locale.Locale;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public interface Team {
@@ -79,10 +80,24 @@ public interface Team {
     /**
      * Check if this team can use meeting button.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean canUseMeetingButton();
 
     /**
      * Get game arena.
      */
     Arena getArena();
+
+    /**
+     * ASYNC.
+     *
+     * @return true if the given player shouldn't receive chat messages from team members.
+     */
+    boolean chatFilter(Player player);
+
+    /**
+     * Check if this team is innocent.
+     * False if is impostor team etc.
+     */
+    boolean isInnocent();
 }

@@ -1,6 +1,8 @@
 package com.andrei1058.stevesus.server.common;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.ArenaManager;
@@ -33,7 +35,13 @@ public class PlayerChatListener implements Listener {
                 }
             }
         } else {
-            e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()));
+            if (!(arena.getMeetingStage() == MeetingStage.TALKING || arena.getMeetingStage() == MeetingStage.VOTING)){
+                player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.TALK_ALLOWED_DURING_MEETINGS));
+                e.setCancelled(true);
+                return;
+            }
+            Team playerTeam = arena.getPlayerTeam(player);
+            e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()) || (playerTeam != null && playerTeam.chatFilter(receiver)));
             Message format;
             switch (arena.getGameState()) {
                 case WAITING:

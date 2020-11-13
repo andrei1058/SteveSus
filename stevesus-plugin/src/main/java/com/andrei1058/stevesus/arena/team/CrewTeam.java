@@ -95,4 +95,14 @@ public class CrewTeam implements Team {
     public Arena getArena() {
         return arena;
     }
+
+    @Override
+    public boolean chatFilter(Player player) {
+        return false;
+    }
+
+    @Override
+    public boolean isInnocent() {
+        return true;
+    }
 }
