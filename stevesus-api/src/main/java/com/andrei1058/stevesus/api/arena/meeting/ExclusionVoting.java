@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.api.arena.meeting;
 import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
@@ -37,6 +38,10 @@ public class ExclusionVoting {
                 arena.getPlayers().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_SKIP).replace("{player}", voter.getDisplayName())));
                 arena.getSpectators().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_SKIP).replace("{player}", voter.getDisplayName())));
             }
+            // short time if all voted
+            if (arena.getPlayers().stream().allMatch(this::hasVoted)) {
+                arena.setCountdown(5);
+            }
             return true;
         }
         if (!voted.isOnline()) return false;
@@ -51,6 +56,10 @@ public class ExclusionVoting {
         }
         GameSound.VOTE_SOUND.playToPlayers(arena.getPlayers());
         GameSound.VOTE_SOUND.playToPlayers(arena.getSpectators());
+        // short time if all voted
+        if (arena.getPlayers().stream().allMatch(this::hasVoted)) {
+            arena.setCountdown(5);
+        }
         return true;
     }
 
@@ -71,10 +80,13 @@ public class ExclusionVoting {
 
     /**
      * You can retrieve the player that is going to be ejected using {@link #getMostVoted(Arena)} and use it to assign the eject-to-team.
+     *
+     * @param excludeToThisTeam null if you want to automatically assign to its equivalent ghost team.
+     *                          For crew members it will search a team named "crew-ghost", for impostor team will search "impostor-ghost" etc.
+     *                          So if you want to exclude to a custom team create a team ending with "-ghost".
+     *                          If no team is found the excluded player will be switched to spectator.
      */
     public void performExclusion(Arena arena, Team excludeToThisTeam) {
-        if (excludeToThisTeam == null) throw new IllegalStateException("Provided eject team is null!");
-
         Player votedOff = getMostVoted(arena);
         Team playerTeam = null;
         if (votedOff != null) {
@@ -93,40 +105,78 @@ public class ExclusionVoting {
                     votes.forEach((voter, vote) -> {
                         int currentVotes = getVotes(voter).size();
                         if (currentVotes != 0) {
-                            messages.add(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_VOTE).replace("{player}", voter.getDisplayName()).replace("{amount}", String.valueOf(currentVotes)));
+                            messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_VOTE).replace("{player}", voter.getDisplayName()).replace("{amount}", String.valueOf(currentVotes))));
                         }
                     });
                 } else if (string.contains("{exclusion}")) {
                     if (votedOff == null) {
-                        messages.add(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP));
-                        player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SKIPPED), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SKIPPED), 8, 50, 8);
-                        //TODO SOUND
+                        messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP)));
                     } else {
                         if (arena.isAnonymousVotes()) {
-                            messages.add(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_ANONYMOUS).replace("{player}", votedOff.getDisplayName()));
-                            player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_ANONYMOUS).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_ANONYMOUS).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
-                            //TODO SOUND
-                        } else {
-                            if (finalPlayerTeam.isInnocent()) {
-                                messages.add(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_INNOCENT).replace("{player}", votedOff.getDisplayName()));
-                                player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_INNOCENT).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_INNOCENT).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
-                                //TODO SOUND
+                            if (player.equals(votedOff)) {
+                                messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_SELF).replace("{player}", votedOff.getDisplayName())));
                             } else {
-                                //TODO SOUND
-                                messages.add(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR).replace("{player}", votedOff.getDisplayName()));
-                                player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_IMPOSTOR).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_IMPOSTOR).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
+                                messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_ANONYMOUS).replace("{player}", votedOff.getDisplayName())));
+                            }
+                        } else {
+                            if (player.equals(votedOff)) {
+                                messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_SELF).replace("{player}", votedOff.getDisplayName())));
+                            } else if (finalPlayerTeam.isInnocent()) {
+                                messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_INNOCENT).replace("{player}", votedOff.getDisplayName())));
+                            } else {
+                                messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR).replace("{player}", votedOff.getDisplayName())));
                             }
                         }
                     }
                 } else {
-                    messages.add(string);
+                    messages.add(ChatUtil.centerMessage(string));
                 }
             });
+            if (votedOff == null) {
+                player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SKIPPED), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SKIPPED), 8, 70, 8);
+            } else if (arena.isAnonymousVotes()) {
+                if (player.equals(votedOff)) {
+                    player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SELF).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SELF).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
+                } else {
+                    player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_ANONYMOUS).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_ANONYMOUS).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
+                }
+            } else {
+                if (player.equals(votedOff)) {
+                    player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SELF).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SELF).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
+                } else if (finalPlayerTeam.isInnocent()) {
+                    player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_INNOCENT).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_INNOCENT).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
+                } else {
+                    player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_IMPOSTOR).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_IMPOSTOR).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
+                }
+            }
             messages.forEach(player::sendMessage);
         });
-        if (votedOff != null) {
+        if (votedOff == null) {
+            GameSound.VOTE_EJECT_NONE.playToPlayers(arena.getPlayers());
+            GameSound.VOTE_EJECT_NONE.playToPlayers(arena.getSpectators());
+        } else {
+            if (arena.isAnonymousVotes()) {
+                GameSound.VOTE_EJECT_ANONYMOUS.playToPlayers(arena.getPlayers());
+                GameSound.VOTE_EJECT_ANONYMOUS.playToPlayers(arena.getSpectators());
+            } else if (playerTeam.isInnocent()) {
+                GameSound.VOTE_EJECT_INNOCENT.playToPlayers(arena.getPlayers());
+                GameSound.VOTE_EJECT_INNOCENT.playToPlayers(arena.getSpectators());
+            } else {
+                GameSound.VOTE_EJECT_IMPOSTOR.playToPlayers(arena.getPlayers());
+                GameSound.VOTE_EJECT_IMPOSTOR.playToPlayers(arena.getSpectators());
+            }
             playerTeam.removePlayer(votedOff, false);
-            excludeToThisTeam.addPlayer(votedOff, false);
+            String playerTeamIdentifier = playerTeam.getIdentifier();
+            if (excludeToThisTeam == null) {
+                Team ghostTeam = arena.getGameTeams().stream().filter(team -> team.getIdentifier().equals(playerTeamIdentifier + "-ghost")).findFirst().orElse(null);
+                if (ghostTeam == null) {
+                    arena.switchToSpectator(votedOff);
+                } else {
+                    ghostTeam.addPlayer(votedOff, false);
+                }
+            } else {
+                excludeToThisTeam.addPlayer(votedOff, false);
+            }
         }
     }
 
@@ -140,12 +190,12 @@ public class ExclusionVoting {
         final Player[] mostVoted = {null};
         final int[] votes = {(int) arena.getPlayers().stream().filter(player -> !hasVoted(player)).count()};
         this.votes.values().stream().distinct().forEach(voted -> {
-            int currentVotes = (int) this.votes.values().stream().filter(current -> current.equals(voted)).count();
+            int currentVotes = (int) this.votes.values().stream().filter(current -> voted == null ? current == null : current.equals(voted)).count();
             if (votes[0] < currentVotes) {
                 mostVoted[0] = voted;
                 votes[0] = currentVotes;
             }
         });
-        return mostVoted[0];
+        return mostVoted[0] == null ? null : mostVoted[0].isOnline() ? mostVoted[0] : null;
     }
 }

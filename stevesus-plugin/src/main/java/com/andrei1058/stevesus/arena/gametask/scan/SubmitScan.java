@@ -141,6 +141,16 @@ public class SubmitScan extends GameTask {
         }
     }
 
+    @Override
+    public void onEmergencyStart(Arena arena) {
+        //todo
+    }
+
+    @Override
+    public void onEmergencyEnd(Arena arena) {
+//todo
+    }
+
     /**
      * Start scan for current player.
      *

@@ -80,6 +80,16 @@ public class FixWiring extends GameTask {
         return assignedPlayers.containsKey(player.getUniqueId());
     }
 
+    @Override
+    public void onEmergencyStart(Arena arena) {
+        //todo
+    }
+
+    @Override
+    public void onEmergencyEnd(Arena arena) {
+        //todo
+    }
+
     /**
      * Some panels cannot be first and that's why flags were introduced.
      */

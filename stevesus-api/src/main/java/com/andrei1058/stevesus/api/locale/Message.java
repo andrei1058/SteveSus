@@ -66,12 +66,13 @@ public enum Message {
     EXCLUSION_CHAT_ANNOUNCEMENT_REGULAR(false, "vote-announce-regular", "&8{player} &7voted &c{target}&7."),
     EXCLUSION_CHAT_ANNOUNCEMENT_SKIP(false, "vote-announce-skip", "&8{player} &7has skipped."),
 
-    EXCLUSION_RESULT_CHAT(false, "vote-result-chat", Arrays.asList(" ", " ", "                     &e&lVoting Results", " ", "{votes}", " ", "{exclusion}", " ")),
-    EXCLUSION_RESULT_FORMAT_VOTE(false, "vote-result-chat-format-vote", "&b                  {player} &8- &e{amount} votes "),
-    EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP(false, "vote-result-chat-format-skipped", "&b&l                  No one was ejected!"),
-    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_ANONYMOUS(false, "vote-result-chat-format-ejected-anonymous", "&b                  {player} &bwas ejected!"),
-    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_INNOCENT(false, "vote-result-chat-format-ejected-anonymous", "&c      {player} &cwas ejected! He wasn't an Impostor.."),
-    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR(false, "vote-result-chat-format-ejected-impostor", "&a      {player} &cwas ejected! He wasn an Impostor!!!"),
+    EXCLUSION_RESULT_CHAT(false, "vote-result-chat", Arrays.asList(" ", " ", "&e&lVoting Results", " ", "{votes}", " ", "{exclusion}", " ")),
+    EXCLUSION_RESULT_FORMAT_VOTE(false, "vote-result-chat-format-vote", "&b{player} &8- &e{amount} votes "),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP(false, "vote-result-chat-format-skipped", "&b&lNo one was ejected!"),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_ANONYMOUS(false, "vote-result-chat-format-ejected-anonymous", "&b{player} &bwas ejected!"),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_INNOCENT(false, "vote-result-chat-format-ejected-anonymous", "&c{player} &cwas ejected! He wasn't an Impostor.."),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR(false, "vote-result-chat-format-ejected-impostor", "&a{player} &awas ejected! He wasn an Impostor!!!"),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_SELF(false, "vote-result-chat-format-ejected-self", "&c&lYou've been ejected!"),
     EXCLUSION_RESULT_TITLE_SKIPPED(false, "vote-result-title-skipped", " "),
     EXCLUSION_RESULT_SUBTITLE_SKIPPED(false, "vote-result-subtitle-skipped", "&6No one was ejected!"),
     EXCLUSION_RESULT_TITLE_ANONYMOUS(false, "vote-result-title-anonymous", " "),
@@ -80,6 +81,20 @@ public enum Message {
     EXCLUSION_RESULT_SUBTITLE_INNOCENT(false, "vote-result-subtitle-innocent", "&f&lHe was not an Impostor!"),
     EXCLUSION_RESULT_TITLE_IMPOSTOR(false, "vote-result-title-impostor", "&a{player} &awas ejected"),
     EXCLUSION_RESULT_SUBTITLE_IMPOSTOR(false, "vote-result-subtitle-impostor", "&fHe was an Impostor!"),
+    EXCLUSION_RESULT_TITLE_SELF(false, "vote-result-title-self", " "),
+    EXCLUSION_RESULT_SUBTITLE_SELF(false, "vote-result-subtitle-self", "&c&lYou've been ejected!"),
+    MEETING_START_CHAT_MSG_NO_BODY(false, "meeting-start-no-body", Arrays.asList(" ", "&c&lEmergency Meeting", " ", "&e{requester} &erequested an &cemergency &emeeting!", " ")),
+    // {reporter}, {dead}, {room}
+    MEETING_START_CHAT_MSG_BODY(false, "meeting-start-body", Arrays.asList(" ", " &c&lDead body Found", " ", "&e{reporter} &efound {dead}'s body in &6{room}&e.", " ")),
+    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat",Arrays.asList(" ", " ", "&4Impostors won!", "{todo} names here", "")),
+    GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrew won!", "{todo} names here", "")),
+
+    GAME_END_IMPOSTORS_WON_TITLE("game-end-impostors-won-title", "&4Impostors won!"),
+    GAME_END_IMPOSTORS_WON_SUBTITLE("game-end-impostors-won-subtitle", " "),
+    GAME_END_CREW_WON_TITLE("game-end-crew-won-title", "&aCrew won!"),
+    GAME_END_CREW_WON_SUBTITLE("game-end-crew-won-subtitle", " "),
+
+
 
     // Placeholders: {target}, {target_raw}
     TITLE_SPECTATE_FIRST_PERSON_START("title-spectate-first-person-start", "&aSpectating &7{target}"),
@@ -123,9 +138,15 @@ public enum Message {
     EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN("emergency-button-status3", "&cVoting ends in &f&l{time}&cs!"),
     EMERGENCY_DENIED_NO_MEETINGS_LEFT("emergency-button-denied-no-left", "&cYou have &f&l0 &cemergency meetings left!"),
     EMERGENCY_DENIED_COOL_DOWN("emergency-button-denied-cooldown", "&cCrewmates must wait &f&l{time}s &cbefore next emergency."),
+
     EMERGENCY_MEETING_TITLE("emergency-meeting-title", "&4&lEMERGENCY MEETING"),
     EMERGENCY_MEETING_SUBTITLE("emergency-meeting-subtitle", "Requested by {player}"),
-    TALK_ALLOWED_DURING_MEETINGS("chat-denied-no-meeting", "&cYou can talk during meetings only!");
+    // {reporter}, {dead}, {room}
+    EMERGENCY_MEETING_DEAD_TITLE("emergency-body-found-title", "&4&lDead body reported!"),
+    // {reporter}, {dead}, {room}
+    EMERGENCY_MEETING_DEAD_SUBTITLE("emergency-body-found-subtitle", "&7{reporter} found {dead}"),
+    TALK_ALLOWED_DURING_MEETINGS("chat-denied-no-meeting", "&cYou can talk during meetings only!")
+    ;
 
     private final String path;
     private final boolean manual;

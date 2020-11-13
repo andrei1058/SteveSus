@@ -92,6 +92,16 @@ public abstract class GameTask {
 
     }
 
+    /**
+     * Hide task effects and more when an emergency starts. Like O2.
+     */
+    public abstract void onEmergencyStart(Arena arena);
+
+    /**
+     * Show back task effects if needed when emergency ends.
+     */
+    public abstract void onEmergencyEnd(Arena arena);
+
 
     @Override
     public boolean equals(Object obj) {

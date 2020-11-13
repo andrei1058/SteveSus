@@ -4,6 +4,7 @@ import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.GameEndConditions;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.event.GameInitializedEvent;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -54,6 +55,8 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
     public static final String WORLD_NAME_SEPARATOR = "_game_";
 
     private static int gameId = 0;
+
+    private final GameEndConditions gameEndConditions = new GameEndConditions();
 
     private ArenaManager() {
 
@@ -411,5 +414,9 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
             }
         }
         return SettingsManagerBuilder.withYamlFile(templateFile).configurationData(ArenaConfig.class).useDefaultMigrationService().create();
+    }
+
+    public GameEndConditions getGameEndConditions() {
+        return gameEndConditions;
     }
 }

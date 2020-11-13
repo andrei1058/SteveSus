@@ -11,12 +11,12 @@ import org.bukkit.entity.Player;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GhostTeam implements Team {
+public class GhostCrewTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
     private final Arena arena;
 
-    public GhostTeam(Arena arena) {
+    public GhostCrewTeam(Arena arena) {
         this.arena = arena;
     }
 
@@ -61,7 +61,7 @@ public class GhostTeam implements Team {
 
     @Override
     public String getIdentifier() {
-        return "ghost";
+        return "crew-ghost";
     }
 
     @Override

@@ -4,6 +4,7 @@ import ch.jalu.configme.SettingsManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
+import com.andrei1058.stevesus.api.arena.GameEndConditions;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
@@ -11,17 +12,20 @@ import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.*;
+import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.ServerType;
+import com.andrei1058.stevesus.arena.meeting.MeetingSound;
 import com.andrei1058.stevesus.arena.meeting.VoteGUIManager;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskPlaying;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskRestarting;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskStarting;
 import com.andrei1058.stevesus.arena.team.CrewTeam;
-import com.andrei1058.stevesus.arena.team.GhostTeam;
-import com.andrei1058.stevesus.arena.team.ImposterTeam;
+import com.andrei1058.stevesus.arena.team.GhostCrewTeam;
+import com.andrei1058.stevesus.arena.team.GhostImpostorTeam;
+import com.andrei1058.stevesus.arena.team.ImpostorTeam;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
 import com.andrei1058.stevesus.commanditem.JoinItemsManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
@@ -116,6 +120,8 @@ public class SteveSusArena implements Arena {
     private int votingDuration;
     private ExclusionVoting currentExclusionVoting;
     private boolean anonymousVotes = false;
+    private boolean emergency = false;
+    private GameEndConditions gameEndConditions;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -152,6 +158,7 @@ public class SteveSusArena implements Arena {
         this.meetingsPerPlayer = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_PER_PLAYER);
         this.talkingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME);
         this.votingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME);
+        this.gameEndConditions = ArenaManager.getINSTANCE().getGameEndConditions();
     }
 
     private void restoreCountDown() {
@@ -169,8 +176,9 @@ public class SteveSusArena implements Arena {
         meetingLocations.forEach(location -> location.setWorld(this.world));
 
         teams.add(new CrewTeam(this));
-        teams.add(new ImposterTeam(this, 1));
-        teams.add(new GhostTeam(this));
+        teams.add(new ImpostorTeam(this, 1));
+        teams.add(new GhostCrewTeam(this));
+        teams.add(new GhostImpostorTeam(this));
 
         if (getTime() != null) {
             world.setTime(getTime().getStartTick());
@@ -622,7 +630,7 @@ public class SteveSusArena implements Arena {
         }
 
         // if in game status, will check if it is the case to end this game
-        GameEndConditions.tickGameEndConditions(this);
+        getGameEndConditions().tickGameEndConditions(this);
 
         for (Player inArena : getPlayers()) {
             inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
@@ -999,6 +1007,7 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void setMeetingStage(MeetingStage meetingStage) {
+        if (meetingStage == this.meetingStage) return;
         this.meetingStage = meetingStage;
         if (meetingStage == MeetingStage.NO_MEETING) {
             if (getMeetingButton() != null) {
@@ -1010,6 +1019,7 @@ public class SteveSusArena implements Arena {
                 player.closeInventory();
                 player.getInventory().clear();
             });
+            getGameEndConditions().tickGameEndConditions(this);
         } else if (meetingStage == MeetingStage.TALKING) {
             setCountdown(getMeetingTalkDuration());
             getPlayers().forEach(player -> setCantMove(player, true));
@@ -1028,7 +1038,7 @@ public class SteveSusArena implements Arena {
                 player.getInventory().clear();
             });
             if (currentExclusionVoting != null) {
-                currentExclusionVoting.performExclusion(this, getTeamByName("ghost"));
+                currentExclusionVoting.performExclusion(this, null);
                 setCurrentVoting(null);
             }
         }
@@ -1062,9 +1072,33 @@ public class SteveSusArena implements Arena {
             }
             GameSound.EMERGENCY_MEETING.playToPlayers(getPlayers());
             GameSound.EMERGENCY_MEETING.playToPlayers(getSpectators());
-            getPlayers().forEach(player -> player.sendTitle(LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_TITLE).replace("{player}", requester.getDisplayName()), LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_SUBTITLE).replace("{player}", requester.getDisplayName()), 0, 80, 0));
-            getSpectators().forEach(player -> player.sendTitle(LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_TITLE).replace("{player}", requester.getDisplayName()), LanguageManager.getINSTANCE().getMsg(player, Message.EMERGENCY_MEETING_SUBTITLE).replace("{player}", requester.getDisplayName()), 0, 80, 0));
-            // todo chat, tell who triggered
+            getPlayers().forEach(player -> {
+                Locale lang = LanguageManager.getINSTANCE().getLocale(player);
+                lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_NO_BODY.toString(), new String[]{"{requester}", requester.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
+                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_TITLE).replace("{player}", requester.getDisplayName()), lang.getMsg(player, Message.EMERGENCY_MEETING_SUBTITLE).replace("{player}", requester.getDisplayName()), 0, 80, 0);
+            });
+            getSpectators().forEach(player -> {
+                Locale lang = LanguageManager.getINSTANCE().getLocale(player);
+                lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_NO_BODY.toString(), new String[]{"{requester}", requester.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
+                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_TITLE).replace("{player}", requester.getDisplayName()), lang.getMsg(player, Message.EMERGENCY_MEETING_SUBTITLE).replace("{player}", requester.getDisplayName()), 0, 80, 0);
+            });
+        } else {
+            getPlayers().forEach(player -> player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN));
+            setMeetingStage(MeetingStage.TALKING);
+
+            MeetingSound.playMusic(this, 0);
+
+            // todo replace room placeholder in messages
+            getPlayers().forEach(player -> {
+                Locale lang = LanguageManager.getINSTANCE().getLocale(player);
+                lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_BODY.toString(), new String[]{"{reporter}", requester.getDisplayName(), "{dead}", deadBody.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
+                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_TITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_SUBTITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), 0, 80, 0);
+            });
+            getSpectators().forEach(player -> {
+                Locale lang = LanguageManager.getINSTANCE().getLocale(player);
+                lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_BODY.toString(), new String[]{"{reporter}", requester.getDisplayName(), "{dead}", deadBody.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
+                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_TITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_SUBTITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), 0, 80, 0);
+            });
         }
         return true;
     }
@@ -1135,6 +1169,32 @@ public class SteveSusArena implements Arena {
     @Override
     public void setAnonymousVotes(boolean toggle) {
         this.anonymousVotes = toggle;
+    }
+
+    @Override
+    public boolean isEmergency() {
+        return emergency;
+    }
+
+    @Override
+    public void setEmergency(boolean toggle) {
+        if (toggle == this.emergency) return;
+        this.emergency = toggle;
+        if (toggle) {
+            getLoadedGameTasks().forEach(loadedTask -> loadedTask.onEmergencyStart(this));
+        } else {
+            getLoadedGameTasks().forEach(loadedTask -> loadedTask.onEmergencyEnd(this));
+        }
+    }
+
+    @Override
+    public void setGameEndConditions(@NotNull GameEndConditions gameEndConditions) {
+        this.gameEndConditions = gameEndConditions;
+    }
+
+    @Override
+    public @NotNull GameEndConditions getGameEndConditions() {
+        return gameEndConditions;
     }
 
     public Location getNextWaitingSpawn() {

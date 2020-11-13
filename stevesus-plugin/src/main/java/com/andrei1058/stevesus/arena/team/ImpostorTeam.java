@@ -12,14 +12,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ImposterTeam implements Team {
+public class ImpostorTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
     private boolean canVote = true;
     private final Arena arena;
     private int teamSize;
 
-    public ImposterTeam(Arena arena, int teamSize) {
+    public ImpostorTeam(Arena arena, int teamSize) {
         this.arena = arena;
         this.teamSize = teamSize;
     }

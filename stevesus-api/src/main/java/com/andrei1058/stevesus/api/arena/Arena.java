@@ -524,4 +524,25 @@ public interface Arena extends DisplayableArena {
      * Set if votes are confidential.
      */
     void setAnonymousVotes(boolean toggle);
+
+    /**
+     * @return true when there is an emergency and players shouldn't be allowed to do tasks.
+     */
+    boolean isEmergency();
+
+    /**
+     * When set to true will disable things like tasks effects and player ability to do tasks.
+     */
+    void setEmergency(boolean toggle);
+
+    /**
+     * Set arena game end checker.
+     */
+    void setGameEndConditions(@NotNull GameEndConditions gameEndConditions);
+
+    /**
+     * Get game end checker.
+     */
+    @NotNull
+    GameEndConditions getGameEndConditions();
 }
