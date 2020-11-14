@@ -48,6 +48,7 @@ public class CommonCmdManager {
         JoinCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         LangCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         DebugCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
+        InvCloseCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
     }
 
     public SteveSusCmd getMainCmd() {
