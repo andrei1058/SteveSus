@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.commanditem;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class InventoryUtil {
 
@@ -19,5 +20,12 @@ public class InventoryUtil {
         player.setAllowFlight(false);
         player.setFlying(false);
         player.getActivePotionEffects().forEach(potion -> player.removePotionEffect(potion.getType()));
+    }
+
+    public static void clearStorageContents(Player player){
+        for (ItemStack itemStack : player.getInventory().getStorageContents()){
+            if (itemStack == null) continue;
+            player.getInventory().remove(itemStack);
+        }
     }
 }

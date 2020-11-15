@@ -86,6 +86,8 @@ public class ArenaConfig implements SettingsHolder {
     public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_TALK_TIME = new IntegerProperty("default-game-option.meeting-talk-timer", 45);
     @Comment("Voting time.")
     public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_VOTE_TIME = new IntegerProperty("default-game-option.meeting-voting-timer", 25);
+    @Comment("Ignore color limit? If players amount is greater than color limit some players will have the same color.")
+    public static final BooleanProperty DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT = new BooleanProperty("default-game-option.ignore-color-limit", true);
 
     @Comment({
             " ",

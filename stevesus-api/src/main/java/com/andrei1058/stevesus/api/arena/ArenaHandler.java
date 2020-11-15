@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.arena;
 
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -243,8 +244,20 @@ public interface ArenaHandler {
 
     /**
      * Delete task related data.
-     *  @param setupSession setup session instance.
+     *
+     * @param setupSession setup session instance.
      * @param givenName    local identifier used by server owner to identify this configuration.
      */
     void deleteTaskData(SetupSession setupSession, String givenName);
+
+    /**
+     * Get default player color assigner.
+     */
+    @Nullable
+    PlayerColorAssigner<PlayerColorAssigner.PlayerColor> getDefaultPlayerColorAssigner();
+
+    /**
+     * Every arena without a specified color assigner will use this.
+     */
+    void setDefaultPlayerColorAssigner(@Nullable PlayerColorAssigner<PlayerColorAssigner.PlayerColor> defaultPlayerColorAssigner);
 }

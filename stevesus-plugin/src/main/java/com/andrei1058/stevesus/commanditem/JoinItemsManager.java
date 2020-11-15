@@ -142,15 +142,26 @@ public class JoinItemsManager {
         LanguageManager.getINSTANCE().getDefaultLocale().setList(Message.JOIN_ITEM_LORE_PATH.toString().replace("{c}", parent).replace("{i}", name), localeLore);
     }
 
+    public static void sendCommandItems(@NotNull Player player, @NotNull String category) {
+        sendCommandItems(player, category, true);
+    }
+
     /**
      * Send command items to a player.
      */
-    public static void sendCommandItems(@NotNull Player player, @NotNull String category) {
+    public static void sendCommandItems(@NotNull Player player, @NotNull String category, boolean clearArmor) {
         YamlConfiguration yml = INSTANCE.getYml();
         if (yml.get(category) == null) return;
         if (yml.getConfigurationSection(category) == null) return;
         SteveSus.debug("Giving command items " + category + " to " + player.getUniqueId() + ".");
-        player.getInventory().clear();
+        if (clearArmor) {
+            player.getInventory().clear();
+        } else {
+            for (ItemStack itemStack : player.getInventory().getStorageContents()){
+                if (itemStack == null) continue;
+                player.getInventory().remove(itemStack);
+            }
+        }
         yml.getConfigurationSection(category).getKeys(false).forEach(item -> {
             String permPath = category + "." + item + PERMISSION;
 

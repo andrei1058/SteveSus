@@ -172,6 +172,14 @@ public class Language extends YamlConfiguration implements Locale {
         return simpleDateFormat;
     }
 
+    @Override
+    public void addDefault(String path, String message) {
+        if (!hasPath(path)){
+            setMsg(path, message);
+            save();
+        }
+    }
+
     public String getPrefix() {
         return prefix;
     }

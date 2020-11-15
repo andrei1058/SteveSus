@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.arena.meeting;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -14,7 +15,6 @@ import com.andrei1058.stevesus.common.selector.SelectorManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -66,11 +66,15 @@ public class ExclusionGUI extends BaseGUI {
 
     private ItemStack getItemStack(YamlConfiguration yml, String path, Arena arena, String replacementString, int currentPlayer, Player player, String guiName) {
         Player targetPlayer = null;
+        PlayerColorAssigner.PlayerColor playerColor = null;
 
         // if current item should point to a player
         if (yml.getBoolean(path + "." + replacementString + ".vote")) {
             if (arena.getPlayers().size() > currentPlayer) {
                 targetPlayer = arena.getPlayers().get(currentPlayer);
+                if (arena.getPlayerColorAssigner() != null) {
+                    playerColor = arena.getPlayerColorAssigner().getPlayerColor(targetPlayer);
+                }
             } else {
                 return new ItemStack(Material.AIR);
             }
@@ -111,16 +115,22 @@ public class ExclusionGUI extends BaseGUI {
             // create path on default language
             CommonManager.getINSTANCE().getCommonProvider().getCommonLocaleManager().getDefaultLocale().setList(lorePath, new ArrayList<>());
         }
-        ItemStack item = ItemUtil.createItem(yml.getString(path + "." + replacementString + ".item.material"),
+        ItemStack item = playerColor == null ? ItemUtil.createItem(yml.getString(path + "." + replacementString + ".item.material"),
                 (byte) yml.getInt(path + "." + replacementString + ".item.data"), yml.getInt(path + "." + replacementString + ".item.amount"),
-                yml.getBoolean(path + "." + replacementString + ".item.enchanted"), tags);
+                yml.getBoolean(path + "." + replacementString + ".item.enchanted"), tags) : playerColor.getPlayerHead(targetPlayer, arena);
+
+        if (playerColor != null) {
+            for (int i = 0; i < tags.size(); i += 2) {
+                item = CommonManager.getINSTANCE().getItemSupport().addTag(item, tags.get(i), tags.get(i + 1));
+            }
+        }
 
         // apply skin if head
         if (CommonManager.getINSTANCE().getItemSupport().isPlayerHead(item)) {
             // apply holder skin
             if (targetPlayer == null) {
                 item = CommonManager.getINSTANCE().getItemSupport().applyPlayerSkinOnHead(player, item);
-            } else {
+            } else if (playerColor == null) {
                 // apply target skin
                 item = CommonManager.getINSTANCE().getItemSupport().applyPlayerSkinOnHead(targetPlayer, item);
             }

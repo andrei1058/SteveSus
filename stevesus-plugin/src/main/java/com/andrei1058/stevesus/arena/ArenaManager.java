@@ -6,6 +6,8 @@ import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameEndConditions;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.arena.team.LegacyPlayerColor;
+import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.event.GameInitializedEvent;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.setup.SetupSession;
@@ -57,6 +59,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
     private static int gameId = 0;
 
     private final GameEndConditions gameEndConditions = new GameEndConditions();
+    private PlayerColorAssigner<PlayerColorAssigner.PlayerColor> defaultColorAssigner;
 
     private ArenaManager() {
 
@@ -75,6 +78,10 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         if (!arenaDirectory.exists()) {
             //noinspection ResultOfMethodCallIgnored
             arenaDirectory.mkdir();
+        }
+        defaultColorAssigner = new PlayerColorAssigner<>();
+        for (LegacyPlayerColor color : LegacyPlayerColor.values()){
+            defaultColorAssigner.addColorOption(color);
         }
     }
 
@@ -401,6 +408,20 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         });
         config.setProperty(ArenaConfig.TASKS, tasks);
         config.save();
+    }
+
+    @Override
+    public @Nullable PlayerColorAssigner<PlayerColorAssigner.PlayerColor> getDefaultPlayerColorAssigner() {
+        return defaultColorAssigner;
+    }
+
+    @Override
+    public void setDefaultPlayerColorAssigner(@Nullable PlayerColorAssigner<PlayerColorAssigner.PlayerColor> defaultPlayerColorAssigner) {
+        if (this.defaultColorAssigner != null){
+            getArenas().stream().filter(arena -> arena.getPlayerColorAssigner() != null & arena.getPlayerColorAssigner().equals(this.defaultColorAssigner))
+            .forEach(arena -> arena.getPlayers().forEach(player -> this.defaultColorAssigner.restorePlayer(player)));
+        }
+        this.defaultColorAssigner = defaultPlayerColorAssigner;
     }
 
     public SettingsManager getTemplate(String worldName, boolean create) {

@@ -10,6 +10,7 @@ import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
+import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.ChatUtil;
@@ -122,6 +123,8 @@ public class SteveSusArena implements Arena {
     private boolean anonymousVotes = false;
     private boolean emergency = false;
     private GameEndConditions gameEndConditions;
+    private PlayerColorAssigner<?> playerColorAssigner;
+    private boolean ignoreColorLimit;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -159,6 +162,8 @@ public class SteveSusArena implements Arena {
         this.talkingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME);
         this.votingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME);
         this.gameEndConditions = ArenaManager.getINSTANCE().getGameEndConditions();
+        this.ignoreColorLimit = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT);
+        this.playerColorAssigner = ArenaManager.getINSTANCE().getDefaultPlayerColorAssigner();
     }
 
     private void restoreCountDown() {
@@ -226,14 +231,21 @@ public class SteveSusArena implements Arena {
                 }
             }
         }
-
-        //todo cancel tasks
+        if (getPlayerColorAssigner() != null) {
+            getPlayerColorAssigner().clearArenaData(this);
+        }
+        if (gameTask != -1) {
+            Bukkit.getScheduler().cancelTask(gameTask);
+        }
     }
 
     @Override
     public void restart() {
         if (gameTask != -1) {
             Bukkit.getScheduler().cancelTask(gameTask);
+        }
+        if (getPlayerColorAssigner() != null) {
+            getPlayerColorAssigner().clearArenaData(this);
         }
         SteveSus.debug("Restarting game " + getGameId() + "(" + getTemplateWorld() + ").");
         ArenaManager.getINSTANCE().removeArena(this);
@@ -379,7 +391,7 @@ public class SteveSusArena implements Arena {
             player.setGameMode(GameMode.SURVIVAL);
 
             // send items
-            JoinItemsManager.sendCommandItems(player, getGameState() == GameState.STARTING ? JoinItemsManager.CATEGORY_STARTING : JoinItemsManager.CATEGORY_WAITING);
+            JoinItemsManager.sendCommandItems(player, getGameState() == GameState.STARTING ? JoinItemsManager.CATEGORY_STARTING : JoinItemsManager.CATEGORY_WAITING,false);
 
             // play songs before adding him to the players list so you don't have to filter it. it would be redundant.
             GameSound.JOIN_SOUND_CURRENT.playToPlayers(getPlayers());
@@ -644,6 +656,9 @@ public class SteveSusArena implements Arena {
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
         removeTaskMeter(player);
+        if (getPlayerColorAssigner() != null){
+            getPlayerColorAssigner().restorePlayer(player);
+        }
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -687,6 +702,9 @@ public class SteveSusArena implements Arena {
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
         removeTaskMeter(player);
+        if (getPlayerColorAssigner() != null){
+            getPlayerColorAssigner().restorePlayer(player);
+        }
         SteveSus.debug("Player " + player.getName() + " was removed as spectator from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -722,10 +740,22 @@ public class SteveSusArena implements Arena {
             // assign teams
             GameTeamAssigner teamAssigner = new GameTeamAssigner(this);
             teamAssigner.assignTeams();
+            // assign colors AFTER teams
+            if (getPlayerColorAssigner() != null) {
+                getPlayers().forEach(player -> {
+                    PlayerColorAssigner.PlayerColor playerColor = getPlayerColorAssigner().assignPlayerColor(player, this, isIgnoreColorLimit());
+                    if (playerColor == null) {
+                        throw new IllegalStateException("Could not assign a color to: " + player.getName() + "! Player amount was greater than available colors. To avoid this issue change arena's player limit or set " + ArenaConfig.DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT.getPath() + " to true.");
+                    }
+                    playerColor.apply(player, this);
+                });
+            }
             // assign tasks
             GameTaskAssigner gameTaskAssigner = new GameTaskAssigner(this);
             teams.forEach(gameTaskAssigner::assignTasks);
+            // change sidebar
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.IN_GAME, this, false));
+            // refresh meeting button lines
             if (getMeetingButton() != null) {
                 getMeetingButton().refreshLines(this);
             }
@@ -1017,7 +1047,7 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> {
                 setCantMove(player, false);
                 player.closeInventory();
-                player.getInventory().clear();
+                InventoryUtil.clearStorageContents(player);
             });
             getGameEndConditions().tickGameEndConditions(this);
         } else if (meetingStage == MeetingStage.TALKING) {
@@ -1028,14 +1058,14 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> {
                 setCantMove(player, true);
                 VoteGUIManager.openToPlayer(player, this);
-                JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_VOTING);
+                JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_VOTING, false);
             });
         } else if (meetingStage == MeetingStage.EXCLUSION_SCREEN) {
             setCountdown(5);
             getPlayers().forEach(player -> {
                 setCantMove(player, false);
                 player.closeInventory();
-                player.getInventory().clear();
+                InventoryUtil.clearStorageContents(player);
             });
             if (currentExclusionVoting != null) {
                 currentExclusionVoting.performExclusion(this, null);
@@ -1195,6 +1225,29 @@ public class SteveSusArena implements Arena {
     @Override
     public @NotNull GameEndConditions getGameEndConditions() {
         return gameEndConditions;
+    }
+
+    @Override
+    public @Nullable PlayerColorAssigner<?> getPlayerColorAssigner() {
+        return playerColorAssigner;
+    }
+
+    @Override
+    public void setPlayerColorAssigner(@Nullable PlayerColorAssigner<?> playerColorAssigner) {
+        if (getPlayerColorAssigner() != null){
+            getPlayers().forEach(player -> getPlayerColorAssigner().restorePlayer(player));
+        }
+        this.playerColorAssigner = playerColorAssigner;
+    }
+
+    @Override
+    public void setIgnoreColorLimit(boolean toggle) {
+        this.ignoreColorLimit = toggle;
+    }
+
+    @Override
+    public boolean isIgnoreColorLimit() {
+        return ignoreColorLimit;
     }
 
     public Location getNextWaitingSpawn() {

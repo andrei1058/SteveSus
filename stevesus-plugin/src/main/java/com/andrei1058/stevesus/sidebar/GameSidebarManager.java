@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.server.ServerType;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
@@ -94,15 +95,31 @@ public class GameSidebarManager {
         if (previousSidebar == null) {
             if (delay) {
                 // give with 5 ticks of delay
-                SteveSus.newChain().delay(5).sync(() -> sidebarByPlayer.put(player.getUniqueId(), new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat()))).execute();
+                SteveSus.newChain().delay(10).sync(() -> {
+                    GameSidebar sidebar = new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat());
+                    sidebarByPlayer.put(player.getUniqueId(), sidebar);
+                    if (arena != null && arena.getGameState() == GameState.IN_GAME){
+                        arena.getPlayers().forEach(sidebar::hidePlayerName);
+                    }
+                }).execute();
             } else {
                 // give normally
-                sidebarByPlayer.put(player.getUniqueId(), new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat()));
+                GameSidebar sidebar = new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat());
+                sidebarByPlayer.put(player.getUniqueId(), sidebar);
+                if (arena != null && arena.getGameState() == GameState.IN_GAME){
+                    arena.getPlayers().forEach(sidebar::hidePlayerName);
+                }
             }
         } else {
             // if already owns a sidebar
+            // remove temporarily from refresh list to prevent issues
+            sidebarByPlayer.remove(player.getUniqueId());
             previousSidebar.setArena(arena);
             previousSidebar.setLines(content);
+            sidebarByPlayer.put(player.getUniqueId(), previousSidebar);
+            if (arena != null && arena.getGameState() == GameState.IN_GAME){
+                arena.getPlayers().forEach(previousSidebar::hidePlayerName);
+            }
         }
     }
 

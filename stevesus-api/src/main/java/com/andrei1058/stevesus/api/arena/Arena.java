@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
+import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.common.CommonManager;
@@ -24,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public interface Arena extends DisplayableArena {
 
     /**
@@ -545,4 +547,27 @@ public interface Arena extends DisplayableArena {
      */
     @NotNull
     GameEndConditions getGameEndConditions();
+
+    /**
+     * Get player color assigner.
+     */
+    @Nullable
+    PlayerColorAssigner<?> getPlayerColorAssigner();
+
+    /**
+     * Change player color assigner.
+     */
+    void setPlayerColorAssigner(@Nullable PlayerColorAssigner<?> playerColorAssigner);
+
+    /**
+     * Ignore color limit?
+     * If players amount is greater than color limit some players will have the same color.
+     */
+    void setIgnoreColorLimit(boolean toggle);
+
+    /**
+     * Ignore color limit?
+     * If players amount is greater than color limit some players will have the same color.
+     */
+    boolean isIgnoreColorLimit();
 }

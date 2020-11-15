@@ -52,6 +52,17 @@ public class GameSidebar {
         handle = GameSidebarManager.getInstance().getHandle().createSidebar(null, Collections.emptyList(), Collections.emptyList());
         // set lines
         setLines(content);
+        // register some placeholders
+        handle.addPlaceholder(new PlaceholderProvider("{date}", () -> dateFormat.format(new Date(Instant.now().toEpochMilli()))));
+        handle.addPlaceholder(new PlaceholderProvider("{player}", () -> player.getDisplayName()));
+        handle.addPlaceholder(new PlaceholderProvider("{money}", () -> String.valueOf(HookManager.getInstance().getVaultEconHook().getBalance(player))));
+        handle.addPlaceholder(new PlaceholderProvider("{on}", () -> {
+            if (arena == null){
+                return String.valueOf(Bukkit.getOnlinePlayers().size());
+            } else {
+                return String.valueOf(arena.getCurrentPlayers());
+            }
+        }));
         // apply sidebar
         handle.apply(player);
         SteveSus.debug("Gave player scoreboard: " + player.getName());
@@ -70,6 +81,7 @@ public class GameSidebar {
                 this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString());
             }
         }
+
         // remove previous lines
         while (handle.linesAmount() > 0) {
             handle.removeLine(0);
@@ -102,11 +114,7 @@ public class GameSidebar {
         }
 
         // Register refreshable placeholders
-        handle.addPlaceholder(new PlaceholderProvider("{date}", () -> dateFormat.format(new Date(Instant.now().toEpochMilli()))));
-        if (arena == null) {
-            handle.addPlaceholder(new PlaceholderProvider("{on}", () -> String.valueOf(Bukkit.getOnlinePlayers().size())));
-        } else {
-            handle.addPlaceholder(new PlaceholderProvider("{on}", () -> String.valueOf(arena.getCurrentPlayers())));
+        if (arena != null) {
             handle.addPlaceholder(new PlaceholderProvider("{spectating}", () -> String.valueOf(arena.getCurrentSpectators())));
             if (arena.getGameState() == GameState.STARTING || arena.getGameState() == GameState.ENDING) {
                 handle.addPlaceholder(new PlaceholderProvider("{countdown}", () -> String.valueOf(arena.getCountdown())));
@@ -125,9 +133,7 @@ public class GameSidebar {
             if (arena != null) {
                 if (line.contains("{task}")) {
                     GameTask currentTask = playerTasks == null ? null : (playerTasks.isEmpty() ? null : playerTasks.remove(0));
-                    if (currentTask == null) {
-                        line = line.replace("{task}", "");
-                    } else {
+                    if (currentTask != null) {
                         final String taskName = ChatColor.stripColor(LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_NAME_PATH_.toString() + currentTask.getHandler().getIdentifier()));
                         PlaceholderProvider taskPlaceholder = new PlaceholderProvider("{task_" + currentTask.getLocalName() + "}", () -> {
                             int currentStage;
@@ -143,16 +149,15 @@ public class GameSidebar {
                                 return "{task_" + currentTask.getLocalName() + "}";
                             }
                         });
-                        continue;
                     }
+                    continue;
                 }
                 line = line.replace("{template}", arena.getTemplateWorld()).replace("{name}", arena.getDisplayName())
                         .replace("{status}", arena.getDisplayState(player)).replace("{on}", String.valueOf(arena.getCurrentPlayers()))
                         .replace("{max}", String.valueOf(arena.getMaxPlayers())).replace("{spectating}", String.valueOf(arena.getCurrentSpectators()))
                         .replace("{game_tag}", arena.getTag()).replace("{game_id}", String.valueOf(arena.getGameId()));
             }
-            line = line.replace("{player}", player.getDisplayName()).replace("{player_raw}", player.getName())
-                    .replace("{money}", String.valueOf(HookManager.getInstance().getVaultEconHook().getBalance(player)))
+            line = line.replace("{player_raw}", player.getName())
                     .replace("{server_name}", ServerManager.getINSTANCE().getServerName());
             line = StatsManager.getINSTANCE().replaceStats(player, line);
 
@@ -188,5 +193,9 @@ public class GameSidebar {
      */
     public void remove() {
         GameSidebarManager.getInstance().removeSidebar(player);
+    }
+
+    public void hidePlayerName(Player player){
+        this.handle.playerListHideNameTag(player);
     }
 }

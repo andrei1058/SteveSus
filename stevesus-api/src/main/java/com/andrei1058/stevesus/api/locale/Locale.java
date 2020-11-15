@@ -148,4 +148,9 @@ public interface Locale extends CommonLocale {
      * Get date format with time zone applied.
      */
     SimpleDateFormat getTimeZonedDateFormat();
+
+    /**
+     * Save a message at the given path if it does not exist.
+     */
+    void addDefault(String path, String message);
 }

@@ -5,6 +5,7 @@ import com.andrei1058.spigot.versionsupport.ChatSupport;
 import com.andrei1058.stevesus.common.CommonManager;
 import org.bukkit.Bukkit;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CommonCmdManager {
 
     private static CommonCmdManager INSTANCE;
