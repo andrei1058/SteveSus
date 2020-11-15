@@ -244,7 +244,7 @@ public class ExclusionGUI extends BaseGUI {
                     if (targetArena == null || !targetArena.equals(arena)) {
                         return;
                     }
-                    if (arena.getCurrentVoting().addVote(player, target, arena)) {
+                    if (arena.getCurrentVoting().addVote(target, player, arena)) {
                         player.closeInventory();
                     }
                 }
