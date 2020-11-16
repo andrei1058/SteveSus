@@ -4,13 +4,12 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ImpostorTeam implements Team {
 
@@ -36,15 +35,18 @@ public class ImpostorTeam implements Team {
 
     @Override
     public boolean canKill(Player player) {
-        return !isMember(player);
+        Team team = arena.getPlayerTeam(player);
+        return !isMember(player) && team != null && team.isInnocent() && !team.getIdentifier().endsWith("-ghost");
     }
 
     @Override
     public boolean addPlayer(Player player, boolean gameStartAssign) {
         if (!gameStartAssign) return false;
+        if (getMembers().size() == getTeamSize()) return false;
         if (getArena().getGameState() != GameState.IN_GAME) return false;
         if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
+        CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_IMPOSTOR);
         return members.add(player);
     }
 

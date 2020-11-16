@@ -18,6 +18,11 @@
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
         </repository>
+        <!-- Glowing API -->
+        <repository>
+            <id>inventive-repo</id>
+            <url>https://repo.inventivetalent.org/content/groups/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -149,6 +154,19 @@
             <artifactId>spigot-maps</artifactId>
             <version>[2.1.1,)</version>
             <scope>compile</scope>
+        </dependency>
+        <!-- Corpse API -->
+        <dependency>
+            <groupId>com.golde.bukkit.corpsereborn</groupId>
+            <artifactId>corpsereborn-api</artifactId>
+            <version>2.14.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Glowing API -->
+        <dependency>
+            <groupId>org.inventivetalent</groupId>
+            <artifactId>glowapi</artifactId>
+            <version>1.4.14-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>

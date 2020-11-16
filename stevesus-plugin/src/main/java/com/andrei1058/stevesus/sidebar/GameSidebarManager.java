@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.sidebar;
 
+import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
@@ -99,27 +100,78 @@ public class GameSidebarManager {
                 SteveSus.newChain().delay(10).sync(() -> {
                     GameSidebar sidebar = new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
-                    if (arena != null && arena.getGameState() == GameState.IN_GAME){
-                        arena.getPlayers().forEach(sidebar::hidePlayerName);
+                    if (arena != null && arena.getGameState() == GameState.IN_GAME) {
+                        arena.getPlayers().forEach(inGame -> {
+                            sidebar.getHandle().playerListCreate(inGame, new SidebarLine() {
+                                        @NotNull
+                                        @Override
+                                        public String getLine() {
+                                            return inGame.getDisplayName();
+                                        }
+                                    },
+                                    new SidebarLine() {
+                                        @NotNull
+                                        @Override
+                                        public String getLine() {
+                                            return "";
+                                        }
+                                    });
+                            sidebar.hidePlayerName(inGame);
+                        });
+                    } else {
+                        sidebar.getHandle().playerListClear();
                     }
                 }).execute();
             } else {
                 // give normally
                 GameSidebar sidebar = new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat());
                 sidebarByPlayer.put(player.getUniqueId(), sidebar);
-                if (arena != null && arena.getGameState() == GameState.IN_GAME){
-                    arena.getPlayers().forEach(sidebar::hidePlayerName);
+                if (arena != null && arena.getGameState() == GameState.IN_GAME) {
+                    arena.getPlayers().forEach(inGame -> {
+                        sidebar.getHandle().playerListCreate(inGame, new SidebarLine() {
+                                    @NotNull
+                                    @Override
+                                    public String getLine() {
+                                        return inGame.getDisplayName();
+                                    }
+                                },
+                                new SidebarLine() {
+                                    @NotNull
+                                    @Override
+                                    public String getLine() {
+                                        return "";
+                                    }
+                                });
+                        sidebar.hidePlayerName(inGame);
+                    });
+                } else {
+                    sidebar.getHandle().playerListClear();
                 }
             }
         } else {
             // if already owns a sidebar
-            // remove temporarily from refresh list to prevent issues
-            sidebarByPlayer.remove(player.getUniqueId());
             previousSidebar.setArena(arena);
             previousSidebar.setLines(content);
-            sidebarByPlayer.put(player.getUniqueId(), previousSidebar);
-            if (arena != null && arena.getGameState() == GameState.IN_GAME){
-                arena.getPlayers().forEach(previousSidebar::hidePlayerName);
+            if (arena != null && arena.getGameState() == GameState.IN_GAME) {
+                arena.getPlayers().forEach(inGame -> {
+                    previousSidebar.getHandle().playerListCreate(inGame, new SidebarLine() {
+                                @NotNull
+                                @Override
+                                public String getLine() {
+                                    return inGame.getDisplayName();
+                                }
+                            },
+                            new SidebarLine() {
+                                @NotNull
+                                @Override
+                                public String getLine() {
+                                    return "";
+                                }
+                            });
+                    previousSidebar.hidePlayerName(inGame);
+                });
+            } else {
+                previousSidebar.getHandle().playerListClear();
             }
         }
     }

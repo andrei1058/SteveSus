@@ -1,10 +1,12 @@
 package com.andrei1058.stevesus.arena;
 
 import ch.jalu.configme.SettingsManager;
+import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.arena.GameEndConditions;
+import com.andrei1058.stevesus.api.arena.PlayerCorpse;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
@@ -17,6 +19,7 @@ import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
+import com.andrei1058.stevesus.api.server.PlayerCoolDown;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.meeting.MeetingSound;
 import com.andrei1058.stevesus.arena.meeting.VoteGUIManager;
@@ -28,7 +31,8 @@ import com.andrei1058.stevesus.arena.team.GhostCrewTeam;
 import com.andrei1058.stevesus.arena.team.GhostImpostorTeam;
 import com.andrei1058.stevesus.arena.team.ImpostorTeam;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
-import com.andrei1058.stevesus.commanditem.JoinItemsManager;
+import com.andrei1058.stevesus.commanditem.CommandItemsManager;
+import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
@@ -37,6 +41,8 @@ import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.common.party.PartyManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.MainConfig;
+import com.andrei1058.stevesus.hook.corpse.CorpseManager;
+import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.prevention.PreventionManager;
 import com.andrei1058.stevesus.server.ServerCommonProvider;
@@ -49,9 +55,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import net.minecraft.server.v1_12_R1.PacketPlayOutSetCooldown;
+import org.bukkit.*;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -125,6 +130,9 @@ public class SteveSusArena implements Arena {
     private GameEndConditions gameEndConditions;
     private PlayerColorAssigner<?> playerColorAssigner;
     private boolean ignoreColorLimit;
+    private final List<PlayerCorpse> deadBodies = new ArrayList<>();
+    private double getKillDistance = 2.8;
+    private int killDelay = 45;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -391,7 +399,7 @@ public class SteveSusArena implements Arena {
             player.setGameMode(GameMode.SURVIVAL);
 
             // send items
-            JoinItemsManager.sendCommandItems(player, getGameState() == GameState.STARTING ? JoinItemsManager.CATEGORY_STARTING : JoinItemsManager.CATEGORY_WAITING,false);
+            CommandItemsManager.sendCommandItems(player, getGameState() == GameState.STARTING ? CommandItemsManager.CATEGORY_STARTING : CommandItemsManager.CATEGORY_WAITING, false);
 
             // play songs before adding him to the players list so you don't have to filter it. it would be redundant.
             GameSound.JOIN_SOUND_CURRENT.playToPlayers(getPlayers());
@@ -450,6 +458,7 @@ public class SteveSusArena implements Arena {
             // so they can send their custom data etc.
             gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, false));
 
+            PlayerCoolDown.clearPlayerData(player);
             SteveSus.debug("Player " + player.getName() + " was added as player to game " + getGameId() + "(" + getTemplateWorld() + ").");
             return true;
         }
@@ -479,7 +488,7 @@ public class SteveSusArena implements Arena {
         InventoryUtil.wipePlayer(player);
 
         // send items
-        JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_SPECTATING);
+        CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_SPECTATING);
         // give scoreboard
         GameSidebarManager.getInstance().setSidebar(player, SidebarType.SPECTATOR, this, ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA);
 
@@ -512,6 +521,7 @@ public class SteveSusArena implements Arena {
         // so they can send their custom data etc.
         gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, true));
         sendTaskMeter(player);
+        PlayerCoolDown.clearPlayerData(player);
         SteveSus.debug("Player " + player.getName() + " was added as spectator to game " + getGameId() + "(" + getTemplateWorld() + ").");
         return true;
     }
@@ -521,6 +531,10 @@ public class SteveSusArena implements Arena {
         if (!isPlayer(player)) return false;
         players.remove(player);
         spectators.add(player);
+        // clear countdown cache
+        PlayerCoolDown.clearPlayerData(player);
+        // clear glowing
+        getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
 
         // call event
         PlayerToSpectatorEvent playerToSpectatorEvent = new PlayerToSpectatorEvent(this, player);
@@ -532,7 +546,7 @@ public class SteveSusArena implements Arena {
         // clear inv
         InventoryUtil.wipePlayer(player);
         // send items
-        JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_SPECTATING);
+        CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_SPECTATING);
         // change gm
         player.setGameMode(GameMode.ADVENTURE);
         // give scoreboard
@@ -644,21 +658,31 @@ public class SteveSusArena implements Arena {
         // if in game status, will check if it is the case to end this game
         getGameEndConditions().tickGameEndConditions(this);
 
-        for (Player inArena : getPlayers()) {
-            inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
-                    .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
-        }
+        if (getGameState() != GameState.ENDING) {
+            for (Player inArena : getPlayers()) {
+                inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
+                        .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
+            }
 
-        for (Player inArena : getSpectators()) {
-            inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
-                    .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
+            for (Player inArena : getSpectators()) {
+                inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
+                        .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
+            }
         }
+        // enable movement if disabled
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
+        // remove boss bar
         removeTaskMeter(player);
-        if (getPlayerColorAssigner() != null){
+        // remove player related color
+        if (getPlayerColorAssigner() != null) {
             getPlayerColorAssigner().restorePlayer(player);
         }
+        // clear count down cache
+        PlayerCoolDown.clearPlayerData(player);
+        // remove glowing
+        getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
+        //
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -702,9 +726,10 @@ public class SteveSusArena implements Arena {
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
         removeTaskMeter(player);
-        if (getPlayerColorAssigner() != null){
+        if (getPlayerColorAssigner() != null) {
             getPlayerColorAssigner().restorePlayer(player);
         }
+        PlayerCoolDown.clearPlayerData(player);
         SteveSus.debug("Player " + player.getName() + " was removed as spectator from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -738,6 +763,7 @@ public class SteveSusArena implements Arena {
             });
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskPlaying(this), 0L, 20L).getTaskId();
             // assign teams
+            Collections.shuffle(players);
             GameTeamAssigner teamAssigner = new GameTeamAssigner(this);
             teamAssigner.assignTeams();
             // assign colors AFTER teams
@@ -760,6 +786,7 @@ public class SteveSusArena implements Arena {
                 getMeetingButton().refreshLines(this);
             }
         } else if (gameState == GameState.ENDING) {
+            setMeetingStage(MeetingStage.NO_MEETING);
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
             getSpectators().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskRestarting(this), 0L, 20L).getTaskId();
@@ -1058,7 +1085,7 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> {
                 setCantMove(player, true);
                 VoteGUIManager.openToPlayer(player, this);
-                JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_VOTING, false);
+                CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_VOTING, false);
             });
         } else if (meetingStage == MeetingStage.EXCLUSION_SCREEN) {
             setCountdown(5);
@@ -1089,7 +1116,23 @@ public class SteveSusArena implements Arena {
                 return false;
             }
         }
+        // interrupt tasks
+        getLoadedGameTasks().forEach(task -> getPlayers().forEach(player -> {
+            if (task.isDoingTask(player)) {
+                task.onInterrupt(player, this);
+            }
+        }));
+        // clear dead bodies
+        getDeadBodies().forEach(PlayerCorpse::destroy);
+        // add voting manager
         setCurrentVoting(new ExclusionVoting(this));
+        // clear glowing
+        getGameTeams().forEach(team -> {
+            if (!team.isInnocent()) {
+                getPlayers().forEach(inGame -> team.getMembers().forEach(member -> GlowingManager.removeGlowing(inGame, member)));
+            }
+        });
+        //
         if (deadBody == null) {
             if (getMeetingsLeft(requester) <= 0) return false;
             getPlayers().forEach(player -> player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN));
@@ -1115,19 +1158,18 @@ public class SteveSusArena implements Arena {
         } else {
             getPlayers().forEach(player -> player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN));
             setMeetingStage(MeetingStage.TALKING);
-
-            MeetingSound.playMusic(this, 0);
-
+            MeetingSound.playMusic(this, 38);
             // todo replace room placeholder in messages
             getPlayers().forEach(player -> {
                 Locale lang = LanguageManager.getINSTANCE().getLocale(player);
                 lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_BODY.toString(), new String[]{"{reporter}", requester.getDisplayName(), "{dead}", deadBody.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_TITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_SUBTITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), 0, 80, 0);
+                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_TITLE).replace("{reporter}", requester.getDisplayName()).replace("{dead}", deadBody.getDisplayName()), lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_SUBTITLE).replace("{reporter}", requester.getDisplayName()).replace("{dead}", deadBody.getDisplayName()), 0, 80, 0);
+                player.playEffect(EntityEffect.TOTEM_RESURRECT);
             });
             getSpectators().forEach(player -> {
                 Locale lang = LanguageManager.getINSTANCE().getLocale(player);
                 lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_BODY.toString(), new String[]{"{reporter}", requester.getDisplayName(), "{dead}", deadBody.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_TITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_SUBTITLE).replace("{reporter}", requester.getDisplayName().replace("{dead}", deadBody.getDisplayName())), 0, 80, 0);
+                player.sendTitle(lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_TITLE).replace("{reporter}", requester.getDisplayName()).replace("{dead}", deadBody.getDisplayName()), lang.getMsg(player, Message.EMERGENCY_MEETING_DEAD_SUBTITLE).replace("{reporter}", requester.getDisplayName()).replace("{dead}", deadBody.getDisplayName()), 0, 80, 0);
             });
         }
         return true;
@@ -1234,7 +1276,7 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void setPlayerColorAssigner(@Nullable PlayerColorAssigner<?> playerColorAssigner) {
-        if (getPlayerColorAssigner() != null){
+        if (getPlayerColorAssigner() != null) {
             getPlayers().forEach(player -> getPlayerColorAssigner().restorePlayer(player));
         }
         this.playerColorAssigner = playerColorAssigner;
@@ -1248,6 +1290,117 @@ public class SteveSusArena implements Arena {
     @Override
     public boolean isIgnoreColorLimit() {
         return ignoreColorLimit;
+    }
+
+    @Override
+    public List<PlayerCorpse> getDeadBodies() {
+        return Collections.unmodifiableList(deadBodies);
+    }
+
+    @Override
+    public void addDeadBody(PlayerCorpse playerCorpse) {
+        removeDeadBody(playerCorpse);
+        deadBodies.add(playerCorpse);
+    }
+
+    @Override
+    public void removeDeadBody(PlayerCorpse playerCorpse) {
+        PlayerCorpse oldCorpse = getDeadBody(playerCorpse.getOwner());
+        if (oldCorpse != null) {
+            deadBodies.remove(oldCorpse);
+            oldCorpse.destroy();
+        }
+    }
+
+    @Override
+    public @Nullable PlayerCorpse getDeadBody(UUID playerOwner) {
+        return deadBodies.stream().filter(body -> body.getOwner().equals(playerOwner)).findFirst().orElse(null);
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    public void killPlayer(@NotNull Player killer, @NotNull Player victim) {
+        Team killerTeam = getPlayerTeam(killer);
+        if (killerTeam == null) return;
+        if (!killerTeam.canKill(victim)) return;
+        Team victimTeam = getPlayerTeam(victim);
+        Team destinationTeam = victimTeam == null ? null : getTeamByName(victimTeam.getIdentifier() + "-ghost");
+        PlayerKillEvent event = new PlayerKillEvent(this, killer, victim, destinationTeam);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+
+        // interrupt tasks
+        getLoadedGameTasks().forEach(task -> {
+            if (task.isDoingTask(victim)) {
+                task.onInterrupt(victim, this);
+            }
+        });
+
+        //todo killed message cool down etc
+        GameSound.KILL.playToPlayer(killer);
+        GameSound.KILL.playToPlayer(victim);
+
+        // remove glowing
+        GlowingManager.removeGlowing(victim, killer);
+
+        // spawn corpse
+        PlayerCorpse corpse = CorpseManager.spawnCorpse(this, victim, victim.getLocation());
+        if (corpse != null) {
+            addDeadBody(corpse);
+        }
+
+        // make ghost
+        if (victimTeam != null) {
+            victimTeam.removePlayer(victim, false);
+        }
+        if (event.getDestinationTeam() == null) {
+            switchToSpectator(victim);
+        } else {
+            if (!event.getDestinationTeam().addPlayer(victim, false)) {
+                switchToSpectator(victim);
+            }
+        }
+
+        ItemStack item = killer.getInventory().getItemInMainHand();
+        if (item != null) {
+            String data = CommonManager.getINSTANCE().getItemSupport().getTag(item, CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
+            if (data != null) {
+                for (String line : data.split(",")) {
+                    String[] cmd = line.split(" ");
+                    //noinspection UnstableApiUsage
+                    if (cmd.length > 1 && CommonManager.getINSTANCE().getCommonProvider().getMainCommand().hasAlias(cmd[0]) || CommonManager.getINSTANCE().getCommonProvider().getMainCommand().getName().equals(cmd[0])) {
+                        ICommandNode killCmd = CommonManager.getINSTANCE().getCommonProvider().getMainCommand().getSubCommand(cmd[1]);
+                        if (killCmd != null && killCmd.getName().equals("kill")) {
+                            killer.setCooldown(item.getType(), getKillDelay() * 20);
+                        }
+                    }
+                }
+            }
+        }
+
+        // check game end
+        //todo enable this back
+        //getGameEndConditions().tickGameEndConditions(this);
+    }
+
+    @Override
+    public double getKillDistance() {
+        return getKillDistance;
+    }
+
+    @Override
+    public void setKillDistance(double distance) {
+        this.getKillDistance = distance;
+    }
+
+    @Override
+    public void setKillDelay(int seconds) {
+        this.killDelay = seconds;
+    }
+
+    @Override
+    public int getKillDelay() {
+        return killDelay;
     }
 
     public Location getNextWaitingSpawn() {

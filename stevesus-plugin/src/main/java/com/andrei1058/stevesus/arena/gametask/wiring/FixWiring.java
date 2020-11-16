@@ -16,6 +16,7 @@ public class FixWiring extends GameTask {
     private final List<WiringPanel> wiringPanels = new ArrayList<>();
     private final int stages;
     private final String localName;
+    private final List<UUID> currentlyDoingThisTask = new ArrayList<>();
 
     public FixWiring(List<WiringPanel> panelList, int stages, String localName) {
         wiringPanels.addAll(panelList);
@@ -35,7 +36,9 @@ public class FixWiring extends GameTask {
 
     @Override
     public void onInterrupt(Player player, Arena arena) {
-
+        if (isDoingTask(player)){
+            //todo
+        }
     }
 
     @Override
@@ -78,6 +81,11 @@ public class FixWiring extends GameTask {
     @Override
     public boolean hasTask(Player player) {
         return assignedPlayers.containsKey(player.getUniqueId());
+    }
+
+    @Override
+    public boolean isDoingTask(UUID player) {
+        return currentlyDoingThisTask.contains(player);
     }
 
     @Override

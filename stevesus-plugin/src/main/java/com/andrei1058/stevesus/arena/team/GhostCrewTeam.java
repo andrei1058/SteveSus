@@ -7,6 +7,8 @@ import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +43,8 @@ public class GhostCrewTeam implements Team {
         if (getArena().getGameState() != GameState.IN_GAME) return false;
         if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
+        player.getInventory().clear();
         return members.add(player);
     }
 

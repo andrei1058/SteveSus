@@ -27,6 +27,9 @@ public class ExclusionVoting {
      */
     public boolean addVote(@Nullable Player voted, Player voter, Arena arena) {
         if (hasVoted(voter)) return false;
+        Team team = arena.getPlayerTeam(voter);
+        if (team == null) return false;
+        if (!team.canVote()) return false;
         if (voted == null) {
             votes.put(voter, null);
             GameSound.VOTE_SOUND.playToPlayers(arena.getPlayers());

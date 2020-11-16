@@ -23,17 +23,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-public class JoinItemsManager {
+public class CommandItemsManager {
 
     public static final String INTERACT_NBT_TAG_PLAYER_CMDS = "aumi-1058-p";
     public static final String INTERACT_NBT_TAG_CONSOLE_CMDS = "aumi-1058-c";
 
-    private static JoinItemsManager INSTANCE;
+    private static CommandItemsManager INSTANCE;
     public static final String CATEGORY_MAIN_LOBBY = "multi-arena-lobby";
     public static final String CATEGORY_WAITING = "game-waiting";
     public static final String CATEGORY_STARTING = "game-starting";
     public static final String CATEGORY_SPECTATING = "game-spectating";
     public static final String CATEGORY_VOTING = "game-voting";
+    public static final String CATEGORY_IMPOSTOR = "game-impostor";
 
     private static final String MATERIAL = ".material";
     private static final String DATA = ".data";
@@ -52,7 +53,7 @@ public class JoinItemsManager {
      *
      * @param itemsDir directory where to get the yml config from.
      */
-    private JoinItemsManager(File itemsDir) {
+    private CommandItemsManager(File itemsDir) {
         if (!itemsDir.exists()) {
             if (!itemsDir.mkdir()) {
                 SteveSus.getInstance().getLogger().log(Level.SEVERE, "Could not create " + SelectorManager.getINSTANCE().getSelectorDirectory().getPath());
@@ -93,6 +94,8 @@ public class JoinItemsManager {
             saveCommandItem(CATEGORY_SPECTATING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"));
 
             saveCommandItem(CATEGORY_VOTING, "vote", "ss vote", "", "", false, CommonManager.SERVER_VERSION < 13 ? "ELYTRA" : "ELYTRA", 0, 4, "&a&lVote", Arrays.asList(" ", "&fRight click to open!"));
+
+            saveCommandItem(CATEGORY_IMPOSTOR, "kill", "ss kill", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "players turn red."));
         }
 
         save();
@@ -246,7 +249,7 @@ public class JoinItemsManager {
                     SteveSus.getInstance().getLogger().warning("Tried to set join-items configuration path to: " + itemsDir + " but it does not seem like a directory.");
                 }
             }
-            INSTANCE = new JoinItemsManager(itemsDir);
+            INSTANCE = new CommandItemsManager(itemsDir);
         }
     }
 }

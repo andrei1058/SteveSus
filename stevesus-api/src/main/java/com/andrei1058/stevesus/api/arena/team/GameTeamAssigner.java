@@ -3,6 +3,9 @@ package com.andrei1058.stevesus.api.arena.team;
 import com.andrei1058.stevesus.api.arena.Arena;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 public class GameTeamAssigner {
 
     private final Arena arena;
@@ -13,9 +16,12 @@ public class GameTeamAssigner {
 
     public void assignTeams() {
         //todo add changes in the future. player chance etc
+
         for (Player player : arena.getPlayers()) {
             boolean teamFound = false;
-            for (Team team : arena.getGameTeams()) {
+            ArrayList<Team> teams = new ArrayList<>(arena.getGameTeams());
+            teams.sort(Comparator.comparingInt(team -> team.getMembers().size()));
+            for (Team team : teams) {
                 if (!teamFound) {
                     if (team.addPlayer(player, true)) {
                         teamFound = true;

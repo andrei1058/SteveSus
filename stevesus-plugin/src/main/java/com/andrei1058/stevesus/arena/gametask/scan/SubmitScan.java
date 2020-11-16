@@ -63,8 +63,7 @@ public class SubmitScan extends GameTask {
 
     @Override
     public void onInterrupt(Player player, Arena arena) {
-        if (currentScan == null) return;
-        if (currentScan.equals(player.getUniqueId())) {
+        if (isDoingTask(player)) {
             cancelScan(false, player, arena);
         }
     }
@@ -109,6 +108,11 @@ public class SubmitScan extends GameTask {
     @Override
     public boolean hasTask(Player player) {
         return assignedPlayers.containsKey(player.getUniqueId());
+    }
+
+    @Override
+    public boolean isDoingTask(UUID player) {
+        return currentScan != null && currentScan.equals(player);
     }
 
     @Override

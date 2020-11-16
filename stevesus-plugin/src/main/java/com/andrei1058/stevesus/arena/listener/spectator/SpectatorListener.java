@@ -2,9 +2,8 @@ package com.andrei1058.stevesus.arena.listener.spectator;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.arena.ArenaManager;
-import com.andrei1058.stevesus.commanditem.JoinItemsManager;
+import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.CommonManager;
-import com.andrei1058.stevesus.common.api.gui.CustomHolder;
 import com.andrei1058.stevesus.teleporter.TeleporterGUI;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -45,8 +44,8 @@ public class SpectatorListener implements Listener {
                 ItemStack itemStack = CommonManager.getINSTANCE().getItemSupport().getInHand(e.getPlayer());
                 if (itemStack != null) {
                     if (itemStack.getType() != Material.AIR) {
-                        if (CommonManager.getINSTANCE().getItemSupport().hasTag(itemStack, JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)
-                                || CommonManager.getINSTANCE().getItemSupport().hasTag(itemStack, JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+                        if (CommonManager.getINSTANCE().getItemSupport().hasTag(itemStack, CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)
+                                || CommonManager.getINSTANCE().getItemSupport().hasTag(itemStack, CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
                             return;
                         }
                     }

@@ -73,6 +73,18 @@ public abstract class GameTask {
     public abstract boolean hasTask(Player player);
 
     /**
+     * Check if the given player is doing this task.
+     */
+    public boolean isDoingTask(Player player){
+        return isDoingTask(player.getUniqueId());
+    }
+
+    /**
+     * Check if the given player is doing this task.
+     */
+    public abstract boolean isDoingTask(UUID player);
+
+    /**
      * Game state listener.
      */
     public void onGameStateChange(GameState oldState, GameState newState, Arena arena) {

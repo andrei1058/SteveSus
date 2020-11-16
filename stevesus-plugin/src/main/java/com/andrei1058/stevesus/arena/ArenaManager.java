@@ -14,6 +14,7 @@ import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
+import com.andrei1058.stevesus.arena.command.KillCmd;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
@@ -132,6 +133,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         // register arena related commands
         GameCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         ForceStartCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
+        KillCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
 
         // register map time checker
         Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new MapTimeTask(), 20L, 20L);

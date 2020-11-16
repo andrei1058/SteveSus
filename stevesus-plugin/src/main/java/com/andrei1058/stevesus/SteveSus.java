@@ -17,7 +17,7 @@ import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.arena.meeting.VoteGUIManager;
 import com.andrei1058.stevesus.command.SlaveCommandManager;
 import com.andrei1058.stevesus.command.filter.CommandFilter;
-import com.andrei1058.stevesus.commanditem.JoinItemsManager;
+import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.packet.CommunicationHandler;
@@ -28,6 +28,8 @@ import com.andrei1058.stevesus.common.party.PartyManager;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
 import com.andrei1058.stevesus.common.stats.StatsManager;
 import com.andrei1058.stevesus.config.MainConfig;
+import com.andrei1058.stevesus.hook.corpse.CorpseManager;
+import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.hook.papi.PlaceholderAdditions;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.prevention.PreventionManager;
@@ -61,7 +63,7 @@ import java.io.File;
 @Website(value = "www.andrei1058.com")
 @ApiVersion(value = ApiVersion.Target.v1_13)
 @Command(name = "ss")
-@SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI")})
+@SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI"), @SoftDependency("CorpseReborn"), @SoftDependency("GlowAPI")})
 public class SteveSus extends JavaPlugin implements SteveSusAPI {
 
     private static SteveSus INSTANCE;
@@ -197,7 +199,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
         //
 
         // Initialize command items
-        JoinItemsManager.init();
+        CommandItemsManager.init();
 
         // Initialize teleporter (spectator)
         File teleporterDir = this.getDataFolder();
@@ -237,6 +239,12 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
             }
         }
         VoteGUIManager.init(directory);
+
+        // corpse manager
+        CorpseManager.init();
+
+        // glowing manager
+        GlowingManager.init();
     }
 
     @Override

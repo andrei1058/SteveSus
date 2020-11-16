@@ -4,6 +4,7 @@ import co.aikar.taskchain.TaskChain;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 
 public class MeetingSound {
 
@@ -20,19 +21,19 @@ public class MeetingSound {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BASS, 1, (float) 0.707107);
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 1, (float) 0.707107);
             });
-        }).delay(20).sync(() -> {
+        }).delay(16).sync(() -> {
             arena.getPlayers().forEach(player -> {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 1, (float) 1.414214);
             });
-        }).delay(10).sync(() -> {
+        }).delay(7).sync(() -> {
             arena.getPlayers().forEach(player -> {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 1, (float) 1.681793);
             });
-        }).delay(10).sync(() -> {
+        }).delay(7).sync(() -> {
             arena.getPlayers().forEach(player -> {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 1, (float) 1.887749);
             });
-        }).delay(20).sync(() -> {
+        }).delay(16).sync(() -> {
             arena.getPlayers().forEach(player -> {
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_HARP, 1, (float) 2);
             });

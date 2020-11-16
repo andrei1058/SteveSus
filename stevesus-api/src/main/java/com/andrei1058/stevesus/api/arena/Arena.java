@@ -570,4 +570,51 @@ public interface Arena extends DisplayableArena {
      * If players amount is greater than color limit some players will have the same color.
      */
     boolean isIgnoreColorLimit();
+
+    /**
+     * Get list dead bodies.
+     * This list is cleared when a meeting starts.
+     */
+    List<PlayerCorpse> getDeadBodies();
+
+    /**
+     * Add dead body to bodies list.
+     */
+    void addDeadBody(PlayerCorpse playerCorpse);
+
+    /**
+     * Remove a dead body.
+     */
+    void removeDeadBody(PlayerCorpse playerCorpse);
+
+    /**
+     * Get a player body.
+     */
+    @Nullable
+    PlayerCorpse getDeadBody(UUID playerOwner);
+
+    /**
+     * Kill a player.
+     */
+    void killPlayer(@NotNull Player killer, @NotNull Player victim);
+
+    /**
+     * Get kill distance.
+     */
+    double getKillDistance();
+
+    /**
+     * Change kill distance.
+     */
+    void setKillDistance(double distance);
+
+    /**
+     * Set kill delay.
+     */
+    void setKillDelay(int seconds);
+
+    /**
+     * Get kill delay.
+     */
+    int getKillDelay();
 }

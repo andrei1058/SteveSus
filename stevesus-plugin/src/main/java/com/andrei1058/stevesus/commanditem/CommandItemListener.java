@@ -21,15 +21,15 @@ public class CommandItemListener implements Listener {
         if (e.getPlayer().getInventory().getItemInMainHand() == null) return;
         if (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) return;
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)) {
+            if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)) {
                 e.setCancelled(true);
-                String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
+                String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
                 if (CMDs != null) {
                     Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(e.getPlayer(), cmd));
                 }
-            } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+            } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
                 e.setCancelled(true);
-                String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
+                String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
                 if (CMDs != null) {
                     Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
                 }
@@ -41,15 +41,15 @@ public class CommandItemListener implements Listener {
     public void onInteract(PlayerInteractEntityEvent e) {
         if (e.getPlayer().getInventory().getItemInMainHand() == null) return;
         if (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) return;
-        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)) {
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)) {
             e.setCancelled(true);
-            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
+            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(e.getPlayer(), cmd));
             }
-        } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+        } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
             e.setCancelled(true);
-            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
+            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
             }
@@ -60,15 +60,15 @@ public class CommandItemListener implements Listener {
     public void onInteract(PlayerArmorStandManipulateEvent e) {
         if (e.getPlayer().getInventory().getItemInMainHand() == null) return;
         if (e.getPlayer().getInventory().getItemInMainHand().getType() == Material.AIR) return;
-        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)) {
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS)) {
             e.setCancelled(true);
-            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
+            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_CMDS);
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(e.getPlayer(), cmd));
             }
-        } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+        } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
             e.setCancelled(true);
-            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), JoinItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
+            String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
             }
@@ -80,12 +80,12 @@ public class CommandItemListener implements Listener {
         if (e.getNewState() == GameState.STARTING) {
             e.getArena().getPlayers().forEach(player -> {
                 InventoryUtil.wipePlayer(player);
-                JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_STARTING);
+                CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_STARTING);
             });
         } else if (e.getNewState() == GameState.WAITING) {
             e.getArena().getPlayers().forEach(player -> {
                 InventoryUtil.wipePlayer(player);
-                JoinItemsManager.sendCommandItems(player, JoinItemsManager.CATEGORY_WAITING);
+                CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_WAITING);
             });
         }
     }

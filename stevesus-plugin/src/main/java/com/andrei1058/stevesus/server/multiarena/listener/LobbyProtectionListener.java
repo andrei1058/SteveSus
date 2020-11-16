@@ -2,7 +2,7 @@ package com.andrei1058.stevesus.server.multiarena.listener;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.commanditem.InventoryUtil;
-import com.andrei1058.stevesus.commanditem.JoinItemsManager;
+import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.server.ServerManager;
 import org.bukkit.Bukkit;
@@ -243,7 +243,7 @@ public class LobbyProtectionListener implements Listener {
         Location mainLobby = ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.MULTI_ARENA_SPAWN_LOC);
         e.getPlayer().teleport((mainLobby == null || mainLobby.getWorld() == null) ? Bukkit.getWorlds().get(0).getSpawnLocation() : mainLobby, PlayerTeleportEvent.TeleportCause.PLUGIN);
         InventoryUtil.wipePlayer(e.getPlayer());
-        JoinItemsManager.sendCommandItems(e.getPlayer(), JoinItemsManager.CATEGORY_MAIN_LOBBY);
+        CommandItemsManager.sendCommandItems(e.getPlayer(), CommandItemsManager.CATEGORY_MAIN_LOBBY);
     }
 
     /*@EventHandler

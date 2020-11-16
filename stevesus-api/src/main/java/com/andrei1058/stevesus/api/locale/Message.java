@@ -86,14 +86,13 @@ public enum Message {
     MEETING_START_CHAT_MSG_NO_BODY(false, "meeting-start-no-body", Arrays.asList(" ", "&c&lEmergency Meeting", " ", "&e{requester} &erequested an &cemergency &emeeting!", " ")),
     // {reporter}, {dead}, {room}
     MEETING_START_CHAT_MSG_BODY(false, "meeting-start-body", Arrays.asList(" ", " &c&lDead body Found", " ", "&e{reporter} &efound {dead}'s body in &6{room}&e.", " ")),
-    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat",Arrays.asList(" ", " ", "&4Impostors won!", "{todo} names here", "")),
+    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!", "{todo} names here", "")),
     GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrewmates won!", "{todo} names here", "")),
 
     GAME_END_IMPOSTORS_WON_TITLE("game-end-impostors-won-title", "&4Impostors won!"),
     GAME_END_IMPOSTORS_WON_SUBTITLE("game-end-impostors-won-subtitle", " "),
     GAME_END_CREW_WON_TITLE("game-end-crew-won-title", "&aCrewmates won!"),
     GAME_END_CREW_WON_SUBTITLE("game-end-crew-won-subtitle", " "),
-
 
 
     // Placeholders: {target}, {target_raw}
@@ -147,7 +146,8 @@ public enum Message {
     EMERGENCY_MEETING_DEAD_SUBTITLE("emergency-body-found-subtitle", "&7{reporter} found {dead}"),
     TALK_ALLOWED_DURING_MEETINGS("chat-denied-no-meeting", "&cYou can talk during meetings only!"),
     COLOR_NAME_PATH_(true, "color-name-", ""),
-    ;
+    DEAD_BODY_HOLO_LINE1("dead-body-holo-line1", "&c&lDead Body"),
+    DEAD_BODY_HOLO_LINE2("dead-body-holo-line2", "&cClick to report!");
 
     private final String path;
     private final boolean manual;
