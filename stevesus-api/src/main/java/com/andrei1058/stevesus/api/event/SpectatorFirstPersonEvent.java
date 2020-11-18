@@ -2,12 +2,13 @@ package com.andrei1058.stevesus.api.event;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public class SpectatorFirstPersonEvent extends Event {
+public class SpectatorFirstPersonEvent extends Event implements Cancellable {
 
     public enum SpectateAction {
         /**

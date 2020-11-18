@@ -147,7 +147,21 @@ public enum Message {
     TALK_ALLOWED_DURING_MEETINGS("chat-denied-no-meeting", "&cYou can talk during meetings only!"),
     COLOR_NAME_PATH_(true, "color-name-", ""),
     DEAD_BODY_HOLO_LINE1("dead-body-holo-line1", "&c&lDead Body"),
-    DEAD_BODY_HOLO_LINE2("dead-body-holo-line2", "&cClick to report!");
+    DEAD_BODY_HOLO_LINE2("dead-body-holo-line2", "&cClick to report!"),
+    YOU_DIED_TITLE("you-died-title", " "),
+    YOU_DIED_SUBTITLE("you-died-subtitle", "&c&lYou died!"),
+    YOU_DIED_CHAT("you-died-chat", Arrays.asList(" ", " ", "&cYou died! But it's not over!!", "&aPlease continue doing your tasks to help crewmates win!", " ")),
+    // {format_impostor}
+    GAME_START_CHAT_CREWMATES("game-start-chat-crew", Arrays.asList(" ", "{format_impostor}", "&eComplete your tasks or eject all impostors", "&ein order to win this game!", "", "&aComplete your tasks even if you died!")),
+    GAME_START_CHAT_FORMAT_IMPOSTOR("game-start-chat-crew-format-impostor", "&cThere is an impostor among us!"),
+    // {amount}
+    GAME_START_CHAT_FORMAT_IMPOSTORS("game-start-chat-crew-format-impostors", "&cThere are {amount} impostors among us!"),
+    GAME_START_CREW_TITLE("game-start-crew-title", "&aCrewmate"),
+    GAME_START_CREW_SUBTITLE("game-start-crew-subtitle", ""),
+    GAME_START_IMPOSTOR_TITLE("game-start-impostor-title", "&4Impostor"),
+    GAME_START_IMPOSTOR_SUBTITLE("game-start-impostor-subtitle", ""),
+    GAME_START_IMPOSTOR_CHAT("game-start-chat-impostor", Arrays.asList(" ", "&cYou are an impostor!", "", "&eSabotage and kill crewmates to win!", "They can't see what item you're holding in your hand.")),
+    ;
 
     private final String path;
     private final boolean manual;

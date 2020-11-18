@@ -6,6 +6,7 @@ import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
+import org.bukkit.EntityEffect;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -45,6 +46,10 @@ public class GhostCrewTeam implements Team {
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
         player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
         player.getInventory().clear();
+        Locale lang = LanguageManager.getINSTANCE().getLocale(player);
+        player.sendTitle(lang.getMsg(player, Message.YOU_DIED_TITLE), lang.getMsg(player, Message.YOU_DIED_SUBTITLE), 10, 60, 10);
+        lang.getMsgList(player, Message.YOU_DIED_CHAT).forEach(player::sendMessage);
+        player.playEffect(EntityEffect.TOTEM_RESURRECT);
         return members.add(player);
     }
 

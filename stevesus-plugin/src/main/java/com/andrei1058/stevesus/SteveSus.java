@@ -30,6 +30,7 @@ import com.andrei1058.stevesus.common.stats.StatsManager;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.hook.corpse.CorpseManager;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
+import com.andrei1058.stevesus.hook.packetlistener.PacketListenerHook;
 import com.andrei1058.stevesus.hook.papi.PlaceholderAdditions;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.prevention.PreventionManager;
@@ -58,12 +59,12 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 import java.io.File;
 
 @Plugin(name = "SteveSus", version = "1.0-alpha")
-@Description(value = "A reproduction of Among Us in Minecraft")
+@Description(value = "A murder mystery mini-game")
 @Author(value = "andrei1058")
 @Website(value = "www.andrei1058.com")
 @ApiVersion(value = ApiVersion.Target.v1_13)
 @Command(name = "ss")
-@SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI"), @SoftDependency("CorpseReborn"), @SoftDependency("GlowAPI")})
+@SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI"), @SoftDependency("CorpseReborn"), @SoftDependency("GlowAPI"), @SoftDependency("PacketListenerAPI")})
 public class SteveSus extends JavaPlugin implements SteveSusAPI {
 
     private static SteveSus INSTANCE;
@@ -245,6 +246,9 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
 
         // glowing manager
         GlowingManager.init();
+
+        // Initialize packet listener hook
+        PacketListenerHook.init();
     }
 
     @Override

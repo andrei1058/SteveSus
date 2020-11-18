@@ -51,12 +51,15 @@ public enum GameSound {
     EMERGENCY_MEETING(false, "emergency-meeting", "ENTITY_ELDER_GUARDIAN_CURSE", "ENTITY_ELDER_GUARDIAN_CURSE", 1, (float) 0.5),
     VOTE_SOUND(false, "vote-sound", "UI_BUTTON_CLICK", "UI_BUTTON_CLICK", 1, (float) 1.2),
     VOTE_EJECT_NONE(false, "eject-none", "ENTITY_ZOMBIE_VILLAGER_CURE", (getServerVersion() > 13 ? "ENTITY_RAVAGER_ROAR" : "ENTITY_ZOMBIE_VILLAGER_CURE"), 1, 1),
-    VOTE_EJECT_INNOCENT(false, "eject-innocent", "ENTITY_CAT_HISS", "ENTITY_WITCH_CELEBRATE", 1, getServerVersion() < 13 ? (float) 0.1 : 1),
+    VOTE_EJECT_INNOCENT(false, "eject-innocent", "ENTITY_CAT_HISS", "ENTITY_WITCH_CELEBRATE", 1, getServerVersion() < 13 ? (float) 0.4 : 1),
     VOTE_EJECT_IMPOSTOR(false, "eject-impostor", "ENTITY_ZOMBIE_HORSE_DEATH", "ITEM_TRIDENT_THUNDER", 1, 1),
     VOTE_EJECT_ANONYMOUS(false, "eject-anonymous", "ENTITY_ZOMBIE_VILLAGER_CURE", (getServerVersion() > 13 ? "ENTITY_RAVAGER_ROAR" : "ENTITY_ZOMBIE_VILLAGER_CURE"), 1, 1),
     INNOCENTS_WIN(false, "innocents-win", "UI_TOAST_CHALLENGE_COMPLETE", "UI_TOAST_CHALLENGE_COMPLETE", 1, 1),
     IMPOSTORS_WIN(false, "impostors-win", "ENTITY_ENDERDRAGON_DEATH", "ENTITY_ENDER_DRAGON_DEATH", 1, 1),
-    KILL(false, "kill", "BLOCK_ANVIL_USE", "BLOCK_ANVIL_USE", 1,1);
+    KILL(false, "kill", "ENTITY_PLAYER_DEATH", "ENTITY_PLAYER_DEATH", 1,1),
+    GAME_START_CREW(false, "game-start-crew", "ENTITY_CHICKEN_EGG", "BLOCK_BEACON_ACTIVATE", 1, 1),
+    GAME_START_IMPOSTOR(false, "game-start-impostor", "ENTITY_ZOMBIE_VILLAGER_CURE", "ITEM_TRIDENT_THUNDER", 1, 1)
+    ;
 
     // server version
     static byte SERVER_VERSION;

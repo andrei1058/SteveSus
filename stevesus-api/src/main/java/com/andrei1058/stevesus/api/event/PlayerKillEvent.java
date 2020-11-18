@@ -3,12 +3,13 @@ package com.andrei1058.stevesus.api.event;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
-public class PlayerKillEvent extends Event {
+public class PlayerKillEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 

@@ -31,6 +31,9 @@ public class ArenaTaskStarting implements Runnable {
             arena.getPlayers().forEach(HumanEntity::closeInventory);
             getArena().switchState(GameState.IN_GAME);
             return;
+        } else if (currentSecond == 2) {
+            // clear before setting new state to prevent holding ghost items
+            getArena().getPlayers().forEach(player -> player.getInventory().clear());
         }
 
         for (Player player : getArena().getPlayers()) {

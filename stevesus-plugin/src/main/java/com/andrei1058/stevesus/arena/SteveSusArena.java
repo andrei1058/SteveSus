@@ -1336,18 +1336,10 @@ public class SteveSusArena implements Arena {
             }
         });
 
-        //todo killed message cool down etc
-        GameSound.KILL.playToPlayer(killer);
-        GameSound.KILL.playToPlayer(victim);
+        GameSound.KILL.playAtLocation(victim.getLocation(), getPlayers());
 
         // remove glowing
         GlowingManager.removeGlowing(victim, killer);
-
-        // spawn corpse
-        PlayerCorpse corpse = CorpseManager.spawnCorpse(this, victim, victim.getLocation());
-        if (corpse != null) {
-            addDeadBody(corpse);
-        }
 
         // make ghost
         if (victimTeam != null) {
@@ -1359,6 +1351,12 @@ public class SteveSusArena implements Arena {
             if (!event.getDestinationTeam().addPlayer(victim, false)) {
                 switchToSpectator(victim);
             }
+        }
+
+        // spawn corpse
+        PlayerCorpse corpse = CorpseManager.spawnCorpse(this, victim, victim.getLocation());
+        if (corpse != null) {
+            addDeadBody(corpse);
         }
 
         ItemStack item = killer.getInventory().getItemInMainHand();

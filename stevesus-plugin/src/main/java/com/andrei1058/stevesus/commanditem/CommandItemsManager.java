@@ -95,7 +95,7 @@ public class CommandItemsManager {
 
             saveCommandItem(CATEGORY_VOTING, "vote", "ss vote", "", "", false, CommonManager.SERVER_VERSION < 13 ? "ELYTRA" : "ELYTRA", 0, 4, "&a&lVote", Arrays.asList(" ", "&fRight click to open!"));
 
-            saveCommandItem(CATEGORY_IMPOSTOR, "kill", "ss kill", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "players turn red."));
+            saveCommandItem(CATEGORY_IMPOSTOR, "kill", "ss kill", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "&fplayers turn red."));
         }
 
         save();

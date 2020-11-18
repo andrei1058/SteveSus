@@ -3,11 +3,12 @@ package com.andrei1058.stevesus.api.event;
 import com.andrei1058.stevesus.api.arena.Arena;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerGameJoinEvent extends Event {
+public class PlayerGameJoinEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 

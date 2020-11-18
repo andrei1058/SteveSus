@@ -18,7 +18,7 @@
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
         </repository>
-        <!-- Glowing API -->
+        <!-- Glowing API, Packet Listener API -->
         <repository>
             <id>inventive-repo</id>
             <url>https://repo.inventivetalent.org/content/groups/public/</url>
@@ -167,6 +167,12 @@
             <groupId>org.inventivetalent</groupId>
             <artifactId>glowapi</artifactId>
             <version>1.4.14-SNAPSHOT</version>
+        </dependency>
+        <!-- PacketListener API -->
+        <dependency>
+            <groupId>org.inventivetalent.packetlistener</groupId>
+            <artifactId>api</artifactId>
+            <version>3.7.8-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>

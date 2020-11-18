@@ -1,9 +1,12 @@
 package com.andrei1058.stevesus.arena.team;
 
+import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -47,6 +50,14 @@ public class ImpostorTeam implements Team {
         if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
         CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_IMPOSTOR);
+        GameSound.GAME_START_IMPOSTOR.playToPlayer(player);
+
+        Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+        player.sendTitle(lang.getMsg(player, Message.GAME_START_IMPOSTOR_TITLE), lang.getMsg(player, Message.GAME_START_IMPOSTOR_SUBTITLE), 10, 30, 10);
+        for (String string : lang.getMsgList(player, Message.GAME_START_IMPOSTOR_CHAT)) {
+            string = ChatUtil.centerMessage(string);
+            player.sendMessage(string);
+        }
         return members.add(player);
     }
 
