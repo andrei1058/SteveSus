@@ -5,6 +5,7 @@ import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -42,10 +43,13 @@ public class SubmitScan extends GameTask {
         page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_DESCRIPTION_PATH_.toString() + getHandler().getIdentifier())));
 
         scanParticles = new ArrayList<>(SubmitScanProvider.getInstance().getCircle(capsuleLocation.add(0, 0.3, 0), radius, 15));
+
         this.preGameTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(SteveSus.getInstance(), () -> scanParticles.forEach(loc -> {
             loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc, 1);
             loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 1.2, 0), 1);
         }), 0L, 10).getTaskId();
+
+        arena.registerGameListener(new ScanListener());
     }
 
     // player, player current stage. max stage == finished
@@ -95,12 +99,6 @@ public class SubmitScan extends GameTask {
     }
 
     @Override
-    public void assignToPlayers(List<Player> players, Arena arena) {
-        players.forEach(player -> assignedPlayers.remove(player.getUniqueId()));
-        players.forEach(player -> assignedPlayers.put(player.getUniqueId(), 0));
-    }
-
-    @Override
     public Set<UUID> getAssignedPlayers() {
         return Collections.unmodifiableSet(assignedPlayers.keySet());
     }
@@ -116,44 +114,16 @@ public class SubmitScan extends GameTask {
     }
 
     @Override
-    public void onGameStateChange(GameState oldState, GameState newState, Arena arena) {
-        if (newState == GameState.IN_GAME) {
-            Bukkit.getScheduler().cancelTask(preGameTaskId);
-
-            // hide hologram for those who do not have this task
-            arena.getPlayers().forEach(player -> {
-                if (!hasTask(player)) {
-                    taskHologram.hide(player);
-                }
-            });
-        }
+    public void enableIndicators() {
+        Bukkit.broadcastMessage("enableIndicators submit scan");
+        taskHologram.show();
     }
 
     @Override
-    public void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
-        if (isSneaking) {
-            if (!hasTask(player)) return;
-            if (getCurrentStage(player) == getTotalStages(player)) return;
-            if (player.getLocation().distance(scanCapsuleLocation) > capsuleRadius) return;
-            // check location
-            if (!startScan(player, arena)) {
-                player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, SubmitScanProvider.MSG_CANNOT_SCAN), 0, 35, 0);
-                if (getHandler().isVisual() && arena.isVisualTasksEnabled()) {
-                    player.playEffect(EntityEffect.VILLAGER_ANGRY);
-                }
-            }
-        }
+    public void disableIndicators() {
+        taskHologram.hide();
     }
 
-    @Override
-    public void onEmergencyStart(Arena arena) {
-        //todo
-    }
-
-    @Override
-    public void onEmergencyEnd(Arena arena) {
-//todo
-    }
 
     /**
      * Start scan for current player.
@@ -162,6 +132,7 @@ public class SubmitScan extends GameTask {
      */
     private boolean startScan(Player player, Arena arena) {
         if (currentScan != null) return false;
+        if (!arena.isTasksAllowedATM()) return false;
         player.teleport(scanCapsuleLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         arena.setCantMove(player, true);
         currentScan = player.getUniqueId();
@@ -227,5 +198,38 @@ public class SubmitScan extends GameTask {
 
     public void setScanDuration(int scanDuration) {
         this.scanDuration = scanDuration;
+    }
+
+    private class ScanListener implements GameListener {
+
+        @Override
+        public void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
+            if (isSneaking) {
+                if (!hasTask(player)) return;
+                if (getCurrentStage(player) == getTotalStages(player)) return;
+                if (player.getLocation().distance(scanCapsuleLocation) > capsuleRadius) return;
+                // check location
+                if (!startScan(player, arena)) {
+                    player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, SubmitScanProvider.MSG_CANNOT_SCAN), 0, 35, 0);
+                    if (getHandler().isVisual() && arena.isVisualTasksEnabled()) {
+                        player.playEffect(EntityEffect.VILLAGER_ANGRY);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
+            if (newState == GameState.IN_GAME) {
+                Bukkit.getScheduler().cancelTask(preGameTaskId);
+
+                // hide hologram for those who do not have this task
+                arena.getPlayers().forEach(player -> {
+                    if (!hasTask(player)) {
+                        taskHologram.hide(player);
+                    }
+                });
+            }
+        }
     }
 }

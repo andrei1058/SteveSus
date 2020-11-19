@@ -211,6 +211,8 @@ public class AddCommand {
                             task.onSetupRequest(player, setupSession, args[2]);
                         })
                 )
+                //gray
+                .withSubNode(new AddRoomCommand())
         ;
     }
 

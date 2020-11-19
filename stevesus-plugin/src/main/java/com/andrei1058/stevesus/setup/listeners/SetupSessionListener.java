@@ -21,76 +21,76 @@ public class SetupSessionListener implements Listener {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerInteract(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerInteract(setupSession, event));
     }
 
     @EventHandler
-    public void onEntityInteract(PlayerInteractEntityEvent event){
+    public void onEntityInteract(PlayerInteractEntityEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerInteractEntity(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerInteractEntity(setupSession, event));
     }
 
     @EventHandler
-    public void onInteractAtEntity(PlayerInteractAtEntityEvent event){
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerInteractAtEntity(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerInteractAtEntity(setupSession, event));
     }
 
     @EventHandler
-    public void onItemDrop(PlayerDropItemEvent event){
+    public void onItemDrop(PlayerDropItemEvent event) {
         if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerDropItem(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerDropItem(setupSession, event));
     }
 
     @EventHandler
-    public void onItemPickup(EntityPickupItemEvent event){
+    public void onItemPickup(EntityPickupItemEvent event) {
         //if (event.isCancelled()) return;
         if (event.getEntity().getType() != EntityType.PLAYER) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getEntity().getWorld().getName());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerPickupItem(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onPlayerPickupItem(setupSession, event));
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event){
+    public void onBlockBreak(BlockBreakEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onBlockBreak(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onBlockBreak(setupSession, event));
     }
 
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event){
+    public void onBlockPlace(BlockPlaceEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onBlockPlace(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onBlockPlace(setupSession, event));
     }
 
     @EventHandler
-    public void onHangingPlace(HangingPlaceEvent event){
+    public void onHangingPlace(HangingPlaceEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onHangingPlace(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onHangingPlace(setupSession, event));
     }
 
     @EventHandler
-    public void onHangingBreak(HangingBreakByEntityEvent event){
+    public void onHangingBreak(HangingBreakByEntityEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getEntity().getWorld().getName());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onHangingBreakByEntity(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onHangingBreakByEntity(setupSession, event));
     }
 
     @EventHandler
-    public void onHandSwitch(PlayerSwapHandItemsEvent event){
+    public void onHandSwitch(PlayerSwapHandItemsEvent event) {
         if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getPlayer());
         if (setupSession == null) return;
@@ -98,22 +98,22 @@ public class SetupSessionListener implements Listener {
     }
 
     @EventHandler
-    public void onHangingBreak(HangingBreakEvent event){
+    public void onHangingBreak(HangingBreakEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getEntity().getWorld().getName());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onHangingBreak(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onHangingBreak(setupSession, event));
     }
 
     @EventHandler
-    public void onHangingBreak(EntityDamageByEntityEvent event){
+    public void onHangingBreak(EntityDamageByEntityEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getEntity().getWorld().getName());
         if (setupSession == null) return;
-        setupSession.getSetupListeners().forEach(listener -> listener.onEntityDamageByEntity(event));
+        setupSession.getSetupListeners().forEach(listener -> listener.onEntityDamageByEntity(setupSession, event));
     }
 
-    public void unRegister(){
+    public void unRegister() {
         PlayerInteractEvent.getHandlerList().unregister(this);
         PlayerInteractEntityEvent.getHandlerList().unregister(this);
         PlayerInteractAtEntityEvent.getHandlerList().unregister(this);

@@ -1,8 +1,10 @@
 package com.andrei1058.stevesus.api.arena;
 
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.setup.SetupSession;
+import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +13,7 @@ import org.json.simple.JSONObject;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public interface ArenaHandler {
 
     /**
@@ -260,4 +263,43 @@ public interface ArenaHandler {
      * Every arena without a specified color assigner will use this.
      */
     void setDefaultPlayerColorAssigner(@Nullable PlayerColorAssigner<PlayerColorAssigner.PlayerColor> defaultPlayerColorAssigner);
+
+    /**
+     * Register sabotage provider.
+     *
+     * @return false if unique identifier already in use.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    boolean registerSabotage(SabotageProvider sabotageProvider);
+
+    /**
+     * Get sabotage provider by name.
+     */
+    @Nullable
+    SabotageProvider getSabotageProviderByName(String pluginOwner, String sabotageIdentifier);
+
+    /**
+     * Save sabotage configuration.
+     *
+     * @param template         arena template, equivalent to world name.
+     * @param sabotageProvider provider instance.
+     * @param configuration    your sabotage configuration.
+     * @param replaceExisting  replace existing configuration for given sabotage.
+     * @return true if saved successfully.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    boolean saveSabotageConfiguration(String template, SabotageProvider sabotageProvider, JsonObject configuration, boolean replaceExisting);
+
+    /**
+     * Get given sabotage configuration for the given template.
+     *
+     * @return null if configuration not found.
+     */
+    @Nullable
+    JsonObject getSabotageConfiguration(String template, SabotageProvider provider);
+
+    /**
+     * Get registered sabotages list.
+     */
+    List<SabotageProvider> getRegisteredSabotages();
 }

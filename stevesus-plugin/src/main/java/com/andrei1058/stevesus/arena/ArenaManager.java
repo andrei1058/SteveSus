@@ -2,9 +2,11 @@ package com.andrei1058.stevesus.arena;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
+import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameEndConditions;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.team.LegacyPlayerColor;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
@@ -14,10 +16,10 @@ import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
-import com.andrei1058.stevesus.arena.command.KillCmd;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
+import com.andrei1058.stevesus.arena.sabotage.oxygen.OxygenSabotageProvider;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -25,7 +27,9 @@ import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.common.ServerQuitListener;
+import com.andrei1058.stevesus.setup.SetupManager;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,6 +50,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
     private static final HashMap<String, Arena> arenaByWorldName = new HashMap<>();
     private static final Random randomInstance = new Random();
     private static final LinkedList<TaskProvider> registeredTasks = new LinkedList<>();
+    private static final LinkedList<SabotageProvider> registeredSabotages = new LinkedList<>();
 
     private static long lastPlayerCountRequest = 0L;
     private static int lastPlayerCount = 0;
@@ -81,7 +86,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
             arenaDirectory.mkdir();
         }
         defaultColorAssigner = new PlayerColorAssigner<>();
-        for (LegacyPlayerColor color : LegacyPlayerColor.values()){
+        for (LegacyPlayerColor color : LegacyPlayerColor.values()) {
             defaultColorAssigner.addColorOption(color);
         }
     }
@@ -133,7 +138,6 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         // register arena related commands
         GameCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
         ForceStartCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
-        KillCmd.register(CommonCmdManager.getINSTANCE().getMainCmd());
 
         // register map time checker
         Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new MapTimeTask(), 20L, 20L);
@@ -141,6 +145,9 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         // register default tasks
         getINSTANCE().registerGameTask(FixWiringProvider.getInstance());
         getINSTANCE().registerGameTask(SubmitScanProvider.getInstance());
+
+        // register default sabotages
+        getINSTANCE().registerSabotage(OxygenSabotageProvider.getInstance());
     }
 
     public static void onDisable() {
@@ -419,11 +426,65 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
 
     @Override
     public void setDefaultPlayerColorAssigner(@Nullable PlayerColorAssigner<PlayerColorAssigner.PlayerColor> defaultPlayerColorAssigner) {
-        if (this.defaultColorAssigner != null){
+        if (this.defaultColorAssigner != null) {
             getArenas().stream().filter(arena -> arena.getPlayerColorAssigner() != null & arena.getPlayerColorAssigner().equals(this.defaultColorAssigner))
-            .forEach(arena -> arena.getPlayers().forEach(player -> this.defaultColorAssigner.restorePlayer(player)));
+                    .forEach(arena -> arena.getPlayers().forEach(player -> this.defaultColorAssigner.restorePlayer(player)));
         }
         this.defaultColorAssigner = defaultPlayerColorAssigner;
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    @Override
+    public boolean registerSabotage(SabotageProvider sabotageProvider) {
+        if (registeredSabotages.contains(sabotageProvider)) {
+            return false;
+        }
+        FastSubRootCommand cmd = new FastSubRootCommand(sabotageProvider.getOwner().getName()).withDisplayHover(s -> "Sabotages provided by " + sabotageProvider.getOwner().getName());
+        SetupManager.getINSTANCE().getSetSabotageCommand().withSubNode(cmd);
+        sabotageProvider.onRegister();
+        return registeredSabotages.add(sabotageProvider);
+    }
+
+    @Override
+    public @Nullable SabotageProvider getSabotageProviderByName(String pluginOwner, String sabotageIdentifier) {
+        return registeredSabotages.stream().filter(sabotage -> sabotage.getOwner().getName().equals(pluginOwner) && sabotage.getUniqueIdentifier().equals(sabotageIdentifier)).findFirst().orElse(null);
+    }
+
+    @Override
+    public boolean saveSabotageConfiguration(String template, SabotageProvider sabotageProvider, JsonObject configuration, boolean replaceExisting) {
+        SettingsManager config = getTemplate(template, true);
+        List<String> sabotages = new ArrayList<>(config.getProperty(ArenaConfig.SABOTAGES));
+        String sabotageString = sabotages.stream().filter(string -> string.startsWith(sabotageProvider.getOwner().getName() + ";" + sabotageProvider.getUniqueIdentifier())).findFirst().orElse(null);
+        if (sabotageString != null) {
+            if (replaceExisting) {
+                sabotages.remove(sabotageString);
+            } else {
+                // do not replace existing data
+                return false;
+            }
+        }
+        sabotages.add(sabotageProvider.getOwner().getName() + ";" + sabotageProvider.getUniqueIdentifier() + ";" + configuration.toString());
+        config.setProperty(ArenaConfig.SABOTAGES, sabotages);
+        config.save();
+        return true;
+    }
+
+    @Override
+    public @Nullable JsonObject getSabotageConfiguration(String template, SabotageProvider provider) {
+        SettingsManager config = getTemplate(template, true);
+        List<String> sabotages = config.getProperty(ArenaConfig.SABOTAGES);
+        String sabotageString = sabotages.stream().filter(string -> string.startsWith(provider.getOwner().getName() + ";" + provider.getUniqueIdentifier())).findFirst().orElse(null);
+        if (sabotageString == null) {
+            return null;
+        }
+        String[] data = sabotageString.split(";");
+        if (data.length < 3) return null;
+        return new JsonParser().parse(data[2]).getAsJsonObject();
+    }
+
+    @Override
+    public List<SabotageProvider> getRegisteredSabotages() {
+        return registeredSabotages;
     }
 
     public SettingsManager getTemplate(String worldName, boolean create) {

@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("UnstableApiUsage")
 public class SetCommand {
 
+    private static FastSubRootCommand setSabotage;
+
     private SetCommand() {
     }
 
@@ -47,6 +49,7 @@ public class SetCommand {
         FastSubCommand displayName = new FastSubCommand("displayName");
         FastSubCommand displayItem = new FastSubCommand("displayItem");
         FastSubCommand timeOfTheDay = new FastSubCommand("time");
+        setSabotage = new FastSubRootCommand("sabotage");
 
         root.withSubNode(setClonesAvailableAtOnce
                 .withPermAdditions(s -> SetupManager.getINSTANCE().isInSetup(s) && ServerManager.getINSTANCE().getServerType() != ServerType.BUNGEE_LEGACY)
@@ -321,6 +324,14 @@ public class SetCommand {
                             return types;
                         })
                 )
+                .withSubNode(setSabotage
+                        .withDisplayName(s -> "&e" + setSabotage.getName() + " [provider] [id]")
+                        .withDisplayHover(s -> "&fSet a game sabotage")
+                )
         ;
+    }
+
+    public static FastSubRootCommand getSetSabotage() {
+        return setSabotage;
     }
 }

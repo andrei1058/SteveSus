@@ -48,7 +48,7 @@ import java.util.function.Function;
 public class SubmitScanProvider extends TaskProvider {
 
     public static final String MSG_CANNOT_SCAN = "game-task-scan-in-use";
-        public static final String MSG_SCANNING_DONE = "game-task-scan-completed";
+    public static final String MSG_SCANNING_DONE = "game-task-scan-completed";
     public static final String MSG_SCANNING_SUBTITLE = "game-task-scanning-subtitle";
 
     private static SubmitScanProvider instance;
@@ -199,7 +199,7 @@ public class SubmitScanProvider extends TaskProvider {
         setupSession.addSetupListener("submit_scan_setup", new SetupListener() {
 
             @Override
-            public void onPlayerInteract(PlayerInteractEvent event) {
+            public void onPlayerInteract(SetupSession setupSession1, PlayerInteractEvent event) {
                 ItemStack itemStack = CommonManager.getINSTANCE().getItemSupport().getInHand(event.getPlayer());
                 if (itemStack == null) return;
                 if (itemStack.getType() == Material.AIR) return;
@@ -256,53 +256,13 @@ public class SubmitScanProvider extends TaskProvider {
             }
 
             @Override
-            public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-
-            }
-
-            @Override
-            public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-
-            }
-
-            @Override
-            public void onPlayerDropItem(PlayerDropItemEvent event) {
+            public void onPlayerDropItem(SetupSession setupSession1, PlayerDropItemEvent event) {
                 event.setCancelled(true);
             }
 
             @Override
-            public void onPlayerPickupItem(EntityPickupItemEvent event) {
+            public void onPlayerPickupItem(SetupSession setupSession1, EntityPickupItemEvent event) {
                 event.setCancelled(true);
-            }
-
-            @Override
-            public void onBlockBreak(BlockBreakEvent event) {
-
-            }
-
-            @Override
-            public void onBlockPlace(BlockPlaceEvent event) {
-
-            }
-
-            @Override
-            public void onHangingPlace(HangingPlaceEvent event) {
-
-            }
-
-            @Override
-            public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
-
-            }
-
-            @Override
-            public void onHangingBreak(HangingBreakEvent event) {
-
-            }
-
-            @Override
-            public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-
             }
         });
     }

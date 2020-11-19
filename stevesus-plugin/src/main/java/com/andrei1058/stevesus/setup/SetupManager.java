@@ -15,22 +15,19 @@ import com.andrei1058.stevesus.server.common.ServerQuitListener;
 import com.andrei1058.stevesus.server.multiarena.command.BuildCmd;
 import com.andrei1058.stevesus.server.multiarena.command.SetLobbyCmd;
 import com.andrei1058.stevesus.setup.command.ArenaCommands;
+import com.andrei1058.stevesus.setup.command.SetCommand;
 import com.andrei1058.stevesus.setup.command.SetupCommand;
 import com.andrei1058.stevesus.setup.listeners.CreatureSpawnListener;
 import com.andrei1058.stevesus.setup.listeners.SetupSessionListener;
 import com.andrei1058.stevesus.setup.listeners.WorldLoadListener;
 import com.andrei1058.stevesus.setup.listeners.WorldProtectListener;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -107,8 +104,10 @@ public class SetupManager implements SetupHandler {
     public void removeSession(SetupSession setupSession) {
         if (setupSessions.remove(setupSession)) {
             SetupManager.getINSTANCE().unloadTasks(setupSession, setupSession.getWorldName());
+            setupSession.getSetupListeners().forEach(listener -> listener.onSetupPerClose(setupSession));
             //logger.debug("SetupSession removed: " + setupSession.toString());
             setupSession.onStop();
+            ArenaManager.getINSTANCE().getRegisteredSabotages().forEach(sabotage -> sabotage.onSetupSessionClose(setupSession));
             WorldManager.getINSTANCE().getWorldAdapter().onSetupSessionClose(setupSession);
             if (setupSessions.isEmpty() && setupSessionListener != null) {
                 setupSessionListener.unRegister();
@@ -190,5 +189,10 @@ public class SetupManager implements SetupHandler {
     @Override
     public FastSubRootCommand getRemoveCommand() {
         return (FastSubRootCommand) SlaveCommandManager.getINSTANCE().getMainCmd().getSubCommand("remove");
+    }
+
+    @Override
+    public FastSubRootCommand getSetSabotageCommand() {
+        return SetCommand.getSetSabotage();
     }
 }

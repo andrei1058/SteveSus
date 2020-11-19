@@ -70,6 +70,20 @@ public class ArenaConfig implements SettingsHolder {
     })
     public static final StringListProperty TASKS = new StringListProperty("crew-tasks", Collections.emptyList());
 
+    @Comment({
+            " ",
+            "Map rooms.",
+            "Syntax: name;pos1;pos2."
+    })
+    public static final StringListProperty ROOMS = new StringListProperty("rooms", Collections.emptyList());
+
+    @Comment({
+            " ",
+            "List of Sabotages.",
+            "Syntax: provider;sabotageName;sabotageConfig."
+    })
+    public static final StringListProperty SABOTAGES = new StringListProperty("sabotages", Collections.emptyList());
+
     @Comment("Amount of common tasks.")
     public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON = new IntegerProperty("default-game-option.common-task-amount", 1);
     @Comment("Amount of short tasks.")

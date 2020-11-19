@@ -27,12 +27,17 @@ public class CommandItemListener implements Listener {
                 if (CMDs != null) {
                     Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(e.getPlayer(), cmd));
                 }
-            } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+            }
+            if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
                 e.setCancelled(true);
                 String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
                 if (CMDs != null) {
                     Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
                 }
+            }
+            if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
+                e.setCancelled(true);
+                CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e.getPlayer().getInventory().getItemInMainHand());
             }
         }
     }
@@ -47,12 +52,17 @@ public class CommandItemListener implements Listener {
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(e.getPlayer(), cmd));
             }
-        } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+        }
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
             e.setCancelled(true);
             String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
             }
+        }
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
+            e.setCancelled(true);
+            CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e.getPlayer().getInventory().getItemInMainHand());
         }
     }
 
@@ -66,12 +76,17 @@ public class CommandItemListener implements Listener {
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(e.getPlayer(), cmd));
             }
-        } else if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
+        }
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS)) {
             e.setCancelled(true);
             String CMDs = CommonManager.getINSTANCE().getItemSupport().getTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS);
             if (CMDs != null) {
                 Arrays.asList(CMDs.split(",")).forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
             }
+        }
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
+            e.setCancelled(true);
+            CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e.getPlayer().getInventory().getItemInMainHand());
         }
     }
 

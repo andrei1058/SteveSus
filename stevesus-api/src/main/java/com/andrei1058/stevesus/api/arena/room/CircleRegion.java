@@ -1,4 +1,4 @@
-package com.andrei1058.stevesus.arena.region;
+package com.andrei1058.stevesus.api.arena.room;
 
 import org.bukkit.Location;
 

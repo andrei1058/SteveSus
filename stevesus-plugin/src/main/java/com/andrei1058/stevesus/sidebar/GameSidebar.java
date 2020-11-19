@@ -6,7 +6,9 @@ import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarLineAnimated;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
+import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.hook.HookManager;
@@ -35,6 +37,7 @@ public class GameSidebar {
     // player arena. Nullable.
     private Arena arena;
     private String taskFormatCache = null;
+    private boolean maskData = false;
 
     /**
      * Create a sidebar instance.
@@ -54,14 +57,24 @@ public class GameSidebar {
         setLines(content);
         // register some placeholders
         handle.addPlaceholder(new PlaceholderProvider("{date}", () -> dateFormat.format(new Date(Instant.now().toEpochMilli()))));
-        handle.addPlaceholder(new PlaceholderProvider("{player}", () -> player.getDisplayName()));
+        handle.addPlaceholder(new PlaceholderProvider("{player}", player::getDisplayName));
         handle.addPlaceholder(new PlaceholderProvider("{money}", () -> String.valueOf(HookManager.getInstance().getVaultEconHook().getBalance(player))));
         handle.addPlaceholder(new PlaceholderProvider("{on}", () -> {
-            if (arena == null){
+            if (arena == null) {
                 return String.valueOf(Bukkit.getOnlinePlayers().size());
             } else {
                 return String.valueOf(arena.getCurrentPlayers());
             }
+        }));
+        handle.addPlaceholder(new PlaceholderProvider("{room}", () -> {
+            if (arena == null){
+                return "";
+            }
+            GameRoom room = arena.getPlayerRoom(player);
+            if (room == null){
+                return LanguageManager.getINSTANCE().getMsg(null, Message.GAME_ROOM_NO_NAME);
+            }
+            return room.getDisplayName(LanguageManager.getINSTANCE().getLocale(player));
         }));
         // apply sidebar
         handle.apply(player);
@@ -139,7 +152,7 @@ public class GameSidebar {
                             int currentStage;
                             int totalStages;
                             boolean isDone = (totalStages = currentTask.getTotalStages(player)) == (currentStage = currentTask.getCurrentStage(player));
-                            return taskFormatCache.replace("{task_name}", isDone ? ChatColor.STRIKETHROUGH + taskName : taskName).replace("{task_stage}", String.valueOf(currentStage)).replace("{task_stages}", String.valueOf(totalStages));
+                            return taskFormatCache.replace("{task_name}", isDone ? ChatColor.STRIKETHROUGH + taskName : maskData ? ChatColor.MAGIC + taskName : taskName).replace("{task_stage}", String.valueOf(currentStage)).replace("{task_stages}", String.valueOf(totalStages));
                         });
                         handle.addPlaceholder(taskPlaceholder);
                         handle.addLine(new SidebarLine() {
@@ -174,6 +187,18 @@ public class GameSidebar {
         }
     }
 
+    public void setMaskData(boolean maskData) {
+        this.maskData = maskData;
+    }
+
+    public boolean isMaskData() {
+        return maskData;
+    }
+
+    public Arena getArena() {
+        return arena;
+    }
+
     /**
      * Get sidebar handler.
      */
@@ -195,7 +220,7 @@ public class GameSidebar {
         GameSidebarManager.getInstance().removeSidebar(player);
     }
 
-    public void hidePlayerName(Player player){
+    public void hidePlayerName(Player player) {
         this.handle.playerListHideNameTag(player);
     }
 }

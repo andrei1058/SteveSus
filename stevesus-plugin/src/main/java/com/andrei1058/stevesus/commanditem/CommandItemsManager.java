@@ -1,15 +1,24 @@
 package com.andrei1058.stevesus.commanditem;
 
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
+import com.andrei1058.stevesus.api.arena.sabotage.TimedSabotage;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
+import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,6 +35,7 @@ import java.util.logging.Level;
 public class CommandItemsManager {
 
     public static final String INTERACT_NBT_TAG_PLAYER_CMDS = "aumi-1058-p";
+    public static final String INTERACT_NBT_TAG_PLAYER_INTERACT = "interact";
     public static final String INTERACT_NBT_TAG_CONSOLE_CMDS = "aumi-1058-c";
 
     private static CommandItemsManager INSTANCE;
@@ -43,10 +53,57 @@ public class CommandItemsManager {
     private static final String SLOT = ".slot";
     private static final String COMMANDS_AS_PLAYER = ".run-commands.as-player";
     private static final String COMMANDS_AS_CONSOLE = ".run-commands.as-console";
+    private static final String CUSTOM_NBT = ".run-commands.custom-action";
 
     private YamlConfiguration yml;
     private File config;
     private boolean firstTime = false;
+
+    // custom NBT on items interact handler
+    private final InteractEvent interactEvent = (player, itemStack) -> {
+        String tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT);
+        if (tag != null) {
+            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+            if (arena == null) return;
+            String[] data = tag.split(":");
+            if (data.length == 0) return;
+
+            // check if item has sabotage
+            SabotageBase sabotageBase = null;
+            if (data.length > 1 && data[0].equals("sabotage")) {
+                String[] subData = data[1].split(",");
+                if (subData.length < 2) return;
+                sabotageBase = arena.getLoadedSabotage(subData[0], subData[1]);
+            }
+
+            // check item
+            if (sabotageBase == null) {
+                if (tag.equals("kill")) {
+                    Player nearest = null;
+                    double distance = arena.getKillDistance();
+                    Team playerTeam = arena.getPlayerTeam(player);
+                    for (Player inGame : arena.getPlayers()) {
+                        if (player.equals(inGame)) continue;
+                        double currentDistance;
+                        if ((currentDistance = player.getLocation().distance(inGame.getLocation())) < distance && playerTeam.canKill(inGame)) {
+                            nearest = inGame;
+                            distance = currentDistance;
+                        }
+                    }
+                    if (nearest != null) {
+                        arena.killPlayer(player, nearest);
+                    }
+                }
+            } else {
+                // usage cool down
+                int coolDown = 60; //todo retrieve from config
+                ItemStack inHand = player.getInventory().getItemInMainHand();
+                player.setCooldown(inHand.getType(), (coolDown + ((sabotageBase instanceof TimedSabotage) ? ((TimedSabotage) sabotageBase).getCountDown() : 0)) * 20);
+                // sabotage
+                sabotageBase.activate(player);
+            }
+        }
+    };
 
     /**
      * Initialize configuration from given path.
@@ -61,7 +118,7 @@ public class CommandItemsManager {
             }
         }
 
-        config = new File(itemsDir, "command_items.yml");
+        config = new File(itemsDir, "layout_items.yml");
         if (!config.exists()) {
             firstTime = true;
             SteveSus.getInstance().getLogger().log(Level.INFO, "Creating " + config.getPath());
@@ -79,23 +136,24 @@ public class CommandItemsManager {
         yml.options().copyDefaults(true);
 
         if (isFirstTime()) {
-            saveCommandItem(CATEGORY_MAIN_LOBBY, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"));
-            saveCommandItem(CATEGORY_MAIN_LOBBY, "selector", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " selector", "", "", false, getMaterial("CHEST", "CHEST"), 0, 4, "&b&lGame Selector", Arrays.asList(" ", "&fRight click to select a game!"));
-            saveCommandItem(CATEGORY_MAIN_LOBBY, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"));
+            saveCommandItem(CATEGORY_MAIN_LOBBY, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"), null);
+            saveCommandItem(CATEGORY_MAIN_LOBBY, "selector", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " selector", "", "", false, getMaterial("CHEST", "CHEST"), 0, 4, "&b&lGame Selector", Arrays.asList(" ", "&fRight click to select a game!"), null);
+            saveCommandItem(CATEGORY_MAIN_LOBBY, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"), null);
 
-            saveCommandItem(CATEGORY_WAITING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"));
-            saveCommandItem(CATEGORY_WAITING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"));
+            saveCommandItem(CATEGORY_WAITING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"), null);
+            saveCommandItem(CATEGORY_WAITING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"), null);
 
-            saveCommandItem(CATEGORY_STARTING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"));
-            saveCommandItem(CATEGORY_STARTING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"));
+            saveCommandItem(CATEGORY_STARTING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"), null);
+            saveCommandItem(CATEGORY_STARTING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"), null);
 
-            saveCommandItem(CATEGORY_SPECTATING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"));
-            saveCommandItem(CATEGORY_SPECTATING, "teleporter", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " teleporter", "", "", false, getMaterial("COMPASS", "COMPASS"), 0, 4, "&b&lTeleporter", Arrays.asList(" ", "&fRight click to select a target!"));
-            saveCommandItem(CATEGORY_SPECTATING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"));
+            saveCommandItem(CATEGORY_SPECTATING, "stats", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " stats", "", "", false, getMaterial("SKULL_ITEM", "PLAYER_HEAD"), 3, 0, "&bYour Stats", Arrays.asList(" ", "&fRight click to see your stats!"), null);
+            saveCommandItem(CATEGORY_SPECTATING, "teleporter", CommonCmdManager.getINSTANCE().getMainCmd().getName() + " teleporter", "", "", false, getMaterial("COMPASS", "COMPASS"), 0, 4, "&b&lTeleporter", Arrays.asList(" ", "&fRight click to select a target!"), null);
+            saveCommandItem(CATEGORY_SPECTATING, "leave", "leave", "", "", false, getMaterial("BED", "RED_BED"), 0, 8, "&bBack to Lobby", Arrays.asList(" ", "&fRight click to exit!"), null);
 
-            saveCommandItem(CATEGORY_VOTING, "vote", "ss vote", "", "", false, CommonManager.SERVER_VERSION < 13 ? "ELYTRA" : "ELYTRA", 0, 4, "&a&lVote", Arrays.asList(" ", "&fRight click to open!"));
+            saveCommandItem(CATEGORY_VOTING, "vote", "ss vote", "", "", false, CommonManager.SERVER_VERSION < 13 ? "ELYTRA" : "ELYTRA", 0, 4, "&a&lVote", Arrays.asList(" ", "&fRight click to open!"), null);
 
-            saveCommandItem(CATEGORY_IMPOSTOR, "kill", "ss kill", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "&fplayers turn red."));
+            saveCommandItem(CATEGORY_IMPOSTOR, "kill", "", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "&fplayers turn red."), "kill");
+            saveCommandItem(CATEGORY_IMPOSTOR, "oxygen", "", "", "", false, ItemUtil.getMaterial("SAPLING", "ACACIA_SAPLING"), 0, 3, "&c&lSabotage Oxygen", Arrays.asList(" ", "&fRight click to", "&fsabotage oxygen."), "sabotage:" + SteveSus.getInstance().getName() + ",oxygen");
         }
 
         save();
@@ -130,15 +188,24 @@ public class CommandItemsManager {
     /**
      * Save a join item to config.
      */
-    public void saveCommandItem(String parent, String name, String cmdPlayer, String cmdConsole, String permission, boolean enchanted, String material, int data, int slot, String localeName, List<String> localeLore) {
+    public void saveCommandItem(String parent, String name, String cmdPlayer, String cmdConsole, String permission, boolean enchanted, String material, int data, int slot, String localeName, List<String> localeLore, String customNBT) {
         if (isFirstTime()) {
             getYml().addDefault(parent + "." + name + MATERIAL, material);
             getYml().addDefault(parent + "." + name + DATA, data);
-            getYml().addDefault(parent + "." + name + ENCHANTED, enchanted);
+            if (enchanted) {
+                getYml().addDefault(parent + "." + name + ENCHANTED, true);
+            }
             getYml().addDefault(parent + "." + name + SLOT, slot);
             getYml().addDefault(parent + "." + name + PERMISSION, permission);
-            getYml().addDefault(parent + "." + name + COMMANDS_AS_CONSOLE, cmdConsole);
-            getYml().addDefault(parent + "." + name + COMMANDS_AS_PLAYER, cmdPlayer);
+            if (!cmdConsole.isEmpty()) {
+                getYml().addDefault(parent + "." + name + COMMANDS_AS_CONSOLE, cmdConsole);
+            }
+            if (!cmdPlayer.isEmpty()) {
+                getYml().addDefault(parent + "." + name + COMMANDS_AS_PLAYER, cmdPlayer);
+            }
+            if (customNBT != null && !customNBT.isEmpty()) {
+                getYml().addDefault(parent + "." + name + CUSTOM_NBT, customNBT);
+            }
             save();
         }
         LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.JOIN_ITEM_NAME_PATH.toString().replace("{c}", parent).replace("{i}", name), localeName);
@@ -160,7 +227,7 @@ public class CommandItemsManager {
         if (clearArmor) {
             player.getInventory().clear();
         } else {
-            for (ItemStack itemStack : player.getInventory().getStorageContents()){
+            for (ItemStack itemStack : player.getInventory().getStorageContents()) {
                 if (itemStack == null) continue;
                 player.getInventory().remove(itemStack);
             }
@@ -179,6 +246,7 @@ public class CommandItemsManager {
                     List<String> tags = new ArrayList<>();
                     String cmdConsPath = category + "." + item + COMMANDS_AS_CONSOLE;
                     String cmdPlPath = category + "." + item + COMMANDS_AS_PLAYER;
+                    String nbtPath = category + "." + item + CUSTOM_NBT;
                     if (yml.get(cmdConsPath) != null) {
                         String consoleCMDs = yml.getString(cmdConsPath);
                         if (consoleCMDs != null && !consoleCMDs.trim().isEmpty()) {
@@ -190,6 +258,13 @@ public class CommandItemsManager {
                         String playerCMDs = yml.getString(cmdPlPath);
                         if (playerCMDs != null && !playerCMDs.trim().isEmpty()) {
                             tags.add(INTERACT_NBT_TAG_PLAYER_CMDS);
+                            tags.add(playerCMDs);
+                        }
+                    }
+                    if (yml.get(nbtPath) != null) {
+                        String playerCMDs = yml.getString(nbtPath);
+                        if (playerCMDs != null && !playerCMDs.trim().isEmpty()) {
+                            tags.add(INTERACT_NBT_TAG_PLAYER_INTERACT);
                             tags.add(playerCMDs);
                         }
                     }
@@ -252,4 +327,13 @@ public class CommandItemsManager {
             INSTANCE = new CommandItemsManager(itemsDir);
         }
     }
+
+    public static CommandItemsManager getINSTANCE() {
+        return INSTANCE;
+    }
+
+    public InteractEvent getInteractEvent() {
+        return interactEvent;
+    }
 }
+

@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.arena.gametask.wiring;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import org.bukkit.ChatColor;
@@ -18,10 +19,11 @@ public class FixWiring extends GameTask {
     private final String localName;
     private final List<UUID> currentlyDoingThisTask = new ArrayList<>();
 
-    public FixWiring(List<WiringPanel> panelList, int stages, String localName) {
+    public FixWiring(List<WiringPanel> panelList, int stages, String localName, Arena arena) {
         wiringPanels.addAll(panelList);
         this.stages = stages;
         this.localName = localName;
+        arena.registerGameListener(new WiringListener());
     }
 
     @Override
@@ -68,12 +70,6 @@ public class FixWiring extends GameTask {
     }
 
     @Override
-    public void assignToPlayers(List<Player> players, Arena arena) {
-        players.forEach(player -> assignedPlayers.remove(player.getUniqueId()));
-        players.forEach(player -> assignedPlayers.put(player.getUniqueId(), 0));
-    }
-
-    @Override
     public Set<UUID> getAssignedPlayers() {
         return Collections.unmodifiableSet(assignedPlayers.keySet());
     }
@@ -89,13 +85,13 @@ public class FixWiring extends GameTask {
     }
 
     @Override
-    public void onEmergencyStart(Arena arena) {
+    public void enableIndicators() {
         //todo
     }
 
     @Override
-    public void onEmergencyEnd(Arena arena) {
-        //todo
+    public void disableIndicators() {
+//todo
     }
 
     /**
@@ -127,5 +123,9 @@ public class FixWiring extends GameTask {
             int next = weight + 1;
             return Arrays.stream(values()).filter(flag -> flag.weight == next).findAny().orElse(REGULAR);
         }
+    }
+
+    private class WiringListener implements GameListener {
+        // todo
     }
 }

@@ -1,10 +1,8 @@
 package com.andrei1058.stevesus.api.arena.task;
 
 import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,12 +55,6 @@ public abstract class GameTask {
     public abstract void assignToPlayer(Player player, Arena arena);
 
     /**
-     * Use eventually when game starts.
-     * Enable visual details for the given players.
-     */
-    public abstract void assignToPlayers(List<Player> players, Arena arena);
-
-    /**
      * Get list of players having this task.
      */
     public abstract Set<UUID> getAssignedPlayers();
@@ -75,7 +67,7 @@ public abstract class GameTask {
     /**
      * Check if the given player is doing this task.
      */
-    public boolean isDoingTask(Player player){
+    public boolean isDoingTask(Player player) {
         return isDoingTask(player.getUniqueId());
     }
 
@@ -85,35 +77,18 @@ public abstract class GameTask {
     public abstract boolean isDoingTask(UUID player);
 
     /**
-     * Game state listener.
+     * Enable task indicators.
+     * Indicators help players find their assigned tasks.
+     * Indicators should be active by default.
      */
-    public void onGameStateChange(GameState oldState, GameState newState, Arena arena) {
-    }
+    public abstract void enableIndicators();
 
     /**
-     * Player Join listener.
-     * Use it to send your custom packets/ content etc.
+     * Disable task indicators. Usually triggered during sabotages.
+     * Indicators help players find their assigned tasks.
+     * Indicators should be active by default.
      */
-    public void onPlayerJoin(Arena arena, Player player, boolean spectator) {
-    }
-
-    /**
-     * Listen to player sneak event.
-     */
-    public void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
-
-    }
-
-    /**
-     * Hide task effects and more when an emergency starts. Like O2.
-     */
-    public abstract void onEmergencyStart(Arena arena);
-
-    /**
-     * Show back task effects if needed when emergency ends.
-     */
-    public abstract void onEmergencyEnd(Arena arena);
-
+    public abstract void disableIndicators();
 
     @Override
     public boolean equals(Object obj) {

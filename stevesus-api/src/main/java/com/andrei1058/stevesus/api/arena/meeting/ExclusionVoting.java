@@ -60,7 +60,13 @@ public class ExclusionVoting {
         GameSound.VOTE_SOUND.playToPlayers(arena.getPlayers());
         GameSound.VOTE_SOUND.playToPlayers(arena.getSpectators());
         // short time if all voted
-        if (arena.getPlayers().stream().allMatch(this::hasVoted)) {
+        if (arena.getPlayers().stream().allMatch(inGame -> {
+            Team playerTeam = arena.getPlayerTeam(inGame);
+            if (playerTeam == null) {
+                return true;
+            }
+            return !playerTeam.canVote() || playerTeam.canVote() && hasVoted(inGame);
+        })) {
             arena.setCountdown(5);
         }
         return true;

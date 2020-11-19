@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.arena.listener;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import org.bukkit.entity.Player;
@@ -17,13 +18,18 @@ public class DamageListener implements Listener {
     public void onDamageFromEntity(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null){
+        if (arena != null) {
             e.setCancelled(true);
-
-            if (arena.getMeetingButton() == null) return;
             if (!(e.getDamager() instanceof Player)) return;
-            if (e.getEntity().hasMetadata(MeetingButton.MEETING_BUTTON_META_DATA_KEY)) {
-                arena.getMeetingButton().onClick((Player) e.getDamager(), arena);
+
+            if (arena.getMeetingButton() != null) {
+                if (e.getEntity().hasMetadata(MeetingButton.MEETING_BUTTON_META_DATA_KEY)) {
+                    arena.getMeetingButton().onClick((Player) e.getDamager(), arena);
+                }
+            }
+
+            for (GameListener gameListener : arena.getGameListeners()) {
+                gameListener.onEntityInteract(arena, (Player) e.getDamager(), e.getEntity());
             }
         }
     }
@@ -32,7 +38,7 @@ public class DamageListener implements Listener {
     public void onDamageFromBlock(EntityDamageByBlockEvent e) {
         if (e.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null){
+        if (arena != null) {
             e.setCancelled(true);
         }
     }
@@ -41,16 +47,16 @@ public class DamageListener implements Listener {
     public void onDamage(EntityDamageEvent e) {
         if (e.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null){
+        if (arena != null) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onHunger(FoodLevelChangeEvent e){
+    public void onHunger(FoodLevelChangeEvent e) {
         if (e.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null){
+        if (arena != null) {
             e.setCancelled(true);
         }
     }

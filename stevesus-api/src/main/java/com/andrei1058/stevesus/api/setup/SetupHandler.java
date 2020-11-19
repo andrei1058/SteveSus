@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Server Setup Manager.
  */
+@SuppressWarnings("UnstableApiUsage")
 public interface SetupHandler {
 
     /**
@@ -107,4 +108,9 @@ public interface SetupHandler {
      */
     @SuppressWarnings("UnstableApiUsage")
     FastSubRootCommand getRemoveCommand();
+
+    /**
+     * Get set sabotage command.
+     */
+    FastSubRootCommand getSetSabotageCommand();
 }

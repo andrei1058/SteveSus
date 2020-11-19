@@ -58,9 +58,12 @@ public enum GameSound {
     IMPOSTORS_WIN(false, "impostors-win", "ENTITY_ENDERDRAGON_DEATH", "ENTITY_ENDER_DRAGON_DEATH", 1, 1),
     KILL(false, "kill", "ENTITY_PLAYER_DEATH", "ENTITY_PLAYER_DEATH", 1,1),
     GAME_START_CREW(false, "game-start-crew", "ENTITY_CHICKEN_EGG", "BLOCK_BEACON_ACTIVATE", 1, 1),
-    GAME_START_IMPOSTOR(false, "game-start-impostor", "ENTITY_ZOMBIE_VILLAGER_CURE", "ITEM_TRIDENT_THUNDER", 1, 1)
+    GAME_START_IMPOSTOR(false, "game-start-impostor", "ENTITY_ZOMBIE_VILLAGER_CURE", "ITEM_TRIDENT_THUNDER", 1, 1),
+    SABOTAGE_COUNT_DOWN(false, "sabotage-count-down", "BLOCK_LAVA_POP", "BLOCK_LAVA_POP", 1, 1),
+    SABOTAGE_FIX_PROGRESS_RESET(false, "sabotage-fix-progress-reset", "ENTITY_CAT_HISS", "ENTITY_CAT_HISS", 1,1),
+    SABOTAGE_FIX_PROGRESS(false, "sabotage-fix-progress", "UI_BUTTON_CLICK", "UI_BUTTON_CLICK", 1,1),
+    SABOTAGE_FIX_SUCCESS(false, "sabotage-fix-success", "ENTITY_PLAYER_LEVELUP", "ENTITY_PLAYER_LEVELUP", 1,1)
     ;
-
     // server version
     static byte SERVER_VERSION;
 
@@ -175,6 +178,7 @@ public enum GameSound {
     @SuppressWarnings("unused")
     public void playToPlayers(@NotNull List<Player> players) {
         if (sound == null) return;
+        if (players.isEmpty()) return;
         players.forEach(player -> player.playSound(player.getLocation(), sound, volume, pitch));
     }
 

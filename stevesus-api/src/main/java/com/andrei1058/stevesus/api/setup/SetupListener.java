@@ -21,41 +21,67 @@ import org.bukkit.event.player.PlayerInteractEvent;
  */
 public interface SetupListener {
 
-    void onPlayerInteract(PlayerInteractEvent event);
+    default void onPlayerInteract(SetupSession setupSession, PlayerInteractEvent event) {
 
-    void onPlayerInteractEntity(PlayerInteractEntityEvent event);
+    }
 
-    void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event);
+    default void onPlayerInteractEntity(SetupSession setupSession, PlayerInteractEntityEvent event) {
 
-    void onPlayerDropItem(PlayerDropItemEvent event);
+    }
+
+    default void onPlayerInteractAtEntity(SetupSession setupSession, PlayerInteractAtEntityEvent event) {
+
+    }
+
+    default void onPlayerDropItem(SetupSession setupSession, PlayerDropItemEvent event) {
+
+    }
 
     /**
      * Player check already made internally.
      */
-    void onPlayerPickupItem(EntityPickupItemEvent event);
+    default void onPlayerPickupItem(SetupSession setupSession, EntityPickupItemEvent event) {
 
-    void onBlockBreak(BlockBreakEvent event);
+    }
 
-    void onBlockPlace(BlockPlaceEvent event);
+    default void onBlockBreak(SetupSession setupSession, BlockBreakEvent event) {
+
+    }
+
+    default void onBlockPlace(SetupSession setupSession, BlockPlaceEvent event) {
+
+    }
 
     /**
      * When an item frame or painting is placed etc.
      */
-    void onHangingPlace(HangingPlaceEvent event);
+    default void onHangingPlace(SetupSession setupSession, HangingPlaceEvent event) {
+
+    }
 
     /**
      * When an item frame or painting is broken by an entity.
      */
-    void onHangingBreakByEntity(HangingBreakByEntityEvent event);
+    default void onHangingBreakByEntity(SetupSession setupSession, HangingBreakByEntityEvent event) {
+
+    }
 
     /**
      * When an item frame or painting is broken by natural events
      * like when the block behind got broken.
      */
-    void onHangingBreak(HangingBreakEvent event);
+    default void onHangingBreak(SetupSession setupSession, HangingBreakEvent event) {
+
+    }
 
     /**
      * Useful to protect items in item frames.
      */
-    void onEntityDamageByEntity(EntityDamageByEntityEvent event);
+    default void onEntityDamageByEntity(SetupSession setupSession, EntityDamageByEntityEvent event) {
+
+    }
+
+    default void onSetupPerClose(SetupSession setupSession) {
+
+    }
 }

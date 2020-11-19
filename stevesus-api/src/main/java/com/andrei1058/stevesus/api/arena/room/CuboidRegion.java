@@ -1,4 +1,4 @@
-package com.andrei1058.stevesus.arena.region;
+package com.andrei1058.stevesus.api.arena.room;
 
 import org.bukkit.Location;
 
@@ -23,6 +23,18 @@ public class CuboidRegion implements Region {
         minZ = Math.min(l1.getBlockZ(), l2.getBlockZ());
         maxZ = Math.max(l1.getBlockZ(), l2.getBlockZ());
 
+        this.protect = protect;
+    }
+
+    public CuboidRegion(Location l1, Location l2, boolean protect) {
+        minX = Math.min(l1.getBlockX(), l2.getBlockX());
+        maxX = Math.max(l1.getBlockX(), l2.getBlockX());
+
+        minY = Math.min(l1.getBlockY(), l2.getBlockY());
+        maxY = Math.max(l1.getBlockY(), l2.getBlockY());
+
+        minZ = Math.min(l1.getBlockZ(), l2.getBlockZ());
+        maxZ = Math.max(l1.getBlockZ(), l2.getBlockZ());
         this.protect = protect;
     }
 

@@ -84,9 +84,9 @@ public enum Message {
     EXCLUSION_RESULT_TITLE_SELF(false, "vote-result-title-self", " "),
     EXCLUSION_RESULT_SUBTITLE_SELF(false, "vote-result-subtitle-self", "&c&lYou've been ejected!"),
     MEETING_START_CHAT_MSG_NO_BODY(false, "meeting-start-no-body", Arrays.asList(" ", "&c&lEmergency Meeting", " ", "&e{requester} &erequested an &cemergency &emeeting!", " ")),
-    // {reporter}, {dead}, {room}
-    MEETING_START_CHAT_MSG_BODY(false, "meeting-start-body", Arrays.asList(" ", " &c&lDead body Found", " ", "&e{reporter} &efound {dead}'s body in &6{room}&e.", " ")),
-    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!", "{todo} names here", "")),
+    // {reporter}, {dead}
+    MEETING_START_CHAT_MSG_BODY(false, "meeting-start-body", Arrays.asList(" ", " &c&lDead body Found", " ", "&e{reporter} &efound {dead}'s body.", " ")),
+    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!", "{todo} names here", "{reason}")),
     GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrewmates won!", "{todo} names here", "")),
 
     GAME_END_IMPOSTORS_WON_TITLE("game-end-impostors-won-title", "&4Impostors won!"),
@@ -116,7 +116,7 @@ public enum Message {
             "&7{date}", "&8{game_tag}", "", "&fMap: &b{name}", "&fPlayers: &b{on}/{max}", "", "Starting in &b{countdown}s", "", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_IN_GAME("scoreboard-sidebar-playing", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            " ", "{task}", "", "{task}", "", "{task}", "", "{task}", "", "{task}", "", "&b{server_name}")),
+            " ", "&7You are in:", "{room}", "{task}", "", "{task}", "", "{task}", "", "{task}", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_ENDING("scoreboard-sidebar-ending", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
             "&7{date}", "&8{game_tag}", "", "&7Game Ended", "&fMap: &b{name}", "&7Spectators: &f{spectating}", "", "", "", "&b{server_name}")),
@@ -161,6 +161,11 @@ public enum Message {
     GAME_START_IMPOSTOR_TITLE("game-start-impostor-title", "&4Impostor"),
     GAME_START_IMPOSTOR_SUBTITLE("game-start-impostor-subtitle", ""),
     GAME_START_IMPOSTOR_CHAT("game-start-chat-impostor", Arrays.asList(" ", "&cYou are an impostor!", "", "&eSabotage and kill crewmates to win!", "They can't see what item you're holding in your hand.")),
+    SABOTAGE_PATH_(true, "game-sabotage-", ""),
+    GAME_ROOM_NAME_(true, "game-room-name-", ""),
+    GAME_ROOM_NO_NAME( "game-no-room", "&7No Room"),
+    DEFEAT_REASON_PATH_(true, "defeat-reason", ""),
+    IN_GAME_ACTION_BAR("action-bar-in-game", "&fYour color: {player} &7| &fRoom: {room}" ),
     ;
 
     private final String path;

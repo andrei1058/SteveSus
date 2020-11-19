@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.arena;
 import ch.jalu.configme.SettingsManager;
 import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.api.arena.GameEndConditions;
@@ -10,6 +11,11 @@ import com.andrei1058.stevesus.api.arena.PlayerCorpse;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
+import com.andrei1058.stevesus.api.arena.GameListener;
+import com.andrei1058.stevesus.api.arena.room.CuboidRegion;
+import com.andrei1058.stevesus.api.arena.room.GameRoom;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
 import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
@@ -41,6 +47,7 @@ import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.common.party.PartyManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.MainConfig;
+import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.hook.corpse.CorpseManager;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -55,7 +62,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_12_R1.PacketPlayOutSetCooldown;
 import org.bukkit.*;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
@@ -133,6 +139,10 @@ public class SteveSusArena implements Arena {
     private final List<PlayerCorpse> deadBodies = new ArrayList<>();
     private double getKillDistance = 2.8;
     private int killDelay = 45;
+    private final LinkedList<SabotageBase> loadedSabotages = new LinkedList<>();
+    private final LinkedList<GameListener> gameListeners = new LinkedList<>();
+    private boolean taskIndicatorActive = true;
+    private final LinkedList<GameRoom> rooms = new LinkedList<>();
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -183,6 +193,8 @@ public class SteveSusArena implements Arena {
         this.world = world;
         this.world.setKeepSpawnInMemory(true);
         this.world.setAutoSave(false);
+        this.world.getWorldBorder().setSize(1000);
+        this.world.getWorldBorder().setWarningDistance(0);
 
         waitingLocations.forEach(location -> location.setWorld(this.world));
         spectatingLocations.forEach(location -> location.setWorld(this.world));
@@ -201,6 +213,9 @@ public class SteveSusArena implements Arena {
         commonTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count());
         shortTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count());
         longTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count());
+
+        initSabotages();
+        initRooms();
 
         spawnMeetingButton(world);
 
@@ -454,11 +469,13 @@ public class SteveSusArena implements Arena {
                 }
             }).execute();
 
-            // trigger game task event
-            // so they can send their custom data etc.
-            gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, false));
-
+            // clear cached cool downs
             PlayerCoolDown.clearPlayerData(player);
+
+            // trigger listener
+            for (GameListener gameListener : gameListeners) {
+                gameListener.onPlayerJoin(this, player);
+            }
             SteveSus.debug("Player " + player.getName() + " was added as player to game " + getGameId() + "(" + getTemplateWorld() + ").");
             return true;
         }
@@ -517,9 +534,6 @@ public class SteveSusArena implements Arena {
 
         player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.ARENA_JOIN_SPECTATOR).replace("{arena}", this.getDisplayName()));
 
-        // trigger game task event
-        // so they can send their custom data etc.
-        gameTasks.forEach(gameTask1 -> gameTask1.onPlayerJoin(this, player, true));
         sendTaskMeter(player);
         PlayerCoolDown.clearPlayerData(player);
         SteveSus.debug("Player " + player.getName() + " was added as spectator to game " + getGameId() + "(" + getTemplateWorld() + ").");
@@ -571,6 +585,10 @@ public class SteveSusArena implements Arena {
             }
         }).execute();
 
+        // trigger listener
+        for (GameListener gameListener : gameListeners) {
+            gameListener.onPlayerToSpectator(this, player);
+        }
         //todo
         SteveSus.debug("Player " + player.getName() + " was SWITCHED to spectator in game " + getGameId() + "(" + getTemplateWorld() + ").");
         return true;
@@ -682,7 +700,12 @@ public class SteveSusArena implements Arena {
         PlayerCoolDown.clearPlayerData(player);
         // remove glowing
         getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
-        //
+
+        // trigger listener
+        for (GameListener gameListener : gameListeners) {
+            gameListener.onPlayerLeave(this, player, false);
+        }
+
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -730,6 +753,13 @@ public class SteveSusArena implements Arena {
             getPlayerColorAssigner().restorePlayer(player);
         }
         PlayerCoolDown.clearPlayerData(player);
+
+        // clear player data from sabotages
+        // trigger listener
+        for (GameListener gameListener : gameListeners) {
+            gameListener.onPlayerLeave(this, player, true);
+        }
+
         SteveSus.debug("Player " + player.getName() + " was removed as spectator from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
 
@@ -785,6 +815,7 @@ public class SteveSusArena implements Arena {
             if (getMeetingButton() != null) {
                 getMeetingButton().refreshLines(this);
             }
+            //addActiveSabotage(new OxygenSabotage(this, 60));
         } else if (gameState == GameState.ENDING) {
             setMeetingStage(MeetingStage.NO_MEETING);
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
@@ -792,7 +823,10 @@ public class SteveSusArena implements Arena {
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskRestarting(this), 0L, 20L).getTaskId();
         }
 
-        gameTasks.forEach(task -> task.onGameStateChange(oldState, gameState, this));
+        for (GameListener listener : getGameListeners()) {
+            listener.onGameStateChange(this, oldState, gameState);
+        }
+
         GameStateChangeEvent gameStateChangeEvent = new GameStateChangeEvent(this, oldState, gameState);
         Bukkit.getPluginManager().callEvent(gameStateChangeEvent);
         return true;
@@ -1065,6 +1099,9 @@ public class SteveSusArena implements Arena {
     @Override
     public void setMeetingStage(MeetingStage meetingStage) {
         if (meetingStage == this.meetingStage) return;
+        for (GameListener listener : getGameListeners()) {
+            listener.onMeetingStageChange(this, this.meetingStage, meetingStage);
+        }
         this.meetingStage = meetingStage;
         if (meetingStage == MeetingStage.NO_MEETING) {
             if (getMeetingButton() != null) {
@@ -1108,20 +1145,16 @@ public class SteveSusArena implements Arena {
         Team playerTeam = getPlayerTeam(requester);
         if (playerTeam == null) return false;
         if (deadBody == null) {
-            if (!playerTeam.canUseMeetingButton()) {
+            if (!playerTeam.canUseMeetingButton() || getLoadedSabotages().stream().anyMatch(sabotage -> sabotage.isActive() && !sabotage.isEmergencyButtonAllowed())) {
                 return false;
             }
         } else {
-            if (!playerTeam.canReportBody()) {
+            if (!playerTeam.canReportBody() || getLoadedSabotages().stream().anyMatch(sabotage -> sabotage.isActive() && !sabotage.canReportDeadBody())) {
                 return false;
             }
         }
         // interrupt tasks
-        getLoadedGameTasks().forEach(task -> getPlayers().forEach(player -> {
-            if (task.isDoingTask(player)) {
-                task.onInterrupt(player, this);
-            }
-        }));
+        interruptTasks();
         // clear dead bodies
         getDeadBodies().forEach(PlayerCorpse::destroy);
         // add voting manager
@@ -1252,11 +1285,6 @@ public class SteveSusArena implements Arena {
     public void setEmergency(boolean toggle) {
         if (toggle == this.emergency) return;
         this.emergency = toggle;
-        if (toggle) {
-            getLoadedGameTasks().forEach(loadedTask -> loadedTask.onEmergencyStart(this));
-        } else {
-            getLoadedGameTasks().forEach(loadedTask -> loadedTask.onEmergencyEnd(this));
-        }
     }
 
     @Override
@@ -1330,11 +1358,7 @@ public class SteveSusArena implements Arena {
         if (event.isCancelled()) return;
 
         // interrupt tasks
-        getLoadedGameTasks().forEach(task -> {
-            if (task.isDoingTask(victim)) {
-                task.onInterrupt(victim, this);
-            }
-        });
+        interruptTasks(victim);
 
         GameSound.KILL.playAtLocation(victim.getLocation(), getPlayers());
 
@@ -1399,6 +1423,149 @@ public class SteveSusArena implements Arena {
     @Override
     public int getKillDelay() {
         return killDelay;
+    }
+
+    @Override
+    public void addSabotage(SabotageBase sabotageBase) {
+        if (getGameState() != GameState.IN_GAME) return;
+        if (loadedSabotages.contains(sabotageBase)) return;
+        loadedSabotages.add(sabotageBase);
+    }
+
+    @Override
+    public void removeSabotage(SabotageBase sabotageBase) {
+        loadedSabotages.remove(sabotageBase);
+    }
+
+    @Override
+    public List<SabotageBase> getLoadedSabotages() {
+        return loadedSabotages;
+    }
+
+    @Override
+    public void interruptTasks() {
+        getLoadedGameTasks().forEach(task -> getPlayers().forEach(player -> {
+            if (task.isDoingTask(player)) {
+                task.onInterrupt(player, this);
+            }
+        }));
+    }
+
+    @Override
+    public void interruptTasks(Player player) {
+        getLoadedGameTasks().forEach(task -> {
+            if (task.isDoingTask(player)) {
+                task.onInterrupt(player, this);
+            }
+        });
+    }
+
+    @Override
+    public boolean hasLoadedSabotage(String identifier) {
+        return loadedSabotages.stream().anyMatch(sabotage -> sabotage.getProvider().getUniqueIdentifier().equals(identifier));
+    }
+
+    @Override
+    public @Nullable SabotageBase getLoadedSabotage(String provider, String sabotageId) {
+        return loadedSabotages.stream().filter(sabotage -> sabotage.getProvider().getOwner().getName().equals(provider) && sabotage.getProvider().getUniqueIdentifier().equals(sabotageId)).findFirst().orElse(null);
+    }
+
+    @Override
+    public void registerGameListener(GameListener listener) {
+        gameListeners.add(listener);
+    }
+
+    @Override
+    public void unRegisterGameListener(GameListener listener) {
+        gameListeners.remove(listener);
+    }
+
+    @Override
+    public LinkedList<GameListener> getGameListeners() {
+        return gameListeners;
+    }
+
+    @Override
+    public boolean isTasksAllowedATM() {
+        return getLoadedSabotages().stream().noneMatch(sabotage -> sabotage.isActive() && !sabotage.isAllowTasks());
+    }
+
+    @Override
+    public void disableTaskIndicators() {
+        if (!taskIndicatorActive) return;
+        getLoadedGameTasks().forEach(GameTask::disableIndicators);
+        taskIndicatorActive = false;
+    }
+
+    @Override
+    public boolean tryEnableTaskIndicators() {
+        Bukkit.broadcastMessage("tryEnableTaskIndicators a");
+        if (taskIndicatorActive) return false;
+        Bukkit.broadcastMessage("tryEnableTaskIndicators b");
+        if (getLoadedSabotages().stream().noneMatch(sabotage -> sabotage.isActive() && !sabotage.isAllowTasks())) {
+            Bukkit.broadcastMessage("tryEnableTaskIndicators c");
+            getLoadedGameTasks().forEach(GameTask::enableIndicators);
+            taskIndicatorActive = true;
+            return true;
+        }
+        Bukkit.broadcastMessage("tryEnableTaskIndicators d");
+        return false;
+    }
+
+    @Override
+    public void addRoom(GameRoom room) {
+        rooms.add(room);
+    }
+
+    @Override
+    public void removeRoom(GameRoom room) {
+        rooms.remove(room);
+    }
+
+    @Override
+    public @Nullable GameRoom getPlayerRoom(Player player) {
+        for (GameRoom room : rooms) {
+            if (room.getRegion().isInRegion(player.getLocation())) {
+                return room;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void defeatBySabotage(@Nullable String reasonPath) {
+        // impostors won
+        switchState(GameState.ENDING);
+        getPlayers().forEach(player -> {
+            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+            lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> {
+                if (string.contains("{reason}")) {
+                    if (reasonPath != null) {
+                        string = lang.getMsg(player, reasonPath);
+                        player.sendMessage(ChatUtil.centerMessage(string));
+                    }
+                } else {
+                    player.sendMessage(ChatUtil.centerMessage(string));
+                }
+            });
+            player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
+        });
+        getSpectators().forEach(player -> {
+            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+            lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> {
+                if (string.contains("{reason}")) {
+                    if (reasonPath != null) {
+                        string = lang.getMsg(player, reasonPath);
+                        player.sendMessage(ChatUtil.centerMessage(string));
+                    }
+                } else {
+                    player.sendMessage(ChatUtil.centerMessage(string));
+                }
+            });
+            player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
+        });
+        GameSound.IMPOSTORS_WIN.playToPlayers(getPlayers());
+        GameSound.IMPOSTORS_WIN.playToPlayers(getSpectators());
     }
 
     public Location getNextWaitingSpawn() {
@@ -1497,6 +1664,45 @@ public class SteveSusArena implements Arena {
                 }
             }
         });
+    }
+
+    private void initSabotages() {
+        config.getProperty(ArenaConfig.SABOTAGES).forEach(sabotageString -> {
+            String[] data = sabotageString.split(";");
+            if (data.length > 2) {
+                SabotageProvider provider = ArenaManager.getINSTANCE().getSabotageProviderByName(data[0], data[1]);
+                if (provider == null) {
+                    SteveSus.getInstance().getLogger().warning("Could not load game sabotage " + data[0] + ":" + data[1] + " on " + getTemplateWorld() + "(" + getTag() + "), it was not found!");
+                } else {
+                    SabotageBase sabotage = provider.onArenaInit(this, new JsonParser().parse(data[2]).getAsJsonObject());
+                    if (sabotage == null) {
+                        SteveSus.debug("Could not initialize game sabotage " + data[0] + ":" + data[1] + " on " + getTemplateWorld() + " id: " + getTag());
+
+                    } else {
+                        loadedSabotages.add(sabotage);
+                        SteveSus.debug("Initialized game sabotage " + data[0] + ":" + data[1] + " on " + getTemplateWorld() + " id: " + getTag());
+                    }
+                }
+            }
+        });
+    }
+
+    private void initRooms() {
+        for (String room : config.getProperty(ArenaConfig.ROOMS)) {
+            String[] data = room.split(";");
+            if (data.length > 2) {
+                OrphanLocationProperty exporter = new OrphanLocationProperty();
+                Location pos1 = exporter.convert(data[1], null);
+                Location pos2 = exporter.convert(data[2], null);
+                if (pos1 == null || pos2 == null) {
+                    SteveSus.getInstance().getLogger().warning("Could not load game room: " + data[0] + "(bad data).");
+                    continue;
+                }
+                CuboidRegion region = new CuboidRegion(pos1, pos2, true);
+                addRoom(new GameRoom(region, data[0]));
+                SteveSus.getInstance().getLogger().info("Loaded game room: " + data[0] + ".");
+            }
+        }
     }
 
     private void createTaskMeterBar() {

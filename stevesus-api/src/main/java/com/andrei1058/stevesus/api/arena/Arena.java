@@ -3,6 +3,8 @@ package com.andrei1058.stevesus.api.arena;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
+import com.andrei1058.stevesus.api.arena.room.GameRoom;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
@@ -617,4 +619,94 @@ public interface Arena extends DisplayableArena {
      * Get kill delay.
      */
     int getKillDelay();
+
+    /**
+     * Add an active sabotage to the arena.
+     */
+    void addSabotage(SabotageBase sabotageBase);
+
+    /**
+     * Remove a finished sabotage.
+     */
+    void removeSabotage(SabotageBase sabotageBase);
+
+    /**
+     * Get active sabotages.
+     */
+    List<SabotageBase> getLoadedSabotages();
+
+    /**
+     * Interrupt players from current tasks.
+     */
+    void interruptTasks();
+
+    /**
+     * Interrupt player from current tasks.
+     */
+    void interruptTasks(Player player);
+
+    /**
+     * Check if the given sabotage is an active sabotage.
+     *
+     * @param identifier sabotage id.
+     */
+    boolean hasLoadedSabotage(String identifier);
+
+    /**
+     * Get loaded sabotage if exists.
+     */
+    @Nullable SabotageBase getLoadedSabotage(String provider, String sabotageId);
+
+    /**
+     * Register a listener.
+     */
+    void registerGameListener(GameListener listener);
+
+    /**
+     * Unregister a game listener.
+     */
+    void unRegisterGameListener(GameListener listener);
+
+    /**
+     * Game listeners.
+     */
+    LinkedList<GameListener> getGameListeners();
+
+    /**
+     * Check if doing tasks is allowed at this time.
+     * Because some sabotages do not allow that.
+     */
+    boolean isTasksAllowedATM();
+
+    /**
+     * Disable tasks indicators if they aren't disabled yet.
+     * This is usually triggered during sabotages.
+     */
+    void disableTaskIndicators();
+
+    /**
+     * Enable task indicators back if there isn't an active sabotage blocking this action.
+     * Task indicators are blocked by {@link #isTasksAllowedATM()}.
+     *
+     * @return true if could enable back. False if already enabled or cannot be enabled.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    boolean tryEnableTaskIndicators();
+
+    /**
+     * Add a game room.
+     */
+    void addRoom(GameRoom room);
+
+    /**
+     * Remove a game room.
+     */
+    void removeRoom(GameRoom room);
+
+    /**
+     * Get player current room.
+     */
+    @Nullable GameRoom getPlayerRoom(Player player);
+
+    void defeatBySabotage(String reasonPath);
 }

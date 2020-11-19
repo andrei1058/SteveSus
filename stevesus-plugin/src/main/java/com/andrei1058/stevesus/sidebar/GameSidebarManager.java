@@ -15,10 +15,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GameSidebarManager {
 
@@ -27,7 +25,7 @@ public class GameSidebarManager {
         this.handle = new SidebarManager();
         // register placeholders refresh task
         int placeholdersRefreshRate = ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.SIDEBAR_PLACEHOLDERS_REFRESH_INTERVAL);
-        if (placeholdersRefreshRate <= 0) {
+        /*if (placeholdersRefreshRate <= 0) {
             SteveSus.getInstance().getLogger().warning("Sidebar PLACEHOLDERS refresh is disabled. Refresh interval is set to: " + placeholdersRefreshRate);
         } else {
             if (placeholdersRefreshRate < 20) {
@@ -36,7 +34,7 @@ public class GameSidebarManager {
                 SteveSus.getInstance().getLogger().warning("Current refresh interval: every " + placeholdersRefreshRate + " ticks.");
             }
             Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), () -> sidebarByPlayer.values().forEach(sidebar -> sidebar.getHandle().refreshPlaceholders()), 20L, placeholdersRefreshRate);
-        }
+        }*/
         // register title refresh task
         int titleRefreshRate = ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.SIDEBAR_TITLE_REFRESH_INTERVAL);
         if (titleRefreshRate <= 0) {
@@ -225,5 +223,9 @@ public class GameSidebarManager {
      */
     public static GameSidebarManager getInstance() {
         return instance;
+    }
+
+    public Set<GameSidebar> getSidebars(Arena arena){
+        return sidebarByPlayer.values().stream().filter(sb -> sb.getArena() != null && sb.getArena().equals(arena)).collect(Collectors.toSet());
     }
 }
