@@ -20,6 +20,7 @@ import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
 import com.andrei1058.stevesus.arena.sabotage.oxygen.OxygenSabotageProvider;
+import com.andrei1058.stevesus.arena.vent.VentListener;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -203,6 +204,8 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         SteveSus.debug("Adding arena with id " + arena.getGameId() + " from template: " + arena.getTemplateWorld() + " to the arenas list.");
         Bukkit.getPluginManager().callEvent(new GameInitializedEvent(arena, arena.getTemplateWorld(), arena.getWorld().getName()));
         arenaByWorldName.put(arena.getWorld().getName(), arena);
+        // register listeners
+        arena.registerGameListener(VentListener.getInstance());
         return arenas.add(arena);
     }
 

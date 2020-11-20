@@ -1,9 +1,13 @@
 package com.andrei1058.stevesus.api.arena;
 
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.common.api.arena.GameState;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Should improve a bit of performance I guess.
@@ -40,8 +44,15 @@ public interface GameListener {
     /**
      * On entity interact.
      */
-    default void onEntityInteract(Arena arena, Player player, Entity entity) {
+    default void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
 
+    }
+
+    /**
+     * On player interact.
+     */
+    default void onPlayerInteract(Arena arena, Player player, PlayerInteractEvent event, boolean hasItemInHand) {
+        //todo
     }
 
     /**
@@ -55,11 +66,18 @@ public interface GameListener {
     default void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
     }
 
-    default void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking){
+    default void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
 
     }
 
-    default void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage){
+    default void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
+
+    }
+
+    /**
+     * This won't be triggered if {@link Arena#isCantMove(Player)}.
+     */
+    default void onPlayerMove(Arena arena, Player player, Location from, @Nullable Team playerTeam) {
 
     }
 }

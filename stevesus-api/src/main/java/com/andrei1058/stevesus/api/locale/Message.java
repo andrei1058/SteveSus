@@ -166,6 +166,8 @@ public enum Message {
     GAME_ROOM_NO_NAME( "game-no-room", "&7No Room"),
     DEFEAT_REASON_PATH_(true, "defeat-reason", ""),
     IN_GAME_ACTION_BAR("action-bar-in-game", "&fYour color: {player} &7| &fRoom: {room}" ),
+    VENT_HOLO("vent-holo", "&6&lShift to vent!"),
+    VENT_ENTER_SUBTITLE("vent-enter-subtitle", "&fShift to exit.")
     ;
 
     private final String path;

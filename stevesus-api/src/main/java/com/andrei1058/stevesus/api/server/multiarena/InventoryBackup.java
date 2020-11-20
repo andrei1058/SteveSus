@@ -1,4 +1,4 @@
-package com.andrei1058.stevesus.server.multiarena;
+package com.andrei1058.stevesus.api.server.multiarena;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class InventoryBackup {
     /**
      * A backup should be created before switching worlds.
      */
-    private InventoryBackup(Player player) {
+    public InventoryBackup(Player player) {
         this.owner = player.getUniqueId();
 
         int x = 0;
@@ -58,7 +58,7 @@ public class InventoryBackup {
     /**
      * Restore contents.
      */
-    private void restore(Player player) {
+    public void restore(Player player) {
         // clear current inventory
         player.getInventory().clear();
 

@@ -13,7 +13,7 @@ import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.stevesus.server.multiarena.InventoryBackup;
+import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.sidebar.GameSidebarManager;
 import com.andrei1058.stevesus.sidebar.SidebarType;
 import org.bukkit.*;

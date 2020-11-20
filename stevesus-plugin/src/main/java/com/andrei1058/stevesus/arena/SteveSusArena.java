@@ -20,6 +20,8 @@ import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.arena.vent.Vent;
+import com.andrei1058.stevesus.api.arena.vent.VentHandler;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
@@ -54,7 +56,7 @@ import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.prevention.PreventionManager;
 import com.andrei1058.stevesus.server.ServerCommonProvider;
 import com.andrei1058.stevesus.server.ServerManager;
-import com.andrei1058.stevesus.server.multiarena.InventoryBackup;
+import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.sidebar.GameSidebarManager;
 import com.andrei1058.stevesus.sidebar.SidebarType;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
@@ -144,6 +146,8 @@ public class SteveSusArena implements Arena {
     private boolean taskIndicatorActive = true;
     private final LinkedList<GameRoom> rooms = new LinkedList<>();
 
+    private VentHandler ventHandler;
+
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
         this.gameId = gameId;
@@ -216,6 +220,7 @@ public class SteveSusArena implements Arena {
 
         initSabotages();
         initRooms();
+        initVents();
 
         spawnMeetingButton(world);
 
@@ -554,6 +559,10 @@ public class SteveSusArena implements Arena {
         PlayerToSpectatorEvent playerToSpectatorEvent = new PlayerToSpectatorEvent(this, player);
         Bukkit.getPluginManager().callEvent(playerToSpectatorEvent);
 
+        if (getVentHandler() != null){
+            getVentHandler().interruptVenting(player, true);
+        }
+
         player.closeInventory();
         // tp to spectator spawn
         player.teleport(getNextSpectatorSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -704,6 +713,10 @@ public class SteveSusArena implements Arena {
         // trigger listener
         for (GameListener gameListener : gameListeners) {
             gameListener.onPlayerLeave(this, player, false);
+        }
+
+        if (getVentHandler() != null){
+            getVentHandler().interruptVenting(player, true);
         }
 
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
@@ -1116,7 +1129,11 @@ public class SteveSusArena implements Arena {
             getGameEndConditions().tickGameEndConditions(this);
         } else if (meetingStage == MeetingStage.TALKING) {
             setCountdown(getMeetingTalkDuration());
-            getPlayers().forEach(player -> setCantMove(player, true));
+            getPlayers().forEach(player -> {
+                player.closeInventory();
+                InventoryUtil.clearStorageContents(player);
+                setCantMove(player, true);
+            });
         } else if (meetingStage == MeetingStage.VOTING) {
             setCountdown(getMeetingVotingDuration());
             getPlayers().forEach(player -> {
@@ -1151,6 +1168,12 @@ public class SteveSusArena implements Arena {
         } else {
             if (!playerTeam.canReportBody() || getLoadedSabotages().stream().anyMatch(sabotage -> sabotage.isActive() && !sabotage.canReportDeadBody())) {
                 return false;
+            }
+        }
+        // interrupt venting
+        if (getVentHandler() != null){
+            for (Player player : getPlayers()) {
+                getVentHandler().interruptVenting(player, false);
             }
         }
         // interrupt tasks
@@ -1533,6 +1556,16 @@ public class SteveSusArena implements Arena {
     }
 
     @Override
+    public @Nullable GameRoom getRoom(Location location) {
+        for (GameRoom room : rooms) {
+            if (room.getRegion().isInRegion(location)) {
+                return room;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void defeatBySabotage(@Nullable String reasonPath) {
         // impostors won
         switchState(GameState.ENDING);
@@ -1566,6 +1599,19 @@ public class SteveSusArena implements Arena {
         });
         GameSound.IMPOSTORS_WIN.playToPlayers(getPlayers());
         GameSound.IMPOSTORS_WIN.playToPlayers(getSpectators());
+    }
+
+    @Override
+    public @Nullable VentHandler getVentHandler() {
+        return ventHandler;
+    }
+
+    @Override
+    public void setVentHandler(@Nullable VentHandler ventingHandler) {
+        if (this.ventHandler != null) {
+            getPlayers().forEach(player -> this.ventHandler.unVent(player, SteveSus.getInstance()));
+        }
+        this.ventHandler = ventingHandler;
     }
 
     public Location getNextWaitingSpawn() {
@@ -1703,6 +1749,47 @@ public class SteveSusArena implements Arena {
                 SteveSus.getInstance().getLogger().info("Loaded game room: " + data[0] + ".");
             }
         }
+    }
+
+    public void initVents() {
+        ventHandler = new VentHandler(this, new LinkedList<>());
+        OrphanLocationProperty locImporter = new OrphanLocationProperty();
+
+        for (String ventString : config.getProperty(ArenaConfig.VENTS)) {
+            String[] ventData = ventString.split(";");
+            if (ventData.length > 2) {
+                String ventName = ventData[0];
+                Location ventLoc = locImporter.convert(ventData[2], null);
+                if (ventLoc == null) {
+                    SteveSus.getInstance().getLogger().warning("Could not load vent " + ventName + " on " + getTemplateWorld() + "(" + getGameId() + "). Bad location!");
+                    continue;
+                }
+                ventLoc.setWorld(getWorld());
+                ItemStack displayItem = null;
+                if (ventData.length > 3) {
+                    String[] displayData = ventData[3].split(",");
+                    String displayMaterial = "BEDROCK";
+                    byte data = 0;
+                    if (displayData.length > 0) {
+                        displayMaterial = displayData[0];
+                    }
+                    if (displayData.length > 1) {
+                        data = Byte.parseByte(displayData[1]);
+                    }
+                    displayItem = CommonManager.getINSTANCE().getItemSupport().createItem(displayMaterial, 1, data);
+                }
+                Vent vent = new Vent(ventName, ventLoc, displayItem == null ? new ItemStack(Material.BEDROCK) : displayItem);
+                for (String ventConn : ventData[1].split(",")) {
+                    Vent conn = ventHandler.getVent(ventConn);
+                    if (conn != null) {
+                        vent.addConnection(conn);
+                        conn.addConnection(vent);
+                    }
+                }
+                ventHandler.addVent(vent);
+            }
+        }
+
     }
 
     private void createTaskMeterBar() {

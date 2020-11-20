@@ -29,7 +29,7 @@ public class DamageListener implements Listener {
             }
 
             for (GameListener gameListener : arena.getGameListeners()) {
-                gameListener.onEntityInteract(arena, (Player) e.getDamager(), e.getEntity());
+                gameListener.onPlayerInteractEntity(arena, (Player) e.getDamager(), e.getEntity());
             }
         }
     }

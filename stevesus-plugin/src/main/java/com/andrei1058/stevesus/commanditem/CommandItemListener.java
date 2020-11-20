@@ -1,10 +1,14 @@
 package com.andrei1058.stevesus.commanditem;
 
+import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.event.GameStateChangeEvent;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -36,9 +40,16 @@ public class CommandItemListener implements Listener {
                 }
             }
             if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
-                e.setCancelled(true);
-                CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e.getPlayer().getInventory().getItemInMainHand());
+                CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e);
             }
+        }
+
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        if (arena == null) return;
+        final Player player = e.getPlayer();
+        boolean hasItemInHand = e.getItem() != null && e.getItem().getType() != Material.AIR;
+        for (GameListener gameListener : arena.getGameListeners()){
+            gameListener.onPlayerInteract(arena, player, e, hasItemInHand);
         }
     }
 
@@ -61,8 +72,7 @@ public class CommandItemListener implements Listener {
             }
         }
         if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
-            e.setCancelled(true);
-            CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e.getPlayer().getInventory().getItemInMainHand());
+            CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e);
         }
     }
 
@@ -85,8 +95,7 @@ public class CommandItemListener implements Listener {
             }
         }
         if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
-            e.setCancelled(true);
-            CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e.getPlayer().getInventory().getItemInMainHand());
+            CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e);
         }
     }
 

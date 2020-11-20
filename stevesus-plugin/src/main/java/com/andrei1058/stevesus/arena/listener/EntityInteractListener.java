@@ -9,12 +9,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class EntityInteractListener implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityInteract(PlayerInteractEntityEvent event) {
-        if (event.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
         if (arena == null) return;
         event.setCancelled(true);
@@ -25,13 +25,12 @@ public class EntityInteractListener implements Listener {
             }
         }
         for (GameListener gameListener : arena.getGameListeners()){
-            gameListener.onEntityInteract(arena, event.getPlayer(), event.getRightClicked());
+            gameListener.onPlayerInteractEntity(arena, event.getPlayer(), event.getRightClicked());
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
-        if (event.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
         if (arena == null) return;
         event.setCancelled(true);
@@ -41,7 +40,12 @@ public class EntityInteractListener implements Listener {
             }
         }
         for (GameListener gameListener : arena.getGameListeners()){
-            gameListener.onEntityInteract(arena, event.getPlayer(), event.getRightClicked());
+            gameListener.onPlayerInteractEntity(arena, event.getPlayer(), event.getRightClicked());
         }
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+
     }
 }

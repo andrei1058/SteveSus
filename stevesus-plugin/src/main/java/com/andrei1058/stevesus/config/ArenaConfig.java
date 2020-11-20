@@ -59,7 +59,7 @@ public class ArenaConfig implements SettingsHolder {
     @Comment({
             " ",
             "Imposter vents configuration. List of strings.",
-            "Syntax: vent_name;vent_connection1,conn2;x,y,z,yaw,pitch"
+            "Syntax: vent_name;vent_connection1,conn2;x,y,z,yaw,pitch;material,data"
     })
     public static final StringListProperty VENTS = new StringListProperty("imposter-vents", Collections.emptyList());
 

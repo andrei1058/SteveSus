@@ -10,6 +10,7 @@ import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.prevention.abandon.AbandonCondition;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.setup.SetupManager;
@@ -18,8 +19,10 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +101,7 @@ public class AddCommand {
                 .withSubNode(addVent
                         .withDisplayName(s -> "&7" + addVent.getName() + " ")
                         .withDescription(s -> "&7[at your location]")
-                        .withDisplayHover(s -> "&fAdd a vent at your current location.\n&e" + ICommandNode.getClickCommand(addVent) + " [name] [connection1] [conn2] [..]")
+                        .withDisplayHover(s -> "&fAdd a vent at your current location.\n&bThe item in your hand is used as display item.\n&e" + ICommandNode.getClickCommand(addVent) + " [name] [connection1] [conn2] [..]")
                         .withExecutor((sender, args) -> {
                             if (args.length == 0) {
                                 sender.sendMessage(color("&cUsage: &7" + ICommandNode.getClickCommand(addVent) + " [name] [ventConnection1] [connection2] [...]"));
@@ -116,7 +119,16 @@ public class AddCommand {
                                 return;
                             }
 
-                            sender.sendMessage(color("&7Added vent: &e" + args[0] + "&7."));
+                            String material = "BEDROCK";
+                            byte data = 0;
+
+                            ItemStack item = player.getInventory().getItemInMainHand();
+                            if (item != null && item.getType() != Material.AIR) {
+                                material = item.getType().toString();
+                                data = CommonManager.getINSTANCE().getItemSupport().getItemData(item);
+                            }
+
+                            sender.sendMessage(color("&7Added vent: &e" + args[0] + "&7 with display item: &e" + material + ":" + data + "&7."));
 
                             StringBuilder connections = new StringBuilder();
 
@@ -148,7 +160,7 @@ public class AddCommand {
 
                             // save updated vents
                             OrphanLocationProperty orphanLocationProperty = new OrphanLocationProperty();
-                            ventList.add(args[0] + ";" + connections.toString() + ";" + orphanLocationProperty.toExportValue(player.getLocation()));
+                            ventList.add(args[0] + ";" + connections.toString() + ";" + orphanLocationProperty.toExportValue(player.getLocation()) + ";" + material + "," + data);
                             config.setProperty(ArenaConfig.VENTS, ventList);
                             config.save();
                         }).withTabSuggestions(s -> getVents(((Player) s).getWorld().getName()))

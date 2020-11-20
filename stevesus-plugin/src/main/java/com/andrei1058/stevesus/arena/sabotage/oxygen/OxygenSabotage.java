@@ -206,7 +206,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         }
 
         @Override
-        public void onEntityInteract(Arena arena, Player player, Entity entity) {
+        public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
             if (!isActive()) return;
             tryOpen(player, entity);
         }

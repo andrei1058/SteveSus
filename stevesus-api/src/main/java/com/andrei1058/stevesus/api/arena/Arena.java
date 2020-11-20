@@ -9,6 +9,7 @@ import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.arena.vent.VentHandler;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
@@ -708,5 +709,22 @@ public interface Arena extends DisplayableArena {
      */
     @Nullable GameRoom getPlayerRoom(Player player);
 
+    /**
+     * Get current room.
+     */
+    @Nullable GameRoom getRoom(Location location);
+
     void defeatBySabotage(String reasonPath);
+
+
+    /**
+     * Get arena vent handler.
+     */
+    @Nullable
+    VentHandler getVentHandler();
+
+    /**
+     * Set vent manager.
+     */
+    void setVentHandler(@Nullable VentHandler ventingHandler);
 }

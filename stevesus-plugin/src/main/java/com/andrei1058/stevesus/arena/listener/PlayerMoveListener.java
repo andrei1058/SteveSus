@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.arena.listener;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.PlayerCorpse;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.arena.ArenaManager;
@@ -31,11 +32,11 @@ public class PlayerMoveListener implements Listener {
                 location.setX(event.getFrom().getBlockX() + 0.5);
                 player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
             } else {
+                Team playerTeam = arena.getPlayerTeam(player);
                 for (PlayerCorpse corpse : arena.getDeadBodies()) {
                     if (corpse.getHologram() != null) {
                         if (corpse.isInRange(location)) {
                             if (corpse.getHologram().isHiddenFor(player)) {
-                                Team playerTeam = arena.getPlayerTeam(player);
                                 if (playerTeam != null && playerTeam.canReportBody()) {
                                     corpse.getHologram().show(player);
                                 }
@@ -50,6 +51,10 @@ public class PlayerMoveListener implements Listener {
 
                 if (arena.getKillDistance() > 0) {
                     tickGlowingEffect(player, arena);
+                }
+
+                for (GameListener listener : arena.getGameListeners()){
+                    listener.onPlayerMove(arena, player, location, playerTeam);
                 }
             }
         }

@@ -3,7 +3,6 @@ package com.andrei1058.stevesus.commanditem;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
-import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
 import com.andrei1058.stevesus.api.arena.sabotage.TimedSabotage;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
@@ -13,12 +12,10 @@ import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
-import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -60,9 +57,13 @@ public class CommandItemsManager {
     private boolean firstTime = false;
 
     // custom NBT on items interact handler
-    private final InteractEvent interactEvent = (player, itemStack) -> {
+    private final InteractEvent interactEvent = (player, cancellable) -> {
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+        if (itemStack == null || itemStack.getType() == Material.AIR) return;
         String tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT);
         if (tag != null) {
+            // stop op cool down?
+            if (player.getCooldown(itemStack.getType()) != 0) return;
             Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
             if (arena == null) return;
             String[] data = tag.split(":");
