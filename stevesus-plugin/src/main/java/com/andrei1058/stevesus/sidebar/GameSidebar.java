@@ -8,7 +8,6 @@ import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
-import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.hook.HookManager;
@@ -26,12 +25,13 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class GameSidebar {
 
     // sidebar instance
-    private Sidebar handle;
+    private final Sidebar handle;
     // player owner
-    private Player player;
+    private final Player player;
     // player date format
     private SimpleDateFormat dateFormat;
     // player arena. Nullable.
@@ -51,31 +51,41 @@ public class GameSidebar {
         this.arena = arena;
         this.dateFormat = dateFormat;
 
-        // create sidebar
-        handle = GameSidebarManager.getInstance().getHandle().createSidebar(null, Collections.emptyList(), Collections.emptyList());
-        // set lines
-        setLines(content);
+        List<PlaceholderProvider> somePlaceholders = new ArrayList<>();
         // register some placeholders
-        handle.addPlaceholder(new PlaceholderProvider("{date}", () -> dateFormat.format(new Date(Instant.now().toEpochMilli()))));
-        handle.addPlaceholder(new PlaceholderProvider("{player}", player::getDisplayName));
-        handle.addPlaceholder(new PlaceholderProvider("{money}", () -> String.valueOf(HookManager.getInstance().getVaultEconHook().getBalance(player))));
-        handle.addPlaceholder(new PlaceholderProvider("{on}", () -> {
-            if (arena == null) {
+        somePlaceholders.add(new PlaceholderProvider("{date}", () -> getDateFormat().format(new Date(Instant.now().toEpochMilli()))));
+        somePlaceholders.add(new PlaceholderProvider("{player}", getPlayer()::getDisplayName));
+        somePlaceholders.add(new PlaceholderProvider("{money}", () -> String.valueOf(HookManager.getInstance().getVaultEconHook().getBalance(getPlayer()))));
+        somePlaceholders.add(new PlaceholderProvider("{on}", () -> {
+            if (getArena() == null) {
                 return String.valueOf(Bukkit.getOnlinePlayers().size());
             } else {
-                return String.valueOf(arena.getCurrentPlayers());
+                return String.valueOf(getArena().getCurrentPlayers());
             }
         }));
-        handle.addPlaceholder(new PlaceholderProvider("{room}", () -> {
-            if (arena == null){
+        somePlaceholders.add(new PlaceholderProvider("{room}", () -> {
+            if (getArena() == null){
                 return "";
             }
-            GameRoom room = arena.getPlayerRoom(player);
+            GameRoom room = getArena().getPlayerRoom(getPlayer());
             if (room == null){
-                return LanguageManager.getINSTANCE().getMsg(null, Message.GAME_ROOM_NO_NAME);
+                return LanguageManager.getINSTANCE().getMsg(getPlayer(), Message.GAME_ROOM_NO_NAME);
             }
-            return room.getDisplayName(LanguageManager.getINSTANCE().getLocale(player));
+            return room.getDisplayName(LanguageManager.getINSTANCE().getLocale(getPlayer()));
         }));
+
+        // create sidebar
+        handle = GameSidebarManager.getInstance().getHandle().createSidebar(new SidebarLine() {
+            @NotNull
+            @Override
+            public String getLine() {
+                return "temp";
+            }
+        }, Collections.emptyList(), somePlaceholders);
+
+        // set lines
+        setLines(content);
+
         // apply sidebar
         handle.apply(player);
         SteveSus.debug("Gave player scoreboard: " + player.getName());
@@ -85,19 +95,19 @@ public class GameSidebar {
      * Set and parse scoreboard lines.
      */
     public void setLines(@NotNull List<String> content) {
-        if (arena != null) {
-            if (LanguageManager.getINSTANCE().getLocale(player).hasPath(Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld())) {
-                this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld());
-            } else if (LanguageManager.getINSTANCE().getDefaultLocale().hasPath(Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld())) {
-                this.taskFormatCache = LanguageManager.getINSTANCE().getDefaultLocale().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + arena.getTemplateWorld());
+        if (getArena() != null) {
+            if (LanguageManager.getINSTANCE().getLocale(getPlayer()).hasPath(Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + getArena().getTemplateWorld())) {
+                this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(getPlayer(), Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + getArena().getTemplateWorld());
+            } else if (LanguageManager.getINSTANCE().getDefaultLocale().hasPath(Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + getArena().getTemplateWorld())) {
+                this.taskFormatCache = LanguageManager.getINSTANCE().getDefaultLocale().getMsg(getPlayer(), Message.GAME_TASK_SCOREBOARD_FORMAT.toString() + "-" + getArena().getTemplateWorld());
             } else {
-                this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_SCOREBOARD_FORMAT.toString());
+                this.taskFormatCache = LanguageManager.getINSTANCE().getMsg(getPlayer(), Message.GAME_TASK_SCOREBOARD_FORMAT.toString());
             }
         }
 
         // remove previous lines
-        while (handle.linesAmount() > 0) {
-            handle.removeLine(0);
+        while (getHandle().linesAmount() > 0) {
+            getHandle().removeLine(0);
         }
 
         // Remove previous placeholders
@@ -109,7 +119,7 @@ public class GameSidebar {
                 placeholdersToRemove.add(placeholder.getPlaceholder());
             }
         }));
-        placeholdersToRemove.forEach(placeholder -> handle.removePlaceholder(placeholder));
+        placeholdersToRemove.forEach(handle::removePlaceholder);
 
 
         // Set the title
@@ -152,7 +162,7 @@ public class GameSidebar {
                             int currentStage;
                             int totalStages;
                             boolean isDone = (totalStages = currentTask.getTotalStages(player)) == (currentStage = currentTask.getCurrentStage(player));
-                            return taskFormatCache.replace("{task_name}", isDone ? ChatColor.STRIKETHROUGH + taskName : maskData ? ChatColor.MAGIC + taskName : taskName).replace("{task_stage}", String.valueOf(currentStage)).replace("{task_stages}", String.valueOf(totalStages));
+                            return taskFormatCache.replace("{task_name}", isDone ? ChatColor.STRIKETHROUGH + taskName : isMaskData() ? ChatColor.MAGIC + taskName : taskName).replace("{task_stage}", String.valueOf(currentStage)).replace("{task_stages}", String.valueOf(totalStages));
                         });
                         handle.addPlaceholder(taskPlaceholder);
                         handle.addLine(new SidebarLine() {
@@ -197,6 +207,18 @@ public class GameSidebar {
 
     public Arena getArena() {
         return arena;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(SimpleDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
     }
 
     /**

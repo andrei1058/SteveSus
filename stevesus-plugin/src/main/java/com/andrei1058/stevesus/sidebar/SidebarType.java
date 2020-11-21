@@ -4,9 +4,11 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.language.LanguageManager;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public enum SidebarType {
@@ -29,9 +31,12 @@ public enum SidebarType {
      *
      * @param arena arena if it is in-game scoreboard.
      */
+    @Nullable
     public List<String> getContent(@NotNull Locale language, @Nullable Arena arena) {
         List<String> content = null;
-        if (arena != null) {
+        if (arena == null) {
+            content = language.getRawList(contentPath.toString());
+        } else {
             if (language.hasPath(contentPath.toString() + "-" + arena.getTemplateWorld())) {
                 content = language.getRawList(contentPath.toString() + "-" + arena.getTemplateWorld());
             } else if (!language.equals(LanguageManager.getINSTANCE().getDefaultLocale()) && LanguageManager.getINSTANCE().getDefaultLocale().hasPath(contentPath.toString() + "-" + arena.getTemplateWorld())) {
@@ -40,9 +45,6 @@ public enum SidebarType {
                 content = language.getRawList(contentPath.toString());
             }
         }
-        if (content == null) {
-            content = LanguageManager.getINSTANCE().getDefaultLocale().getRawList(contentPath.toString());
-        }
-        return content;
+        return content == null ? null : new ArrayList<>(content);
     }
 }
