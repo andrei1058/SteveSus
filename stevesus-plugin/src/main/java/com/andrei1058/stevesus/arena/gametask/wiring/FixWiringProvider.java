@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskTriggerType;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
+import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
@@ -13,6 +14,7 @@ import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
+import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.setup.command.AddCommand;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -43,9 +45,19 @@ import java.util.function.Function;
 
 public class FixWiringProvider extends TaskProvider {
 
+    public static String PANEL_HOLO;
+    public static String PANEL_NAME;
+    public static String NEXT_PANEL;
+
     private static FixWiringProvider instance;
 
     private FixWiringProvider() {
+        PANEL_HOLO = Message.GAME_TASK_PATH_.toString() + getIdentifier() + "panel-holo";
+        PANEL_NAME = Message.GAME_TASK_PATH_.toString() + getIdentifier() + "panel-name";
+        NEXT_PANEL = Message.GAME_TASK_PATH_.toString() + getIdentifier() + "panel-next";
+        LanguageManager.getINSTANCE().getDefaultLocale().addDefault(PANEL_HOLO, "&cFix me!");
+        LanguageManager.getINSTANCE().getDefaultLocale().addDefault(PANEL_NAME, "&8Fix Wiring");
+        LanguageManager.getINSTANCE().getDefaultLocale().addDefault(NEXT_PANEL, "&7Next wiring panel to fix is in: {room}.");
     }
 
     public static FixWiringProvider getInstance() {
@@ -201,7 +213,7 @@ public class FixWiringProvider extends TaskProvider {
 
         setupSession.addSetupListener("fix_wiring_setup_" + localName, new SetupListener() {
             @Override
-            public void onPlayerInteract(SetupSession setupSession1,PlayerInteractEvent event) {
+            public void onPlayerInteract(SetupSession setupSession1, PlayerInteractEvent event) {
                 ItemStack itemStack = CommonManager.getINSTANCE().getItemSupport().getInHand(event.getPlayer());
                 if (itemStack == null) return;
                 if (itemStack.getType() == Material.AIR) return;
@@ -248,7 +260,7 @@ public class FixWiringProvider extends TaskProvider {
             }
 
             @Override
-            public void onPlayerInteractEntity(SetupSession setupSession1,PlayerInteractEntityEvent event) {
+            public void onPlayerInteractEntity(SetupSession setupSession1, PlayerInteractEntityEvent event) {
                 if (event.getRightClicked() == null) return;
                 if (event.getRightClicked().hasMetadata("wiring_flag")) {
                     event.setCancelled(true);
@@ -267,22 +279,22 @@ public class FixWiringProvider extends TaskProvider {
             }
 
             @Override
-            public void onPlayerInteractAtEntity(SetupSession setupSession1,PlayerInteractAtEntityEvent event) {
+            public void onPlayerInteractAtEntity(SetupSession setupSession1, PlayerInteractAtEntityEvent event) {
                 event.setCancelled(true);
             }
 
             @Override
-            public void onPlayerDropItem(SetupSession setupSession1,PlayerDropItemEvent event) {
+            public void onPlayerDropItem(SetupSession setupSession1, PlayerDropItemEvent event) {
                 event.setCancelled(true);
             }
 
             @Override
-            public void onPlayerPickupItem(SetupSession setupSession1,EntityPickupItemEvent event) {
+            public void onPlayerPickupItem(SetupSession setupSession1, EntityPickupItemEvent event) {
                 event.setCancelled(true);
             }
 
             @Override
-            public void onHangingPlace(SetupSession setupSession1,HangingPlaceEvent event) {
+            public void onHangingPlace(SetupSession setupSession1, HangingPlaceEvent event) {
                 ItemStack inHand = CommonManager.getINSTANCE().getItemSupport().getInHand(event.getPlayer());
                 if (inHand == null) return;
                 if (inHand.getType() == Material.AIR) return;
@@ -309,17 +321,17 @@ public class FixWiringProvider extends TaskProvider {
             }
 
             @Override
-            public void onHangingBreakByEntity(SetupSession setupSession1,HangingBreakByEntityEvent event) {
+            public void onHangingBreakByEntity(SetupSession setupSession1, HangingBreakByEntityEvent event) {
                 event.setCancelled(true);
             }
 
             @Override
-            public void onHangingBreak(SetupSession setupSession1,HangingBreakEvent event) {
+            public void onHangingBreak(SetupSession setupSession1, HangingBreakEvent event) {
                 event.setCancelled(true);
             }
 
             @Override
-            public void onEntityDamageByEntity(SetupSession setupSession1,EntityDamageByEntityEvent event) {
+            public void onEntityDamageByEntity(SetupSession setupSession1, EntityDamageByEntityEvent event) {
                 event.setCancelled(true);
             }
         });
@@ -383,7 +395,7 @@ public class FixWiringProvider extends TaskProvider {
     private static void registerItemFrameProtector(SetupSession setupSession, String localTaskName) {
         setupSession.addSetupListener(localTaskName + "_task_protect", new SetupListener() {
             @Override
-            public void onPlayerInteractEntity(SetupSession setupSession1,PlayerInteractEntityEvent event) {
+            public void onPlayerInteractEntity(SetupSession setupSession1, PlayerInteractEntityEvent event) {
                 if (event.getRightClicked() != null && event.getRightClicked().hasMetadata("wiring_name")) {
                     String taskName = event.getRightClicked().getMetadata("wiring_name").get(0).asString();
                     if (AddCommand.hasTaskWithRememberName(event.getPlayer(), taskName)) {
@@ -393,7 +405,7 @@ public class FixWiringProvider extends TaskProvider {
             }
 
             @Override
-            public void onHangingBreakByEntity(SetupSession setupSession1,HangingBreakByEntityEvent event) {
+            public void onHangingBreakByEntity(SetupSession setupSession1, HangingBreakByEntityEvent event) {
                 if (event.getEntity() != null && event.getEntity().hasMetadata("wiring_name")) {
                     String taskName = event.getEntity().getMetadata("wiring_name").get(0).asString();
                     if (AddCommand.hasTaskWithRememberName(event.getRemover(), taskName)) {
@@ -403,7 +415,7 @@ public class FixWiringProvider extends TaskProvider {
             }
 
             @Override
-            public void onHangingBreak(SetupSession setupSession1,HangingBreakEvent event) {
+            public void onHangingBreak(SetupSession setupSession1, HangingBreakEvent event) {
                 if (event.getEntity() != null && event.getEntity().hasMetadata("wiring_name")) {
                     String taskName = event.getEntity().getMetadata("wiring_name").get(0).asString();
                     if (AddCommand.hasTaskWithRememberName(event.getEntity().getWorld().getName(), taskName)) {
@@ -413,7 +425,7 @@ public class FixWiringProvider extends TaskProvider {
             }
 
             @Override
-            public void onEntityDamageByEntity(SetupSession setupSession1,EntityDamageByEntityEvent event) {
+            public void onEntityDamageByEntity(SetupSession setupSession1, EntityDamageByEntityEvent event) {
                 if (event.getEntity() != null && event.getEntity().hasMetadata("wiring_name")) {
                     String taskName = event.getEntity().getMetadata("wiring_name").get(0).asString();
                     if (AddCommand.hasTaskWithRememberName(event.getEntity().getWorld().getName(), taskName)) {

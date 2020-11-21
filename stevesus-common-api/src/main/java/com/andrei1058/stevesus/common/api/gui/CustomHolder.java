@@ -24,4 +24,8 @@ public interface CustomHolder extends InventoryHolder {
     BaseGUI getGui();
 
     void setGui(BaseGUI gui);
+
+    default void onClick(Player whoClicked, ItemStack currentItem, ClickType click, int slot) {
+
+    }
 }

@@ -25,6 +25,12 @@ public class GlowingManager {
         }
     }
 
+    public static void setGlowingGreen(@NotNull Entity player, @NotNull Player receiver) {
+        if (!isGlowing(player, receiver)) {
+            GlowAPI.setGlowing(player, GlowAPI.Color.GREEN, "never", "never", receiver);
+        }
+    }
+
     public static void removeGlowing(@NotNull Entity player, @NotNull Player receiver) {
         if (isGlowing(player, receiver)) {
             GlowAPI.setGlowing(player, null, receiver);

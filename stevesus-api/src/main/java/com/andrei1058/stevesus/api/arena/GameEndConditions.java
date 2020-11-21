@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.arena;
 
 import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.GameFinishEvent;
 import com.andrei1058.stevesus.api.locale.ChatUtil;
@@ -49,50 +50,94 @@ public class GameEndConditions {
 
             if (impostors.getMembers().isEmpty()) {
                 // crew won
-                arena.switchState(GameState.ENDING);
-                arena.getPlayers().forEach(player -> {
-                    Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-                    lang.getMsgList(player, Message.GAME_END_CREW_WON_CHAT).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                    player.sendTitle(lang.getMsg(player, Message.GAME_END_CREW_WON_TITLE), lang.getMsg(player, Message.GAME_END_CREW_WON_SUBTITLE), 10, 60, 10);
-                });
-                arena.getSpectators().forEach(player -> {
-                    Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-                    lang.getMsgList(player, Message.GAME_END_CREW_WON_CHAT).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                    player.sendTitle(lang.getMsg(player, Message.GAME_END_CREW_WON_TITLE), lang.getMsg(player, Message.GAME_END_CREW_WON_SUBTITLE), 10, 60, 10);
-                });
-                GameSound.INNOCENTS_WIN.playToPlayers(arena.getPlayers());
-                GameSound.INNOCENTS_WIN.playToPlayers(arena.getSpectators());
+                crewWins(arena, Message.WIN_REASON_IMPOSTORS_EXCLUDED.toString());
             } else if (crew.getMembers().isEmpty()) {
                 // impostors won
-                arena.switchState(GameState.ENDING);
-                arena.getPlayers().forEach(player -> {
-                    Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-                    lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                    player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
-                });
-                arena.getSpectators().forEach(player -> {
-                    Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-                    lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                    player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
-                });
-                GameSound.IMPOSTORS_WIN.playToPlayers(arena.getPlayers());
-                GameSound.IMPOSTORS_WIN.playToPlayers(arena.getSpectators());
+                impostorsWin(arena, Message.DEFEAT_REASON_NO_MORE_INNOCENTS.toString());
             } else if (impostors.getMembers().size() == crew.getMembers().size()) {
                 // impostors won
-                arena.switchState(GameState.ENDING);
-                arena.getPlayers().forEach(player -> {
-                    Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-                    lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                    player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
-                });
-                arena.getSpectators().forEach(player -> {
-                    Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-                    lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
-                    player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
-                });
-                GameSound.IMPOSTORS_WIN.playToPlayers(arena.getPlayers());
-                GameSound.IMPOSTORS_WIN.playToPlayers(arena.getSpectators());
+                impostorsWin(arena, Message.DEFEAT_REASON_ALL_KILLED.toString());
+            } else {
+                // check tasks
+                int assignedTasks = 0;
+                int finishedTasks = 0;
+                for (GameTask task : arena.getLoadedGameTasks()){
+                    assignedTasks += task.getAssignedPlayers().size();
+                    finishedTasks += task.getAssignedPlayers().stream().filter(player -> task.getCurrentStage(player) == task.getTotalStages(player)).count();
+                }
+                if (assignedTasks == finishedTasks){
+                    // crew wins
+                    crewWins(arena, Message.WIN_REASON_TASKS_COMPLETED.toString());
+                }
             }
         }
+    }
+
+    private static void crewWins(Arena arena, String reasonPath){
+        arena.switchState(GameState.ENDING);
+        arena.getPlayers().forEach(player -> {
+            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+            lang.getMsgList(player, Message.GAME_END_CREW_WON_CHAT).forEach(string -> {
+                if (string.contains("{reason}")) {
+                    if (reasonPath != null) {
+                        string = lang.getMsg(player, reasonPath);
+                        player.sendMessage(ChatUtil.centerMessage(string));
+                    }
+                } else {
+                    player.sendMessage(ChatUtil.centerMessage(string));
+                }
+            });
+            player.sendTitle(lang.getMsg(player, Message.GAME_END_CREW_WON_TITLE), lang.getMsg(player, Message.GAME_END_CREW_WON_SUBTITLE), 10, 60, 10);
+        });
+        arena.getSpectators().forEach(player -> {
+            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+            lang.getMsgList(player, Message.GAME_END_CREW_WON_CHAT).forEach(string -> {
+                if (string.contains("{reason}")) {
+                    if (reasonPath != null) {
+                        string = lang.getMsg(player, reasonPath);
+                        player.sendMessage(ChatUtil.centerMessage(string));
+                    }
+                } else {
+                    player.sendMessage(ChatUtil.centerMessage(string));
+                }
+            });
+            player.sendTitle(lang.getMsg(player, Message.GAME_END_CREW_WON_TITLE), lang.getMsg(player, Message.GAME_END_CREW_WON_SUBTITLE), 10, 60, 10);
+        });
+        GameSound.INNOCENTS_WIN.playToPlayers(arena.getPlayers());
+        GameSound.INNOCENTS_WIN.playToPlayers(arena.getSpectators());
+    }
+
+    private static void impostorsWin(Arena arena, String reasonPath){
+        arena.switchState(GameState.ENDING);
+        arena.getPlayers().forEach(player -> {
+            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+            lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> {
+                if (string.contains("{reason}")) {
+                    if (reasonPath != null) {
+                        string = lang.getMsg(player, reasonPath);
+                        player.sendMessage(ChatUtil.centerMessage(string));
+                    }
+                } else {
+                    player.sendMessage(ChatUtil.centerMessage(string));
+                }
+            });
+            player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
+        });
+        arena.getSpectators().forEach(player -> {
+            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
+            lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> {
+                if (string.contains("{reason}")) {
+                    if (reasonPath != null) {
+                        string = lang.getMsg(player, reasonPath);
+                        player.sendMessage(ChatUtil.centerMessage(string));
+                    }
+                } else {
+                    player.sendMessage(ChatUtil.centerMessage(string));
+                }
+            });
+            player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
+        });
+        GameSound.IMPOSTORS_WIN.playToPlayers(arena.getPlayers());
+        GameSound.IMPOSTORS_WIN.playToPlayers(arena.getSpectators());
     }
 }

@@ -191,6 +191,7 @@ public class SubmitScan extends GameTask {
             player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, SubmitScanProvider.MSG_SCANNING_DONE), 0, 10, 0);
             player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURREOW, 1, 1);
             arena.refreshTaskMeter();
+            arena.getGameEndConditions().tickGameEndConditions(arena);
         }
         currentScan = null;
         currentScanTask = -1;

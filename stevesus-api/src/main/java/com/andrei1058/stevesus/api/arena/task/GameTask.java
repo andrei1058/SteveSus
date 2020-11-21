@@ -23,7 +23,7 @@ public abstract class GameTask {
     public abstract String getLocalName();
 
     /**
-     * Triggered on emergency meeting, player leave, player kill etc.
+     * Triggered on emergency meeting, player leave, player kill, INVENTORY CLOSE etc.
      * Check if given player has task assigned and was doing this task here.
      */
     public abstract void onInterrupt(Player player, Arena arena);

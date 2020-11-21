@@ -1,19 +1,30 @@
 package com.andrei1058.stevesus.arena.gametask.wiring;
 
+import com.andrei1058.hologramapi.Hologram;
+import com.andrei1058.hologramapi.HologramPage;
+import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.locale.Locale;
+import com.andrei1058.stevesus.hook.glowing.GlowingManager;
+import com.andrei1058.stevesus.language.LanguageManager;
 import com.github.johnnyjayjay.spigotmaps.MapBuilder;
 import com.github.johnnyjayjay.spigotmaps.RenderedMap;
 import com.github.johnnyjayjay.spigotmaps.rendering.ImageRenderer;
 import com.github.johnnyjayjay.spigotmaps.util.ImageTools;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class WiringPanel {
 
@@ -22,7 +33,11 @@ public class WiringPanel {
     private final int z;
     private final int wiresAmount;
     private final FixWiring.PanelFlag flag;
-    private ItemFrame itemFrame;
+    private final ItemFrame itemFrame;
+    private Hologram hologram;
+
+
+    private int assignments = 0;
 
     protected WiringPanel(Arena arena, int x, int y, int z, int wiresAmount, FixWiring.PanelFlag flag) {
         this.x = x;
@@ -54,9 +69,70 @@ public class WiringPanel {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.hologram = new Hologram(itemFrame.getLocation().clone().add(0,1,0).add((itemFrame.getLocation().getDirection().normalize()))/*.add(itemFrame.getLocation().getDirection())*/, 1);
+        HologramPage page = this.hologram.getPage(0);
+        assert page != null;
+        page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, FixWiringProvider.PANEL_HOLO)));
+        hologram.hide();
+        hologram.allowCollisions(false);
     }
 
     public ItemFrame getItemFrame() {
         return itemFrame;
+    }
+
+    public FixWiring.PanelFlag getFlag() {
+        return flag;
+    }
+
+    /**
+     * Number of users having this panel.
+     */
+    public int getAssignments() {
+        return assignments;
+    }
+
+    /**
+     * Open fix panel to the given  player.
+     */
+    public void startFixingPanel(Player player, FixWiring fixWiring) {
+        SteveSus.newChain().async(() -> {
+            Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
+            WiringGUI gui = new WiringGUI(WiringGUI.getPattern(wiresAmount), playerLang, fixWiring, wiresAmount);
+            SteveSus.newChain().sync(() -> {
+                gui.open(player);
+            }).execute();
+        }).execute();
+    }
+
+    public void startGlowing(UUID player){
+        Player player1 = Bukkit.getPlayer(player);
+        GlowingManager.setGlowingGreen(getItemFrame(), player1);
+        hologram.show(player1);
+    }
+
+    public void startGlowing(Player player){
+        GlowingManager.setGlowingGreen(getItemFrame(), player);
+        hologram.show(player);
+    }
+
+    public void stopGlowing(UUID player){
+        Player player1 = Bukkit.getPlayer(player);
+        GlowingManager.removeGlowing(getItemFrame(), player1);
+        hologram.hide(player1);
+    }
+
+    public void increaseAssignments() {
+        assignments++;
+    }
+
+    public Hologram getHologram() {
+        return hologram;
+    }
+
+    public void stopGlowing(Player player) {
+        GlowingManager.removeGlowing(getItemFrame(), player);
+        hologram.hide(player);
     }
 }

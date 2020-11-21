@@ -20,6 +20,7 @@ public class GUIListeners implements Listener {
         if (e.getClickedInventory().getHolder() instanceof CustomHolder) {
             e.setCancelled(true);
             ((CustomHolder) e.getClickedInventory().getHolder()).onClick((Player) e.getWhoClicked(), e.getCurrentItem(), e.getClick());
+            ((CustomHolder) e.getClickedInventory().getHolder()).onClick((Player) e.getWhoClicked(), e.getCurrentItem(), e.getClick(), e.getSlot());
         }
     }
 

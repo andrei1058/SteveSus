@@ -1522,16 +1522,12 @@ public class SteveSusArena implements Arena {
 
     @Override
     public boolean tryEnableTaskIndicators() {
-        Bukkit.broadcastMessage("tryEnableTaskIndicators a");
         if (taskIndicatorActive) return false;
-        Bukkit.broadcastMessage("tryEnableTaskIndicators b");
         if (getLoadedSabotages().stream().noneMatch(sabotage -> sabotage.isActive() && !sabotage.isAllowTasks())) {
-            Bukkit.broadcastMessage("tryEnableTaskIndicators c");
             getLoadedGameTasks().forEach(GameTask::enableIndicators);
             taskIndicatorActive = true;
             return true;
         }
-        Bukkit.broadcastMessage("tryEnableTaskIndicators d");
         return false;
     }
 
