@@ -72,7 +72,7 @@ public class PartyRequest {
                 requester.sendMessage(requesterLocale.getMsg(requester, CommonMessage.CMD_PARTY_INV_SENT).replace("{player}", online.getDisplayName()));
                 TextComponent clickable = new TextComponent(CommonManager.getINSTANCE().getCommonProvider().getCommonLocaleManager().getLocale(online).getMsg(online, CommonMessage.CMD_PARTY_INV_RECEIVED).replace("{name}", requester.getName()).replace("{player}", requester.getDisplayName()));
                 clickable.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, acceptCommand + " " + requester.getName()));
-                requester.spigot().sendMessage(clickable);
+                online.spigot().sendMessage(clickable);
             } else {
                 requester.sendMessage(requesterLocale.getMsg(requester, CommonMessage.CMD_PARTY_INV_FAILED).replace("{player}", playerName));
             }
