@@ -64,6 +64,7 @@ public class MeetingButton {
         }));
 
         this.particleLocations = getCircle(this.buttonLocation.clone().add(0, 0.3, 0), 0.6, 15);
+        buttonHologram.hide();
     }
 
     /**
@@ -77,6 +78,10 @@ public class MeetingButton {
             Location loc = particleLocations.get(particleLocations.size() == ++currentEntry ? currentEntry = 0 : currentEntry);
             loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 0, 1, 1, 0, 1);
         }
+    }
+
+    public void onGameStart(){
+        buttonHologram.show();
     }
 
     /**
