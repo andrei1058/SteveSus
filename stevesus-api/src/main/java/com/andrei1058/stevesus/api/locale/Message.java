@@ -71,7 +71,7 @@ public enum Message {
     EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP(false, "vote-result-chat-format-skipped", "&b&lNo one was ejected!"),
     EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_ANONYMOUS(false, "vote-result-chat-format-ejected-anonymous", "&b{player} &bwas ejected!"),
     EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_INNOCENT(false, "vote-result-chat-format-ejected-anonymous", "&c{player} &cwas ejected! He wasn't an Impostor.."),
-    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR(false, "vote-result-chat-format-ejected-impostor", "&a{player} &awas ejected! He wasn an Impostor!!!"),
+    EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_IMPOSTOR(false, "vote-result-chat-format-ejected-impostor", "&a{player} &awas ejected! He was an Impostor!!!"),
     EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_SELF(false, "vote-result-chat-format-ejected-self", "&c&lYou've been ejected!"),
     EXCLUSION_RESULT_TITLE_SKIPPED(false, "vote-result-title-skipped", " "),
     EXCLUSION_RESULT_SUBTITLE_SKIPPED(false, "vote-result-subtitle-skipped", "&6No one was ejected!"),
