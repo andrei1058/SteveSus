@@ -68,8 +68,11 @@ public class GameSidebarManager {
      */
     public void setSidebar(@NotNull Player player, @NotNull SidebarType type, @Nullable Arena arena, boolean delay) {
         // give lobby sb only in multi arena mode
-        if (type == SidebarType.MULTI_ARENA_LOBBY && ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA) {
-            return;
+        if (type == SidebarType.MULTI_ARENA_LOBBY) {
+            if (ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA) {
+                return;
+            }
+            arena = null;
         }
         // if player is offline return
         if (!player.isOnline()) {
@@ -95,11 +98,12 @@ public class GameSidebarManager {
         if (previousSidebar == null) {
             if (delay) {
                 // give with 5 ticks of delay
+                @Nullable Arena finalArena = arena;
                 SteveSus.newChain().delay(10).sync(() -> {
-                    GameSidebar sidebar = new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat());
+                    GameSidebar sidebar = new GameSidebar(player, content, finalArena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
-                    if (arena != null && arena.getGameState() == GameState.IN_GAME) {
-                        arena.getPlayers().forEach(inGame -> {
+                    if (finalArena != null && finalArena.getGameState() == GameState.IN_GAME) {
+                        finalArena.getPlayers().forEach(inGame -> {
                             sidebar.getHandle().playerListCreate(inGame, new SidebarLine() {
                                         @NotNull
                                         @Override
@@ -172,6 +176,10 @@ public class GameSidebarManager {
                 previousSidebar.getHandle().playerListClear();
             }
         }
+    }
+
+    public static void hidePlayerNames(Arena arena){
+
     }
 
     /**
