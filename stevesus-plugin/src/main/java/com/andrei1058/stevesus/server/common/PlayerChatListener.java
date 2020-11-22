@@ -6,6 +6,7 @@ import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.multiarena.listener.LobbyProtectionListener;
@@ -35,13 +36,15 @@ public class PlayerChatListener implements Listener {
                 }
             }
         } else {
-            if (!(arena.getMeetingStage() == MeetingStage.TALKING || arena.getMeetingStage() == MeetingStage.VOTING)){
-                player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.TALK_ALLOWED_DURING_MEETINGS));
-                e.setCancelled(true);
-                return;
+            if (arena.getGameState() == GameState.IN_GAME) {
+                if (!(arena.getMeetingStage() == MeetingStage.TALKING || arena.getMeetingStage() == MeetingStage.VOTING)) {
+                    player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.TALK_ALLOWED_DURING_MEETINGS));
+                    e.setCancelled(true);
+                    return;
+                }
+                Team playerTeam = arena.getPlayerTeam(player);
+                e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()) || (playerTeam != null && playerTeam.chatFilter(receiver)));
             }
-            Team playerTeam = arena.getPlayerTeam(player);
-            e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()) || (playerTeam != null && playerTeam.chatFilter(receiver)));
             Message format;
             switch (arena.getGameState()) {
                 case WAITING:
