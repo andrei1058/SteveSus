@@ -84,7 +84,7 @@ public class SelectorConfig {
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".=." + "filter-status", "none");
 
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "type", "CMD");
-        yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "commands.as-player", "au join");
+        yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "commands.as-player", "ss join");
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "commands.as-console", "");
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "item.material", "EMERALD");
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "item.data", 0);
@@ -92,7 +92,7 @@ public class SelectorConfig {
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".-." + "item.amount", 1);
 
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".z." + "type", "CMD");
-        yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".z." + "commands.as-player", "au selector spectate");
+        yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".z." + "commands.as-player", "ss selector spectate");
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".z." + "commands.as-console", "");
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".z." + "item.material", "ELYTRA");
         yml.addDefault("main." + SELECTOR_GENERIC_REPLACE_PATH + ".z." + "item.data", 0);
@@ -118,7 +118,7 @@ public class SelectorConfig {
         yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".#." + "item.amount", 1);
 
         yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".4." + "type", "CMD");
-        yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".4." + "commands.as-player", "au selector");
+        yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".4." + "commands.as-player", "ss selector");
         yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".4." + "commands.as-console", "");
         yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".4." + "item.material", "CHEST");
         yml.addDefault("spectate." + SELECTOR_GENERIC_REPLACE_PATH + ".4." + "item.data", 0);
