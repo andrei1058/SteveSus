@@ -12,13 +12,28 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
 public class CommandItemListener implements Listener {
+
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent e){
+        ItemStack i = e.getCurrentItem();
+        if (i == null) return;
+        if (i.getType() == Material.AIR) return;
+        if (CommonManager.getINSTANCE().getItemSupport().hasTag(i, CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS) ||
+                CommonManager.getINSTANCE().getItemSupport().hasTag(i, CommandItemsManager.INTERACT_NBT_TAG_CONSOLE_CMDS) ||
+                CommonManager.getINSTANCE().getItemSupport().hasTag(i, CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)){
+            e.setCancelled(true);
+        }
+    }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
