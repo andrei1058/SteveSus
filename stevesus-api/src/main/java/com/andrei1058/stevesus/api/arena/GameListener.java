@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -78,6 +79,10 @@ public interface GameListener {
      * This won't be triggered if {@link Arena#isCantMove(Player)}.
      */
     default void onPlayerMove(Arena arena, Player player, Location from, @Nullable Team playerTeam) {
+
+    }
+
+    default void onInventoryClose(Arena arena, Player player, Inventory inventory) {
 
     }
 }

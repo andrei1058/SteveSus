@@ -3,13 +3,13 @@ package com.andrei1058.stevesus.arena.gametask.wiring;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
-import com.andrei1058.stevesus.api.arena.task.TaskTriggerType;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.arena.gametask.wiring.panel.WallPanel;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
@@ -38,7 +38,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONObject;
 
 import java.util.*;
 import java.util.function.Function;
@@ -93,11 +92,6 @@ public class FixWiringProvider extends TaskProvider {
     }
 
     @Override
-    public TaskTriggerType getTriggerType() {
-        return TaskTriggerType.INTERACT_ENTITY;
-    }
-
-    @Override
     public boolean isVisual() {
         return false;
     }
@@ -118,7 +112,7 @@ public class FixWiringProvider extends TaskProvider {
                 ChatColor.AQUA + getDefaultDisplayName(),
                 " ",
                 ChatColor.AQUA + "1. " + ChatColor.RESET + "You can adjust how many times a player has to fix wiring panels. They are known as " + ChatColor.AQUA + "stages" + ChatColor.RESET + ".",
-                ChatColor.AQUA + "2. " + ChatColor.RESET + "Place the item frame from your inventory where you want a panel. By right-clicking an item frame you can set a flag. You can mark for instance an item-frame as " + ChatColor.AQUA + FixWiring.PanelFlag.NEVER_FIRST.getDescription() + ChatColor.RESET + " if wiring should never begin with it. (Ex: Fix Wiring never begins with Cafeteria or Security). Stage order and locations is randomised for each player.",
+                ChatColor.AQUA + "2. " + ChatColor.RESET + "Place the item frame from your inventory where you want a panel. By right-clicking an item frame you can set a flag. You can mark for instance an item-frame as " + ChatColor.AQUA + FixWiringTask.PanelFlag.NEVER_FIRST.getDescription() + ChatColor.RESET + " if wiring should never begin with it. (Ex: Fix Wiring never begins with Cafeteria or Security). Stage order and locations is randomised for each player.",
                 ChatColor.AQUA + "3. " + ChatColor.RESET + "Use the items in your inventory to adjust how many wires should have the next placed panel."
         ).forEach(player::sendMessage);
 
@@ -197,10 +191,10 @@ public class FixWiringProvider extends TaskProvider {
                 panels.add(entry);
             });
             player.sendTitle(getDefaultDisplayName(), ChatColor.GOLD + "Saved!", 0, 60, 0);
-            HashMap<String, Object> taskData = new HashMap<>();
-            taskData.put("stages", stagesAmount[0]);
-            taskData.put("panels", panels);
-            ArenaManager.getINSTANCE().saveTaskData(this, setupSession, localName, new JSONObject(taskData));
+            JsonObject config = new JsonObject();
+            config.addProperty("stages", stagesAmount[0]);
+            config.add("panels", panels);
+            ArenaManager.getINSTANCE().saveTaskData(this, setupSession, localName, config);
             setupSession.setAllowCommands(true);
             InventoryBackup.restoreInventory(player);
             GameSound.JOIN_SOUND_CURRENT.playToPlayer(player);
@@ -264,7 +258,7 @@ public class FixWiringProvider extends TaskProvider {
                 if (event.getRightClicked() == null) return;
                 if (event.getRightClicked().hasMetadata("wiring_flag")) {
                     event.setCancelled(true);
-                    FixWiring.PanelFlag newFlag = FixWiring.PanelFlag.valueOf(event.getRightClicked().getMetadata("wiring_flag").get(0).asString());
+                    FixWiringTask.PanelFlag newFlag = FixWiringTask.PanelFlag.valueOf(event.getRightClicked().getMetadata("wiring_flag").get(0).asString());
                     newFlag = newFlag.next();
                     event.getRightClicked().removeMetadata("wiring_flag", SteveSus.getInstance());
                     event.getRightClicked().setMetadata("wiring_flag", new FixedMetadataValue(SteveSus.getInstance(), newFlag.toString()));
@@ -304,12 +298,12 @@ public class FixWiringProvider extends TaskProvider {
                     }
                     panelsSet[0]++;
                     event.getEntity().setMetadata("wiring_wires", new FixedMetadataValue(SteveSus.getInstance(), wiresAmount));
-                    event.getEntity().setMetadata("wiring_flag", new FixedMetadataValue(SteveSus.getInstance(), FixWiring.PanelFlag.REGULAR.toString()));
+                    event.getEntity().setMetadata("wiring_flag", new FixedMetadataValue(SteveSus.getInstance(), FixWiringTask.PanelFlag.REGULAR.toString()));
                     event.getEntity().setMetadata("wiring_name", new FixedMetadataValue(SteveSus.getInstance(), localName));
 
                     ItemStack itemPassenger = new ItemStack(Material.REDSTONE);
                     ItemMeta itemMeta = itemPassenger.getItemMeta();
-                    itemMeta.setDisplayName(ChatColor.YELLOW + getDefaultDisplayName() + " (" + ChatColor.GRAY + localName + ChatColor.YELLOW + ") - Flag: " + FixWiring.PanelFlag.REGULAR.getDescription());
+                    itemMeta.setDisplayName(ChatColor.YELLOW + getDefaultDisplayName() + " (" + ChatColor.GRAY + localName + ChatColor.YELLOW + ") - Flag: " + FixWiringTask.PanelFlag.REGULAR.getDescription());
                     itemPassenger.setItemMeta(itemMeta);
                     ItemFrame itemFrame = (ItemFrame) event.getEntity();
                     itemFrame.setItem(itemPassenger);
@@ -369,25 +363,25 @@ public class FixWiringProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable FixWiring onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable FixWiringTask onGameInit(Arena arena, JsonObject configuration, String localName) {
         if (!validateElements(configuration, "stages", "panels")) {
             return null;
         }
         int stages = configuration.get("stages").getAsInt();
-        List<WiringPanel> panelList = new ArrayList<>();
+        List<WallPanel> panelList = new ArrayList<>();
         JsonArray panels = configuration.get("panels").getAsJsonArray();
         panels.forEach(panel -> {
             JsonObject panelObject = panel.getAsJsonObject();
             if (validateElements(panelObject, "location", "wires", "flag")) {
                 Location location = new OrphanLocationProperty().convert(panelObject.get("location").getAsString(), null);
                 if (location != null) {
-                    WiringPanel wiringPanel = new WiringPanel(arena, location.getBlockX(), location.getBlockY(), location.getBlockZ(), panelObject.get("wires").getAsInt(), FixWiring.PanelFlag.valueOf(panelObject.get("flag").getAsString().toUpperCase()));
-                    panelList.add(wiringPanel);
+                    WallPanel wallPanel = new WallPanel(arena, location.getBlockX(), location.getBlockY(), location.getBlockZ(), panelObject.get("wires").getAsInt(), FixWiringTask.PanelFlag.valueOf(panelObject.get("flag").getAsString().toUpperCase()));
+                    panelList.add(wallPanel);
                 }
             }
         });
         if (!panelList.isEmpty()) {
-            return new FixWiring(panelList, stages, localName, arena);
+            return new FixWiringTask(panelList, stages, localName, arena);
         }
         return null;
     }

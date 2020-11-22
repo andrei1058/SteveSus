@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.*;
 
-public class SubmitScan extends GameTask {
+public class SubmitScanTask extends GameTask {
 
     private final double capsuleRadius;
     private int scanDuration;
@@ -30,7 +30,7 @@ public class SubmitScan extends GameTask {
     private UUID currentScan = null;
     private int currentScanTask = -1;
 
-    public SubmitScan(double radius, int scanDuration, Location capsuleLocation, Arena arena, String localName) {
+    public SubmitScanTask(double radius, int scanDuration, Location capsuleLocation, Arena arena, String localName) {
         this.scanCapsuleLocation = capsuleLocation.clone();
         this.scanCapsuleLocation.add(0, 1, 0);
         this.localName = localName;

@@ -1,6 +1,8 @@
-package com.andrei1058.stevesus.arena.gametask.wiring;
+package com.andrei1058.stevesus.arena.gametask.wiring.panel;
 
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
+import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringTask;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.gui.BaseGUI;
 import com.andrei1058.stevesus.common.api.gui.CustomHolder;
@@ -16,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-public class WiringGUI extends BaseGUI {
+public class PanelGUI extends BaseGUI {
 
     private static ItemStack[] items = null;
 
@@ -39,13 +41,13 @@ public class WiringGUI extends BaseGUI {
         return pattern[wires - 1];
     }
 
-    private FixWiring fixWiring;
+    private FixWiringTask fixWiring;
     private final List<Character> fixedWires = new ArrayList<>();
     private char lastClickedWire;
     private byte lastSlot = -1;
     private byte amountToFix;
 
-    public WiringGUI(List<String> pattern, CommonLocale lang, FixWiring fixWiring, int wires) {
+    public PanelGUI(List<String> pattern, CommonLocale lang, FixWiringTask fixWiring, int wires) {
         super(pattern, lang, new WiringHolder(), lang.getMsg(null, FixWiringProvider.PANEL_NAME));
         this.fixWiring = fixWiring;
 
@@ -126,17 +128,17 @@ public class WiringGUI extends BaseGUI {
         }
     }
 
-    public FixWiring getFixWiring() {
+    public FixWiringTask getFixWiring() {
         return fixWiring;
     }
 
     public static class WiringHolder implements CustomHolder {
 
-        private WiringGUI wiringGUI;
+        private PanelGUI panelGUI;
 
         @Override
         public void onClick(Player player, ItemStack itemStack, ClickType clickType, int slot) {
-            ((WiringGUI) getGui()).processClick(player, itemStack, slot);
+            ((PanelGUI) getGui()).processClick(player, itemStack, slot);
         }
 
         @Override
@@ -151,12 +153,12 @@ public class WiringGUI extends BaseGUI {
 
         @Override
         public BaseGUI getGui() {
-            return wiringGUI;
+            return panelGUI;
         }
 
         @Override
         public void setGui(BaseGUI gui) {
-            wiringGUI = (WiringGUI) gui;
+            panelGUI = (PanelGUI) gui;
         }
 
         @Override

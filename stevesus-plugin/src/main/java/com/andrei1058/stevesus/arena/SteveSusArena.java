@@ -147,6 +147,7 @@ public class SteveSusArena implements Arena {
     private final LinkedList<GameRoom> rooms = new LinkedList<>();
 
     private VentHandler ventHandler;
+    private HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -1125,12 +1126,19 @@ public class SteveSusArena implements Arena {
                 setCantMove(player, false);
                 player.closeInventory();
                 InventoryUtil.clearStorageContents(player);
+                InventoryBackup backup = meetingBackups.get(player.getUniqueId());
+                if (backup != null){
+                    backup.restore(player);
+                }
             });
             getGameEndConditions().tickGameEndConditions(this);
         } else if (meetingStage == MeetingStage.TALKING) {
             setCountdown(getMeetingTalkDuration());
             getPlayers().forEach(player -> {
                 player.closeInventory();
+                if (!meetingBackups.containsKey(player.getUniqueId())){
+                    meetingBackups.put(player.getUniqueId(), new InventoryBackup(player));
+                }
                 InventoryUtil.clearStorageContents(player);
                 setCantMove(player, true);
             });
@@ -1138,6 +1146,9 @@ public class SteveSusArena implements Arena {
             setCountdown(getMeetingVotingDuration());
             getPlayers().forEach(player -> {
                 setCantMove(player, true);
+                if (!meetingBackups.containsKey(player.getUniqueId())){
+                    meetingBackups.put(player.getUniqueId(), new InventoryBackup(player));
+                }
                 VoteGUIManager.openToPlayer(player, this);
                 CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_VOTING, false);
             });

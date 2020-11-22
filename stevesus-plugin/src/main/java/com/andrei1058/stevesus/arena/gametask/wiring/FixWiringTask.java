@@ -9,30 +9,33 @@ import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.arena.gametask.wiring.panel.WallPanel;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class FixWiring extends GameTask {
+public class FixWiringTask extends GameTask {
 
-    private final List<WiringPanel> wiringPanels = new ArrayList<>();
+    private final List<WallPanel> wallPanels = new ArrayList<>();
     private final int stages;
     private final String localName;
 
     // panels are removed when gets fixed
-    private final HashMap<UUID, LinkedList<WiringPanel>> playerAssignedPanels = new HashMap<>();
+    private final HashMap<UUID, LinkedList<WallPanel>> playerAssignedPanels = new HashMap<>();
+    private final LinkedList<UUID> currentlyOpenPanel = new LinkedList<>();
+    private LinkedList<WallPanel> sequence = null;
 
-    public FixWiring(List<WiringPanel> panelList, int stages, String localName, Arena arena) {
-        wiringPanels.addAll(panelList);
-        Collections.shuffle(wiringPanels);
+    public FixWiringTask(List<WallPanel> panelList, int stages, String localName, Arena arena) {
+        wallPanels.addAll(panelList);
+        Collections.shuffle(wallPanels);
         this.stages = stages;
         this.localName = localName;
         arena.registerGameListener(new WiringListener());
@@ -77,7 +80,10 @@ public class FixWiring extends GameTask {
 
     @Override
     public void assignToPlayer(Player player, Arena arena) {
-        LinkedList<WiringPanel> playerPanels = getLessUsedPanels(stages);
+        if (sequence == null) {
+            sequence = getLessUsedPanels(stages);
+        }
+        LinkedList<WallPanel> playerPanels = new LinkedList<>(sequence);
         if (playerPanels.isEmpty()) {
             SteveSus.getInstance().getLogger().warning("Cannot assign wring task to " + player.getName() + " on " + arena.getTemplateWorld() + "(" + arena.getGameId() + "). Bad wiring panels configuration.");
             return;
@@ -99,17 +105,7 @@ public class FixWiring extends GameTask {
 
     @Override
     public boolean isDoingTask(UUID player) {
-        if (playerAssignedPanels.containsKey(player)) {
-            if (getCurrentStage(player) != getTotalStages(player)) {
-                Player player1 = Bukkit.getPlayer(player);
-                if (player1.getOpenInventory() != null && player1.getOpenInventory().getTopInventory() != null) {
-                    if (player1.getOpenInventory().getTopInventory().getHolder() instanceof WiringGUI.WiringHolder) {
-                        return ((WiringGUI) ((WiringGUI.WiringHolder) player1.getOpenInventory().getTopInventory().getHolder()).getGui()).getFixWiring().equals(this);
-                    }
-                }
-            }
-        }
-        return false;
+        return currentlyOpenPanel.contains(player);
     }
 
     @Override
@@ -134,7 +130,7 @@ public class FixWiring extends GameTask {
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
         if (arena == null) return;
         if (getCurrentStage(player) != getTotalStages(player)) {
-            WiringPanel currentPanel = playerAssignedPanels.get(player.getUniqueId()).removeFirst();
+            WallPanel currentPanel = playerAssignedPanels.get(player.getUniqueId()).removeFirst();
             currentPanel.stopGlowing(player);
             // mark done or
             if (playerAssignedPanels.get(player.getUniqueId()).isEmpty()) {
@@ -143,10 +139,11 @@ public class FixWiring extends GameTask {
                 arena.getGameEndConditions().tickGameEndConditions(arena);
             } else {
                 // or assign next
-                WiringPanel panel = playerAssignedPanels.get(player.getUniqueId()).getFirst();
+                WallPanel panel = playerAssignedPanels.get(player.getUniqueId()).getFirst();
                 panel.startGlowing(player);
                 GameRoom room = arena.getRoom(panel.getItemFrame().getLocation());
                 Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
                 player.sendMessage(playerLang.getMsg(player, FixWiringProvider.NEXT_PANEL).replace("{room}", (room == null ? playerLang.getMsg(null, Message.GAME_ROOM_NO_NAME) : room.getDisplayName(playerLang))));
             }
         }
@@ -184,15 +181,15 @@ public class FixWiring extends GameTask {
     }
 
 
-    private LinkedList<WiringPanel> getLessUsedPanels(int stages) {
+    private LinkedList<WallPanel> getLessUsedPanels(int stages) {
 
-        LinkedList<WiringPanel> picked = new LinkedList<>();
+        LinkedList<WallPanel> picked = new LinkedList<>();
 
         // initialize options with first panel filters
-        List<WiringPanel> options = wiringPanels.stream().filter(panel -> !(panel.getFlag() == PanelFlag.NEVER_FIRST || panel.getFlag() == PanelFlag.ALWAYS_LAST)).collect(Collectors.toList());
+        List<WallPanel> options = wallPanels.stream().filter(panel -> !(panel.getFlag() == PanelFlag.NEVER_FIRST || panel.getFlag() == PanelFlag.ALWAYS_LAST)).collect(Collectors.toList());
 
         // comparison variables
-        WiringPanel current;
+        WallPanel current;
 
         // pick first panel
         if (options.isEmpty()) {
@@ -201,7 +198,7 @@ public class FixWiring extends GameTask {
             current = options.remove(0);
 
             // pick first
-            for (WiringPanel p : options) {
+            for (WallPanel p : options) {
                 if (current.getAssignments() >= p.getAssignments()) {
                     current = p;
                 }
@@ -211,7 +208,7 @@ public class FixWiring extends GameTask {
         }
 
         // pick middle panels
-        options = wiringPanels.stream().filter(panel -> !(panel.getFlag() == PanelFlag.ALWAYS_FIRST || panel.getFlag() == PanelFlag.ALWAYS_LAST) && !picked.contains(panel)).collect(Collectors.toList());
+        options = wallPanels.stream().filter(panel -> !(panel.getFlag() == PanelFlag.ALWAYS_FIRST || panel.getFlag() == PanelFlag.ALWAYS_LAST) && !picked.contains(panel)).collect(Collectors.toList());
         if (options.isEmpty()) {
             SteveSus.getInstance().getLogger().warning("Tried to assign MIDDLE wiring panels but they seem to be all assigned as ALWAYS_FIRST or ALWAYS_LAST");
         } else {
@@ -219,7 +216,7 @@ public class FixWiring extends GameTask {
             for (int x = 1; x < stages - 1; x++) {
                 current = options.get(0);
                 // check usages
-                for (WiringPanel p : options) {
+                for (WallPanel p : options) {
                     if (current.getAssignments() >= p.getAssignments()) {
                         current = p;
                     }
@@ -231,13 +228,13 @@ public class FixWiring extends GameTask {
         }
 
         // pick last
-        options = wiringPanels.stream().filter(panel -> !(panel.getFlag() == PanelFlag.ALWAYS_FIRST || panel.getFlag() == PanelFlag.NEVER_LAST) && !picked.contains(panel)).collect(Collectors.toList());
+        options = wallPanels.stream().filter(panel -> !(panel.getFlag() == PanelFlag.ALWAYS_FIRST || panel.getFlag() == PanelFlag.NEVER_LAST) && !picked.contains(panel)).collect(Collectors.toList());
         if (options.isEmpty()) {
             SteveSus.getInstance().getLogger().warning("Tried to assign LAST wiring panel but they seem to be all assigned as ALWAYS_FIRST or NEVER_LAST");
         } else {
             current = options.remove(0);
 
-            for (WiringPanel p : options) {
+            for (WallPanel p : options) {
                 if (current.getAssignments() >= p.getAssignments()) {
                     current = p;
                 }
@@ -262,7 +259,7 @@ public class FixWiring extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
-                wiringPanels.forEach(panel -> {
+                wallPanels.forEach(panel -> {
                     arena.getPlayers().forEach(player -> {
                         if (!(hasTask(player) && GlowingManager.isGlowing(panel.getItemFrame(), player))) {
                             panel.getHologram().hide(player);
@@ -276,17 +273,25 @@ public class FixWiring extends GameTask {
         @Override
         public void onPlayerJoin(Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
-                wiringPanels.forEach(panel -> panel.getHologram().hide(player));
+                wallPanels.forEach(panel -> panel.getHologram().hide(player));
             }
+        }
+
+        @Override
+        public void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+            currentlyOpenPanel.remove(player.getUniqueId());
         }
     }
 
     private void tryOpenGUI(Player player, Entity entity) {
         if (hasTask(player)) {
+            // should prevent called twice
+            if (currentlyOpenPanel.contains(player.getUniqueId())) return;
             if (getCurrentStage(player) != getTotalStages(player)) {
-                WiringPanel panel = playerAssignedPanels.get(player.getUniqueId()).getFirst();
+                WallPanel panel = playerAssignedPanels.get(player.getUniqueId()).getFirst();
                 if (panel != null && panel.getItemFrame().equals(entity)) {
                     panel.startFixingPanel(player, this);
+                    currentlyOpenPanel.add(player.getUniqueId());
                 }
             }
         }

@@ -199,7 +199,7 @@ public class ExclusionVoting {
         final Player[] mostVoted = {null};
         final int[] votes = {(int) arena.getPlayers().stream().filter(player -> !hasVoted(player)).count()};
         this.votes.values().stream().distinct().forEach(voted -> {
-            int currentVotes = (int) this.votes.values().stream().filter(current -> voted == null ? current == null : current.equals(voted)).count();
+            int currentVotes = (int) this.votes.values().stream().filter(current -> voted == null ? current == null : current == null || current.equals(voted)).count();
             if (votes[0] < currentVotes) {
                 mostVoted[0] = voted;
                 votes[0] = currentVotes;

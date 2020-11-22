@@ -1,4 +1,4 @@
-package com.andrei1058.stevesus.arena.gametask.wiring;
+package com.andrei1058.stevesus.arena.gametask.wiring.panel;
 
 import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
@@ -6,6 +6,8 @@ import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
+import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
+import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringTask;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.github.johnnyjayjay.spigotmaps.MapBuilder;
@@ -22,31 +24,21 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-public class WiringPanel {
+public class WallPanel {
 
-    private final int x;
-    private final int y;
-    private final int z;
     private final int wiresAmount;
-    private final FixWiring.PanelFlag flag;
+    private final FixWiringTask.PanelFlag flag;
     private final ItemFrame itemFrame;
     private Hologram hologram;
 
-
     private int assignments = 0;
 
-    protected WiringPanel(Arena arena, int x, int y, int z, int wiresAmount, FixWiring.PanelFlag flag) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public WallPanel(Arena arena, int x, int y, int z, int wiresAmount, FixWiringTask.PanelFlag flag) {
         this.wiresAmount = wiresAmount;
         this.flag = flag;
 
-        // TESTING
         this.itemFrame = (ItemFrame) arena.getWorld().getNearbyEntities(new Location(arena.getWorld(), x, y, z), 1, 1, 1).stream().filter(entity -> entity instanceof ItemFrame).findFirst().orElse(null);
         if (this.itemFrame == null) {
             SteveSus.getInstance().getLogger().warning("Item Frame needs to be placed at " + x + " " + y + " " + z + " on " + arena.getTemplateWorld() + " for Fix Wiring task!");
@@ -82,7 +74,7 @@ public class WiringPanel {
         return itemFrame;
     }
 
-    public FixWiring.PanelFlag getFlag() {
+    public FixWiringTask.PanelFlag getFlag() {
         return flag;
     }
 
@@ -96,13 +88,11 @@ public class WiringPanel {
     /**
      * Open fix panel to the given  player.
      */
-    public void startFixingPanel(Player player, FixWiring fixWiring) {
+    public void startFixingPanel(Player player, FixWiringTask fixWiring) {
         SteveSus.newChain().async(() -> {
             Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
-            WiringGUI gui = new WiringGUI(WiringGUI.getPattern(wiresAmount), playerLang, fixWiring, wiresAmount);
-            SteveSus.newChain().sync(() -> {
-                gui.open(player);
-            }).execute();
+            PanelGUI gui = new PanelGUI(PanelGUI.getPattern(wiresAmount), playerLang, fixWiring, wiresAmount);
+            SteveSus.newChain().sync(() -> gui.open(player)).execute();
         }).execute();
     }
 

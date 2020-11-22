@@ -16,9 +16,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.material.Openable;
 import org.bukkit.material.TrapDoor;
 import org.bukkit.plugin.Plugin;
@@ -35,7 +35,6 @@ public class VentHandler {
     private final Arena arena;
     private final LinkedList<Vent> vents = new LinkedList<>();
     private final HashMap<UUID, InventoryBackup> currentlyVenting = new HashMap<>();
-
 
     public VentHandler(Arena arena, LinkedList<Vent> vents) {
         this.arena = arena;
@@ -149,12 +148,6 @@ public class VentHandler {
         player.removePotionEffect(PotionEffectType.INVISIBILITY);
         arena.setCantMove(player, false);
         currentlyVenting.remove(player.getUniqueId()).restore(player);
-        if (arena.getPlayerColorAssigner() != null) {
-            PlayerColorAssigner.PlayerColor color = arena.getPlayerColorAssigner().getPlayerColor(player);
-            if (color != null) {
-                color.apply(player, arena);
-            }
-        }
     }
 
     /**
@@ -178,14 +171,11 @@ public class VentHandler {
     public void interruptVenting(@NotNull Player player, boolean disconnect) {
         if (!isVenting(player)) return;
         player.removePotionEffect(PotionEffectType.INVISIBILITY);
-
+        InventoryBackup inventoryBackup = currentlyVenting.remove(player.getUniqueId());
         // re-apply color on meetings
         if (!disconnect) {
-            if (arena.getPlayerColorAssigner() != null) {
-                PlayerColorAssigner.PlayerColor color = arena.getPlayerColorAssigner().getPlayerColor(player);
-                if (color != null) {
-                    color.apply(player, arena);
-                }
+            if (inventoryBackup != null){
+                inventoryBackup.restore(player);
             }
         }
     }

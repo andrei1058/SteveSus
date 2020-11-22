@@ -81,7 +81,7 @@ public class SetupSessionListener implements Listener {
         setupSession.getSetupListeners().forEach(listener -> listener.onHangingPlace(setupSession, event));
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onHangingBreak(HangingBreakByEntityEvent event) {
         //if (event.isCancelled()) return;
         SetupSession setupSession = SetupManager.getINSTANCE().getSession(event.getEntity().getWorld().getName());

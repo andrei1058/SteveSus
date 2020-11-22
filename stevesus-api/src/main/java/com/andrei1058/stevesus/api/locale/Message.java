@@ -166,7 +166,7 @@ public enum Message {
     GAME_ROOM_NAME_(true, "game-room-name-", ""),
     GAME_ROOM_NO_NAME( "game-no-room", "&7No Room"),
     DEFEAT_REASON_PATH_(true, "defeat-reason-", ""),
-    DEFEAT_REASON_NO_MORE_INNOCENTS("defeat-reason-innocents-left", "&bAll innocents left!"),
+    DEFEAT_REASON_NO_MORE_INNOCENTS("defeat-reason-innocents-died", "&bAll innocents died!"),
     DEFEAT_REASON_ALL_KILLED("defeat-reason-all-killed", "&bImpostors killed everyone!"),
     WIN_REASON_IMPOSTORS_EXCLUDED("win-reason-impostors-excluded", "&eNo more impostors among us!"),
     WIN_REASON_TASKS_COMPLETED("win-reason-tasks-completed", "&eAll tasks were completed!"),

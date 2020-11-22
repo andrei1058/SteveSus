@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.util.List;
@@ -238,12 +237,12 @@ public interface ArenaHandler {
 
     /**
      * Save a task data. Should be used when a player finished setting up a task.
-     *
-     * @param task         task instance.
+     *  @param task         task instance.
      * @param setupSession setup session instance.
      * @param givenName    local identifier used by server owner to identify this configuration.
+     * @param taskConfiguration
      */
-    void saveTaskData(TaskProvider task, SetupSession setupSession, String givenName, JSONObject taskConfiguration);
+    void saveTaskData(TaskProvider task, SetupSession setupSession, String givenName, JsonObject taskConfiguration);
 
     /**
      * Delete task related data.

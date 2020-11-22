@@ -81,11 +81,6 @@ public class SubmitScanProvider extends TaskProvider {
     }
 
     @Override
-    public TaskTriggerType getTriggerType() {
-        return TaskTriggerType.LOCATION_RANGE;
-    }
-
-    @Override
     public boolean isVisual() {
         return true;
     }
@@ -147,11 +142,12 @@ public class SubmitScanProvider extends TaskProvider {
                 return null;
             }
 
-            HashMap<String, Object> taskData = new HashMap<>();
-            taskData.put("radius", currentRange[0]);
-            taskData.put("seconds", currentSeconds[0]);
-            taskData.put("location", new OrphanLocationProperty().toExportValue(scanCapsuleLocation[0]));
-            ArenaManager.getINSTANCE().saveTaskData(this, setupSession, localName, new JSONObject(taskData));
+            JsonObject config = new JsonObject();
+            config.addProperty("radius", currentRange[0]);
+            config.addProperty("radius", currentRange[0]);
+            config.addProperty("seconds", currentSeconds[0]);
+            config.addProperty("location", new OrphanLocationProperty().toExportValue(scanCapsuleLocation[0]).toString());
+            ArenaManager.getINSTANCE().saveTaskData(this, setupSession, localName, config);
             setupSession.setAllowCommands(true);
             InventoryBackup.restoreInventory(player);
             GameSound.JOIN_SOUND_CURRENT.playToPlayer(player);
@@ -306,7 +302,7 @@ public class SubmitScanProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable SubmitScan onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable SubmitScanTask onGameInit(Arena arena, JsonObject configuration, String localName) {
         if (!LanguageManager.getINSTANCE().getDefaultLocale().hasPath(MSG_CANNOT_SCAN)) {
             LanguageManager.getINSTANCE().getDefaultLocale().setMsg(MSG_CANNOT_SCAN, "&cCapsule already in use!");
         }
@@ -326,7 +322,7 @@ public class SubmitScanProvider extends TaskProvider {
             Location location = new OrphanLocationProperty().convert(capsule.getAsString(), null);
             if (location == null) return null;
             location.setWorld(arena.getWorld());
-            return new SubmitScan(radius.getAsDouble(), scanDuration.getAsInt(), location, arena, localName);
+            return new SubmitScanTask(radius.getAsDouble(), scanDuration.getAsInt(), location, arena, localName);
         } catch (Exception ignored) {
         }
         return null;

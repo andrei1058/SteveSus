@@ -17,6 +17,7 @@ import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
+import com.andrei1058.stevesus.arena.gametask.upload.UploadTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
 import com.andrei1058.stevesus.arena.sabotage.oxygen.OxygenSabotageProvider;
@@ -36,7 +37,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -146,6 +146,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         // register default tasks
         getINSTANCE().registerGameTask(FixWiringProvider.getInstance());
         getINSTANCE().registerGameTask(SubmitScanProvider.getInstance());
+        getINSTANCE().registerGameTask(UploadTaskProvider.getInstance());
 
         // register default sabotages
         getINSTANCE().registerSabotage(OxygenSabotageProvider.getInstance());
@@ -391,11 +392,11 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
     }
 
     @Override
-    public void saveTaskData(TaskProvider task, SetupSession setupSession, String givenName, JSONObject taskConfiguration) {
+    public void saveTaskData(TaskProvider task, SetupSession setupSession, String givenName, JsonObject taskConfiguration) {
         SettingsManager config = getTemplate(setupSession.getWorldName(), true);
         List<String> tasks = new ArrayList<>(config.getProperty(ArenaConfig.TASKS));
         SteveSus.debug("Saving " + task.getIdentifier() + "(" + givenName + ") task data on " + setupSession.getWorldName() + ".");
-        tasks.add(givenName + ";" + task.getProvider().getName() + ";" + task.getIdentifier() + ";" + taskConfiguration.toJSONString());
+        tasks.add(givenName + ";" + task.getProvider().getName() + ";" + task.getIdentifier() + ";" + taskConfiguration.toString());
         config.setProperty(ArenaConfig.TASKS, tasks);
         config.save();
     }

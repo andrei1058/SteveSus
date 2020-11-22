@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONObject;
 
 /**
  * A task handler is able to manage a single task.
@@ -48,11 +47,6 @@ public abstract class TaskProvider {
     public abstract TaskType getTaskType();
 
     /**
-     * Get task trigger type.
-     */
-    public abstract TaskTriggerType getTriggerType();
-
-    /**
      * True if this task has some visual effects or map changes that can spoil
      * if the player is a crew mate.
      */
@@ -78,7 +72,7 @@ public abstract class TaskProvider {
      * <p>
      * IMPORTANT: when task setup is done, mark it as finished (to allow commands usage)
      * via {@link SetupSession#setAllowCommands(boolean)} - set to true.
-     * Also make sure to save your data using {@link ArenaHandler#saveTaskData(TaskProvider, SetupSession, String, JSONObject)}.
+     * Also make sure to save your data using {@link ArenaHandler#saveTaskData(TaskProvider, SetupSession, String, JsonObject)}.
      *
      * @param player       admin doing setup.
      * @param setupSession setup session.
