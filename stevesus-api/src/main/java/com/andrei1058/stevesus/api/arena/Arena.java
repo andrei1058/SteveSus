@@ -7,6 +7,7 @@ import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
+import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.arena.vent.VentHandler;
@@ -727,4 +728,11 @@ public interface Arena extends DisplayableArena {
      * Set vent manager.
      */
     void setVentHandler(@Nullable VentHandler ventingHandler);
+
+    GameTeamAssigner getGameTeamAssigner();
+
+    /**
+     * Null to use default.
+     */
+    void setGameTeamAssigner(@Nullable GameTeamAssigner gameTeamAssigner);
 }

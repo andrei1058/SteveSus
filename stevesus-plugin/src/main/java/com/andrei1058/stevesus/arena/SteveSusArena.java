@@ -145,6 +145,7 @@ public class SteveSusArena implements Arena {
     private final LinkedList<GameListener> gameListeners = new LinkedList<>();
     private boolean taskIndicatorActive = true;
     private final LinkedList<GameRoom> rooms = new LinkedList<>();
+    private GameTeamAssigner teamAssigner = new GameTeamAssigner();
 
     private VentHandler ventHandler;
     private final HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
@@ -807,16 +808,15 @@ public class SteveSusArena implements Arena {
                 createTaskMeterBar();
             }
             gameStart = Instant.now();
-            getPlayers().forEach(p -> {
-                p.getInventory().clear();
-                p.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                meetingsLeft.putIfAbsent(p.getUniqueId(), getMeetingsPerPlayer());
-            });
+            for (Player player : getPlayers()) {
+                player.getInventory().clear();
+                player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                meetingsLeft.putIfAbsent(player.getUniqueId(), getMeetingsPerPlayer());
+            }
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskPlaying(this), 0L, 20L).getTaskId();
             // assign teams
             Collections.shuffle(players);
-            GameTeamAssigner teamAssigner = new GameTeamAssigner(this);
-            teamAssigner.assignTeams();
+            teamAssigner.assignTeams(this);
             // assign colors AFTER teams
             if (getPlayerColorAssigner() != null) {
                 getPlayers().forEach(player -> {
@@ -1200,7 +1200,7 @@ public class SteveSusArena implements Arena {
         // clear dead bodies
         getDeadBodies().forEach(PlayerCorpse::destroy);
         // add voting manager
-        setCurrentVoting(new ExclusionVoting(this));
+        setCurrentVoting(new ExclusionVoting());
         // clear glowing
         getGameTeams().forEach(team -> {
             if (!team.isInnocent()) {
@@ -1633,6 +1633,20 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> this.ventHandler.unVent(player, SteveSus.getInstance()));
         }
         this.ventHandler = ventingHandler;
+    }
+
+    @Override
+    public GameTeamAssigner getGameTeamAssigner() {
+        return teamAssigner;
+    }
+
+    @Override
+    public void setGameTeamAssigner(@Nullable GameTeamAssigner gameTeamAssigner) {
+        if (gameTeamAssigner == null) {
+            this.teamAssigner = new GameTeamAssigner();
+        } else {
+            this.teamAssigner = gameTeamAssigner;
+        }
     }
 
     public Location getNextWaitingSpawn() {

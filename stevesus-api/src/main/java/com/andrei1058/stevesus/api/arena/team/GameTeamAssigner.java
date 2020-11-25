@@ -13,13 +13,7 @@ import java.util.Comparator;
 
 public class GameTeamAssigner {
 
-    private final Arena arena;
-
-    public GameTeamAssigner(Arena arena) {
-        this.arena = arena;
-    }
-
-    public void assignTeams() {
+    public void assignTeams(Arena arena) {
         //todo add changes in the future. player chance etc
 
         for (Player player : arena.getPlayers()) {

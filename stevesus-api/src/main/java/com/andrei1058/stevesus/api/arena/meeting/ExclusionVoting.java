@@ -18,10 +18,6 @@ public class ExclusionVoting {
     // voter, candidate
     private final HashMap<Player, Player> votes = new HashMap<>();
 
-    public ExclusionVoting(Arena arena) {
-
-    }
-
     /**
      * @param voted null for skip.
      */
@@ -105,20 +101,49 @@ public class ExclusionVoting {
             }
         }
 
+        LinkedHashMap<Player, Integer> results = new LinkedHashMap<>();
+        int skip = getVotes(null).size();
+        int mostVotes = 0;
+        for (Player voter : votes.keySet()) {
+            int currentVotes = getVotes(voter).size();
+            results.put(voter, currentVotes);
+            // used for draw check
+            if (currentVotes > mostVotes) {
+                mostVotes = currentVotes;
+            }
+        }
+        // check if draw
+        boolean draw = false;
+        if (mostVotes > 0 && skip <= mostVotes) {
+            if (skip == mostVotes) {
+                draw = true;
+            } else {
+                int finalMostVotes = mostVotes;
+                int times = (int) results.values().stream().filter(value -> value == finalMostVotes).count();
+                if (times > 1) {
+                    draw = true;
+                }
+            }
+        }
+
         Team finalPlayerTeam = playerTeam;
-        arena.getPlayers().forEach(player -> {
+        for (Player player : arena.getPlayers()) {
             Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             List<String> messages = new ArrayList<>();
-            lang.getMsgList(player, Message.EXCLUSION_RESULT_CHAT).forEach(string -> {
+            for (String string : lang.getMsgList(player, Message.EXCLUSION_RESULT_CHAT)) {
                 if (string.contains("{votes}")) {
-                    votes.forEach((voter, vote) -> {
-                        int currentVotes = getVotes(voter).size();
-                        if (currentVotes != 0) {
-                            messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_VOTE).replace("{player}", voter.getDisplayName()).replace("{amount}", String.valueOf(currentVotes))));
+                    for (Map.Entry<Player, Integer> entry : results.entrySet()) {
+                        if (entry.getValue() != 0) {
+                            messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_VOTE).replace("{player}", entry.getKey().getDisplayName()).replace("{amount}", String.valueOf(entry.getValue()))));
                         }
-                    });
+                    }
+                    if (skip != 0) {
+                        messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_VOTED_SKIP).replace("{amount}", String.valueOf(skip))));
+                    }
                 } else if (string.contains("{exclusion}")) {
-                    if (votedOff == null) {
+                    if (draw) {
+                        messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_DRAW)));
+                    } else if (votedOff == null) {
                         messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP)));
                     } else {
                         if (arena.isAnonymousVotes()) {
@@ -140,8 +165,10 @@ public class ExclusionVoting {
                 } else {
                     messages.add(ChatUtil.centerMessage(string));
                 }
-            });
-            if (votedOff == null) {
+            }
+            if (draw) {
+                player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_DRAW), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_DRAW), 8, 70, 8);
+            } else if (votedOff == null) {
                 player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SKIPPED), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SKIPPED), 8, 70, 8);
             } else if (arena.isAnonymousVotes()) {
                 if (player.equals(votedOff)) {
@@ -158,8 +185,10 @@ public class ExclusionVoting {
                     player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_IMPOSTOR).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_IMPOSTOR).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
                 }
             }
-            messages.forEach(player::sendMessage);
-        });
+            for (String message : messages) {
+                player.sendMessage(message);
+            }
+        }
         if (votedOff == null) {
             GameSound.VOTE_EJECT_NONE.playToPlayers(arena.getPlayers());
             GameSound.VOTE_EJECT_NONE.playToPlayers(arena.getSpectators());
@@ -187,10 +216,12 @@ public class ExclusionVoting {
                 excludeToThisTeam.addPlayer(votedOff, false);
             }
         }
+        votes.clear();
     }
 
     /**
-     * If most voted has left SKIP please!
+     * If most voted has left will skip.
+     * Draw is handled at {@link #performExclusion(Arena, Team)}.
      *
      * @return null if skip is the most voted.
      */
