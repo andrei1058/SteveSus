@@ -32,7 +32,6 @@ public class FixWiringTask extends GameTask {
     // panels are removed when gets fixed
     private final HashMap<UUID, LinkedList<WallPanel>> playerAssignedPanels = new HashMap<>();
     private final LinkedList<UUID> currentlyOpenPanel = new LinkedList<>();
-    private LinkedList<WallPanel> sequence = null;
 
     public FixWiringTask(List<WallPanel> panelList, int stages, String localName, Arena arena) {
         wallPanels.addAll(panelList);
@@ -81,10 +80,8 @@ public class FixWiringTask extends GameTask {
 
     @Override
     public void assignToPlayer(Player player, Arena arena) {
-        if (sequence == null) {
-            sequence = getLessUsedPanels(stages);
-        }
-        LinkedList<WallPanel> playerPanels = new LinkedList<>(sequence);
+
+        LinkedList<WallPanel> playerPanels = getLessUsedPanels(stages);
         if (playerPanels.isEmpty()) {
             SteveSus.getInstance().getLogger().warning("Cannot assign wring task to " + player.getName() + " on " + arena.getTemplateWorld() + "(" + arena.getGameId() + "). Bad wiring panels configuration.");
             return;
