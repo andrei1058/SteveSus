@@ -102,25 +102,7 @@ public class GameSidebarManager {
                 SteveSus.newChain().delay(10).sync(() -> {
                     GameSidebar sidebar = new GameSidebar(player, content, finalArena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
-                    if (finalArena != null && finalArena.getGameState() == GameState.IN_GAME) {
-                        finalArena.getPlayers().forEach(inGame -> {
-                            sidebar.getHandle().playerListCreate(inGame, new SidebarLine() {
-                                        @NotNull
-                                        @Override
-                                        public String getLine() {
-                                            return inGame.getDisplayName();
-                                        }
-                                    },
-                                    new SidebarLine() {
-                                        @NotNull
-                                        @Override
-                                        public String getLine() {
-                                            return "";
-                                        }
-                                    });
-                            sidebar.hidePlayerName(inGame);
-                        });
-                    } else {
+                    if (finalArena != null && finalArena.getGameState() != GameState.IN_GAME) {
                         sidebar.getHandle().playerListClear();
                     }
                 }).execute();
@@ -178,8 +160,30 @@ public class GameSidebarManager {
         }
     }
 
-    public static void hidePlayerNames(Arena arena){
-
+    public static void hidePlayerNames(Arena arena) {
+        if (arena.getGameState() != GameState.IN_GAME) return;
+        SteveSus.newChain().delay(10).sync(() -> {
+            for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
+                for (Player player : arena.getPlayers()) {
+                    sidebar.getHandle().playerListCreate(player,
+                            new SidebarLine() {
+                                @NotNull
+                                @Override
+                                public String getLine() {
+                                    return player.getDisplayName();
+                                }
+                            },
+                            new SidebarLine() {
+                                @NotNull
+                                @Override
+                                public String getLine() {
+                                    return "";
+                                }
+                            });
+                    sidebar.hidePlayerName(player);
+                }
+            }
+        });
     }
 
     /**
@@ -233,7 +237,7 @@ public class GameSidebarManager {
         return instance;
     }
 
-    public Set<GameSidebar> getSidebars(Arena arena){
+    public Set<GameSidebar> getSidebars(Arena arena) {
         return sidebarByPlayer.values().stream().filter(sb -> sb.getArena() != null && sb.getArena().equals(arena)).collect(Collectors.toSet());
     }
 }

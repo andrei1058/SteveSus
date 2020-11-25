@@ -804,6 +804,7 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.STARTING, this, false));
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskStarting(this), 0L, 20L).getTaskId();
         } else if (gameState == GameState.IN_GAME) {
+            GameSidebarManager.hidePlayerNames(this);
             if (getTaskMeterUpdatePolicy() != TaskMeterUpdatePolicy.NEVER) {
                 createTaskMeterBar();
             }
