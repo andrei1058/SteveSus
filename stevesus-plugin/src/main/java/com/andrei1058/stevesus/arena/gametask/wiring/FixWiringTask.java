@@ -18,6 +18,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.inventivetalent.glow.GlowAPI;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -274,6 +275,11 @@ public class FixWiringTask extends GameTask {
         public void onPlayerJoin(Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
                 wallPanels.forEach(panel -> panel.getHologram().hide(player));
+            } else {
+                // hide existing glowing
+                for (WallPanel wallPanel : wallPanels){
+                    GlowingManager.removeGlowing(wallPanel.getItemFrame(), player);
+                }
             }
         }
 

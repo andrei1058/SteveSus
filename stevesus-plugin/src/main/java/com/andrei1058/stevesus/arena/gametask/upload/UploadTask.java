@@ -10,8 +10,6 @@ import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.gametask.upload.panel.UploadGUI;
 import com.andrei1058.stevesus.arena.gametask.upload.panel.WallPanel;
-import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
-import com.andrei1058.stevesus.arena.gametask.wiring.panel.PanelGUI;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -19,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -120,7 +117,14 @@ public class UploadTask extends GameTask {
         @Override
         public void onPlayerJoin(Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
-                panels.forEach(panel -> panel.getHologram().hide(player));
+                for (WallPanel panel : panels){
+                    panel.getHologram().hide(player);
+                }
+            } else {
+                // hide existing glowing
+                for (WallPanel panel : panels){
+                    GlowingManager.removeGlowing(panel.getItemFrame(), player);
+                }
             }
         }
 

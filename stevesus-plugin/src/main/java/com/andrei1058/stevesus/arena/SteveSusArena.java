@@ -482,6 +482,13 @@ public class SteveSusArena implements Arena {
             for (GameListener gameListener : gameListeners) {
                 gameListener.onPlayerJoin(this, player);
             }
+
+            // remove existing glowing on players
+            for (Player inGame : getPlayers()) {
+                GlowingManager.removeGlowing(inGame, player);
+                GlowingManager.removeGlowing(player, inGame);
+            }
+
             SteveSus.debug("Player " + player.getName() + " was added as player to game " + getGameId() + "(" + getTemplateWorld() + ").");
             return true;
         }
