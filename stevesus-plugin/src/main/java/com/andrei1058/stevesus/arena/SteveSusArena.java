@@ -147,7 +147,7 @@ public class SteveSusArena implements Arena {
     private final LinkedList<GameRoom> rooms = new LinkedList<>();
 
     private VentHandler ventHandler;
-    private HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
+    private final HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -560,7 +560,7 @@ public class SteveSusArena implements Arena {
         PlayerToSpectatorEvent playerToSpectatorEvent = new PlayerToSpectatorEvent(this, player);
         Bukkit.getPluginManager().callEvent(playerToSpectatorEvent);
 
-        if (getVentHandler() != null){
+        if (getVentHandler() != null) {
             getVentHandler().interruptVenting(player, true);
         }
 
@@ -716,7 +716,7 @@ public class SteveSusArena implements Arena {
             gameListener.onPlayerLeave(this, player, false);
         }
 
-        if (getVentHandler() != null){
+        if (getVentHandler() != null) {
             getVentHandler().interruptVenting(player, true);
         }
 
@@ -1127,8 +1127,8 @@ public class SteveSusArena implements Arena {
                 setCantMove(player, false);
                 player.closeInventory();
                 InventoryUtil.clearStorageContents(player);
-                InventoryBackup backup = meetingBackups.get(player.getUniqueId());
-                if (backup != null){
+                InventoryBackup backup = meetingBackups.remove(player.getUniqueId());
+                if (backup != null) {
                     backup.restore(player);
                 }
             });
@@ -1137,7 +1137,7 @@ public class SteveSusArena implements Arena {
             setCountdown(getMeetingTalkDuration());
             getPlayers().forEach(player -> {
                 player.closeInventory();
-                if (!meetingBackups.containsKey(player.getUniqueId())){
+                if (!meetingBackups.containsKey(player.getUniqueId())) {
                     meetingBackups.put(player.getUniqueId(), new InventoryBackup(player));
                 }
                 InventoryUtil.clearStorageContents(player);
@@ -1147,7 +1147,7 @@ public class SteveSusArena implements Arena {
             setCountdown(getMeetingVotingDuration());
             getPlayers().forEach(player -> {
                 setCantMove(player, true);
-                if (!meetingBackups.containsKey(player.getUniqueId())){
+                if (!meetingBackups.containsKey(player.getUniqueId())) {
                     meetingBackups.put(player.getUniqueId(), new InventoryBackup(player));
                 }
                 VoteGUIManager.openToPlayer(player, this);
@@ -1183,7 +1183,7 @@ public class SteveSusArena implements Arena {
             }
         }
         // interrupt venting
-        if (getVentHandler() != null){
+        if (getVentHandler() != null) {
             for (Player player : getPlayers()) {
                 getVentHandler().interruptVenting(player, false);
             }
@@ -1400,6 +1400,12 @@ public class SteveSusArena implements Arena {
         // remove glowing
         GlowingManager.removeGlowing(victim, killer);
 
+        ItemStack helmet = victim.getInventory().getHelmet();
+        ItemStack chestPlate = victim.getInventory().getChestplate();
+        ItemStack leggings = victim.getInventory().getLeggings();
+        ItemStack boots = victim.getInventory().getBoots();
+
+
         // make ghost
         if (victimTeam != null) {
             victimTeam.removePlayer(victim, false);
@@ -1413,7 +1419,7 @@ public class SteveSusArena implements Arena {
         }
 
         // spawn corpse
-        PlayerCorpse corpse = CorpseManager.spawnCorpse(this, victim, victim.getLocation());
+        PlayerCorpse corpse = CorpseManager.spawnCorpse(this, victim, victim.getLocation(), helmet, chestPlate, leggings, boots);
         if (corpse != null) {
             addDeadBody(corpse);
         }

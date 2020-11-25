@@ -29,11 +29,11 @@ public class CorpseManager {
     private static boolean corpseReborn = false;
 
     @Nullable
-    public static PlayerCorpse spawnCorpse(Arena arena, Player player, Location location) {
+    public static PlayerCorpse spawnCorpse(Arena arena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
         if (!corpseReborn) {
             return null;
         }
-        return new CorpseRebornBody(arena, player, location);
+        return new CorpseRebornBody(arena, player, location, helmet, chestPlate, leggings, boots);
     }
 
     public static class CorpseRebornBody implements PlayerCorpse {
@@ -43,10 +43,10 @@ public class CorpseManager {
         private final Hologram hologram;
         private final Region region;
 
-        public CorpseRebornBody(Arena arena, Player player, Location location) {
+        public CorpseRebornBody(Arena arena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
             owner = player;
             this.region = new CircleRegion(location, 3, false);
-            data = CorpseAPI.spawnCorpse(player, location, new ItemStack[]{}, player.getInventory().getHelmet(), player.getInventory().getChestplate(), player.getInventory().getLeggings(), player.getInventory().getBoots());
+            data = CorpseAPI.spawnCorpse(player, location, new ItemStack[]{}, helmet, chestPlate, leggings, boots);
             hologram = new Hologram(location, 2);
             HologramPage page = hologram.getPage(0);
             assert page != null;
