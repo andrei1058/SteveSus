@@ -182,6 +182,9 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>plugin.yml</include>
+                    <include>download_panel.png</include>
+                    <include>upload_panel.png</include>
+                    <include>wiring_panel.png</include>
                 </includes>
             </resource>
         </resources>

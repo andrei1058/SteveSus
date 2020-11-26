@@ -18,7 +18,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.inventivetalent.glow.GlowAPI;
 
 import java.util.*;
 import java.util.stream.Collectors;

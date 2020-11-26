@@ -48,7 +48,7 @@ public class WallPanel {
 
 
         try {
-            BufferedImage catImage = ImageIO.read(new File("wiring_panel.png")); // read an image from a source, e.g. a file
+            BufferedImage catImage = ImageIO.read(this.getClass().getResource("wiring_panel.png")); // read an image from a source, e.g. a file
             catImage = ImageTools.resizeToMapSize(catImage); // resize the image to the minecraft map size
             ImageRenderer catRenderer = ImageRenderer.builder().image(catImage).renderOnce(true).build();
 
