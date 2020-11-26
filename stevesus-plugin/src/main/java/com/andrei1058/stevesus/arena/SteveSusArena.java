@@ -4,14 +4,10 @@ import ch.jalu.configme.SettingsManager;
 import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.SteveSusAPI;
-import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.ArenaTime;
-import com.andrei1058.stevesus.api.arena.GameEndConditions;
-import com.andrei1058.stevesus.api.arena.PlayerCorpse;
+import com.andrei1058.stevesus.api.arena.*;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
-import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.room.CuboidRegion;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
@@ -118,29 +114,18 @@ public class SteveSusArena implements Arena {
 
     private final LinkedList<Team> teams = new LinkedList<>();
     private final LinkedList<GameTask> gameTasks = new LinkedList<>();
-    private boolean visualTasksEnabled;
-    private int commonTasks = 1;
-    private int shortTasks = 2;
-    private int longTasks = 1;
-    private TaskMeterUpdatePolicy taskMeterUpdatePolicy = TaskMeterUpdatePolicy.ALWAYS;
     private MeetingStage meetingStage = MeetingStage.NO_MEETING;
     private BossBar taskMeterBar;
 
     private final List<UUID> freeze = new ArrayList<>(); // list of players that cannot move
     private final HashMap<UUID, Integer> meetingsLeft = new HashMap<>();
     private MeetingButton meetingButton;
-    private int meetingsPerPlayer;
-    private int talkingDuration;
-    private int votingDuration;
     private ExclusionVoting currentExclusionVoting;
-    private boolean anonymousVotes = false;
     private boolean emergency = false;
     private GameEndConditions gameEndConditions;
     private PlayerColorAssigner<?> playerColorAssigner;
     private boolean ignoreColorLimit;
     private final List<PlayerCorpse> deadBodies = new ArrayList<>();
-    private double getKillDistance = 2.8;
-    private int killDelay = 45;
     private final LinkedList<SabotageBase> loadedSabotages = new LinkedList<>();
     private final LinkedList<GameListener> gameListeners = new LinkedList<>();
     private boolean taskIndicatorActive = true;
@@ -149,6 +134,7 @@ public class SteveSusArena implements Arena {
 
     private VentHandler ventHandler;
     private final HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
+    private LiveSettings liveSettings = new LiveSettings();
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -180,11 +166,6 @@ public class SteveSusArena implements Arena {
         }
 
         this.mapTime = config.getProperty(ArenaConfig.MAP_TIME);
-        this.visualTasksEnabled = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED);
-        setTaskMeterUpdatePolicy(TaskMeterUpdatePolicy.ALWAYS);
-        this.meetingsPerPlayer = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_PER_PLAYER);
-        this.talkingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME);
-        this.votingDuration = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME);
         this.gameEndConditions = ArenaManager.getINSTANCE().getGameEndConditions();
         this.ignoreColorLimit = config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT);
         this.playerColorAssigner = ArenaManager.getINSTANCE().getDefaultPlayerColorAssigner();
@@ -216,17 +197,73 @@ public class SteveSusArena implements Arena {
         }
 
         initTasks();
-        commonTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count());
-        shortTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count());
-        longTasks = Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG), (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count());
-
         initSabotages();
         initRooms();
         initVents();
+        initLiveSettings();
 
         spawnMeetingButton(world);
 
         switchState(GameState.WAITING);
+    }
+
+    private void initLiveSettings() {
+        // load live settings values
+        // common tasks
+        getLiveSettings().getCommonTasks().setMinValue(Math.max(0, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON_MIN)));
+        int commonTasks = (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count();
+        if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON_MAX) < 0) {
+            getLiveSettings().getCommonTasks().setMaxValue(commonTasks);
+        } else {
+            getLiveSettings().getCommonTasks().setMaxValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON_MAX), commonTasks));
+        }
+        if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON) < 0) {
+            getLiveSettings().getCommonTasks().setCurrentValue(getLiveSettings().getCommonTasks().getMaxValue());
+        } else {
+            getLiveSettings().getCommonTasks().setCurrentValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON), getLiveSettings().getCommonTasks().getMaxValue()));
+        }
+        // short tasks
+        getLiveSettings().getShortTasks().setMinValue(Math.max(0, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT_MIN)));
+        int shortTasks = (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count();
+        if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT_MAX) < 0) {
+            getLiveSettings().getShortTasks().setMaxValue(shortTasks);
+        } else {
+            getLiveSettings().getShortTasks().setMaxValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT_MAX), shortTasks));
+        }
+        if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT) < 0) {
+            getLiveSettings().getShortTasks().setCurrentValue(getLiveSettings().getShortTasks().getMaxValue());
+        } else {
+            getLiveSettings().getShortTasks().setCurrentValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON), getLiveSettings().getShortTasks().getMaxValue()));
+        }
+        // long tasks
+        getLiveSettings().getLongTasks().setMinValue(Math.max(0, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG_MIN)));
+        int longTasks = (int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count();
+        if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG_MAX) < 0) {
+            getLiveSettings().getLongTasks().setMaxValue(longTasks);
+        } else {
+            getLiveSettings().getLongTasks().setMaxValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG_MAX), longTasks));
+        }
+        if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG) < 0) {
+            getLiveSettings().getLongTasks().setCurrentValue(getLiveSettings().getLongTasks().getMaxValue());
+        } else {
+            getLiveSettings().getLongTasks().setCurrentValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG), getLiveSettings().getLongTasks().getMaxValue()));
+        }
+        //
+        getLiveSettings().setVisualTasksEnabled(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED));
+        getLiveSettings().getMeetingsPerPlayer().setMinValue(Math.min(0, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_PER_PLAYER_MIN)));
+        getLiveSettings().getMeetingsPerPlayer().setMaxValue(Math.max(getLiveSettings().getMeetingsPerPlayer().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_PER_PLAYER_MAX)));
+        getLiveSettings().getMeetingsPerPlayer().setCurrentValue(Math.min(getLiveSettings().getMeetingsPerPlayer().getMaxValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_PER_PLAYER)));
+        getLiveSettings().getTalkingDuration().setMinValue(Math.min(2, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME_MIN)));
+        getLiveSettings().getTalkingDuration().setMaxValue(Math.max(getLiveSettings().getTalkingDuration().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME_MAX)));
+        getLiveSettings().getTalkingDuration().setCurrentValue(Math.min(getLiveSettings().getTalkingDuration().getMaxValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME)));
+        getLiveSettings().setVisualTasksEnabled(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED));
+        getLiveSettings().getVotingDuration().setMinValue(Math.min(2, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME_MIN)));
+        getLiveSettings().getVotingDuration().setMaxValue(Math.max(getLiveSettings().getVotingDuration().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME_MAX)));
+        getLiveSettings().getVotingDuration().setCurrentValue(Math.min(getLiveSettings().getVotingDuration().getMaxValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME)));
+
+
+        //
+        getLiveSettings().init(this);
     }
 
     private void spawnMeetingButton(World world) {
@@ -805,14 +842,14 @@ public class SteveSusArena implements Arena {
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskStarting(this), 0L, 20L).getTaskId();
         } else if (gameState == GameState.IN_GAME) {
             GameSidebarManager.hidePlayerNames(this);
-            if (getTaskMeterUpdatePolicy() != TaskMeterUpdatePolicy.NEVER) {
+            if (getLiveSettings().getTaskMeterUpdatePolicy() != TaskMeterUpdatePolicy.NEVER) {
                 createTaskMeterBar();
             }
             gameStart = Instant.now();
             for (Player player : getPlayers()) {
                 player.getInventory().clear();
                 player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                meetingsLeft.putIfAbsent(player.getUniqueId(), getMeetingsPerPlayer());
+                meetingsLeft.putIfAbsent(player.getUniqueId(), getLiveSettings().getMeetingsPerPlayer().getCurrentValue());
             }
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskPlaying(this), 0L, 20L).getTaskId();
             // assign teams
@@ -982,61 +1019,6 @@ public class SteveSusArena implements Arena {
     }
 
     @Override
-    public boolean isVisualTasksEnabled() {
-        return visualTasksEnabled;
-    }
-
-    @Override
-    public void setVisualTasksEnabled(boolean toggle) {
-        this.visualTasksEnabled = toggle;
-    }
-
-    @Override
-    public int getCommonTasks() {
-        return commonTasks;
-    }
-
-    @Override
-    public void setCommonTasks(int commonTasks) {
-        if (commonTasks < 0) return;
-        if (!(getGameState() == GameState.WAITING || getGameState() == GameState.STARTING)) return;
-        if ((int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).count() < commonTasks) {
-            return;
-        }
-        this.commonTasks = commonTasks;
-    }
-
-    @Override
-    public int getShortTasks() {
-        return shortTasks;
-    }
-
-    @Override
-    public void setShortTasks(int shortTasks) {
-        if (shortTasks < 0) return;
-        if (!(getGameState() == GameState.WAITING || getGameState() == GameState.STARTING)) return;
-        if ((int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).count() < shortTasks) {
-            return;
-        }
-        this.shortTasks = shortTasks;
-    }
-
-    @Override
-    public int getLongTasks() {
-        return longTasks;
-    }
-
-    @Override
-    public void setLongTasks(int longTasks) {
-        if (longTasks < 0) return;
-        if (!(getGameState() == GameState.WAITING || getGameState() == GameState.STARTING)) return;
-        if ((int) gameTasks.stream().filter(task -> task.getHandler().getTaskType() == TaskType.LONG).count() < longTasks) {
-            return;
-        }
-        this.longTasks = longTasks;
-    }
-
-    @Override
     public LinkedList<GameTask> getLoadedGameTasks() {
         return gameTasks;
     }
@@ -1074,8 +1056,19 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void refreshTaskMeter() {
-        if (taskMeterUpdatePolicy == TaskMeterUpdatePolicy.NEVER) return;
-        if (taskMeterUpdatePolicy == TaskMeterUpdatePolicy.MEETINGS && getMeetingStage() == MeetingStage.NO_MEETING) {
+        if (getLiveSettings().getTaskMeterUpdatePolicy() == TaskMeterUpdatePolicy.NEVER){
+            if (this.taskMeterBar != null){
+                this.taskMeterBar.removeAll();
+            }
+            return;
+        }
+        if (this.taskMeterBar == null){
+            if (getGameState() == GameState.IN_GAME) {
+                createTaskMeterBar();
+            }
+            return;
+        }
+        if (getLiveSettings().getTaskMeterUpdatePolicy() == TaskMeterUpdatePolicy.MEETINGS && getMeetingStage() == MeetingStage.NO_MEETING) {
             return;
         }
         final double[] assignedTasks = {0};
@@ -1091,27 +1084,6 @@ public class SteveSusArena implements Arena {
             }
         });
         taskMeterBar.setProgress(completedTasks[0] / assignedTasks[0]);
-    }
-
-    @Override
-    public TaskMeterUpdatePolicy getTaskMeterUpdatePolicy() {
-        return taskMeterUpdatePolicy;
-    }
-
-    @Override
-    public void setTaskMeterUpdatePolicy(TaskMeterUpdatePolicy taskMeterPolicy) {
-        if (this.taskMeterUpdatePolicy == TaskMeterUpdatePolicy.NEVER && taskMeterPolicy != TaskMeterUpdatePolicy.NEVER) {
-            if (getGameState() == GameState.IN_GAME) {
-                createTaskMeterBar();
-            }
-        }
-        if (this.taskMeterUpdatePolicy == TaskMeterUpdatePolicy.NEVER) {
-            if (this.taskMeterBar != null) {
-                this.taskMeterBar.removeAll();
-                this.taskMeterBar = null;
-            }
-        }
-        this.taskMeterUpdatePolicy = taskMeterPolicy;
     }
 
     @Override
@@ -1142,7 +1114,7 @@ public class SteveSusArena implements Arena {
             });
             getGameEndConditions().tickGameEndConditions(this);
         } else if (meetingStage == MeetingStage.TALKING) {
-            setCountdown(getMeetingTalkDuration());
+            setCountdown(getLiveSettings().getTalkingDuration().getCurrentValue());
             getPlayers().forEach(player -> {
                 player.closeInventory();
                 if (!meetingBackups.containsKey(player.getUniqueId())) {
@@ -1152,7 +1124,7 @@ public class SteveSusArena implements Arena {
                 setCantMove(player, true);
             });
         } else if (meetingStage == MeetingStage.VOTING) {
-            setCountdown(getMeetingVotingDuration());
+            setCountdown(getLiveSettings().getVotingDuration().getCurrentValue());
             getPlayers().forEach(player -> {
                 setCantMove(player, true);
                 if (!meetingBackups.containsKey(player.getUniqueId())) {
@@ -1262,41 +1234,10 @@ public class SteveSusArena implements Arena {
     }
 
     @Override
-    public int getMeetingsPerPlayer() {
-        return meetingsPerPlayer;
-    }
-
-    @Override
-    public void setMeetingsPerPlayer(int value) {
-        if (getGameState() == GameState.IN_GAME) return;
-        this.meetingsPerPlayer = value;
-    }
-
-    @Override
     public void setMeetingsLeft(Player player, int amount) {
         if (!isPlayer(player)) return;
         meetingsLeft.remove(player.getUniqueId());
         meetingsLeft.put(player.getUniqueId(), amount);
-    }
-
-    @Override
-    public void setMeetingTalkDuration(int value) {
-        this.talkingDuration = value;
-    }
-
-    @Override
-    public int getMeetingTalkDuration() {
-        return talkingDuration;
-    }
-
-    @Override
-    public void setMeetingVotingDuration(int value) {
-        this.votingDuration = value;
-    }
-
-    @Override
-    public int getMeetingVotingDuration() {
-        return votingDuration;
     }
 
     @Override
@@ -1307,16 +1248,6 @@ public class SteveSusArena implements Arena {
     @Override
     public void setCurrentVoting(@Nullable ExclusionVoting exclusionVoting) {
         this.currentExclusionVoting = exclusionVoting;
-    }
-
-    @Override
-    public boolean isAnonymousVotes() {
-        return anonymousVotes;
-    }
-
-    @Override
-    public void setAnonymousVotes(boolean toggle) {
-        this.anonymousVotes = toggle;
     }
 
     @Override
@@ -1442,7 +1373,7 @@ public class SteveSusArena implements Arena {
                     if (cmd.length > 1 && CommonManager.getINSTANCE().getCommonProvider().getMainCommand().hasAlias(cmd[0]) || CommonManager.getINSTANCE().getCommonProvider().getMainCommand().getName().equals(cmd[0])) {
                         ICommandNode killCmd = CommonManager.getINSTANCE().getCommonProvider().getMainCommand().getSubCommand(cmd[1]);
                         if (killCmd != null && killCmd.getName().equals("kill")) {
-                            killer.setCooldown(item.getType(), getKillDelay() * 20);
+                            killer.setCooldown(item.getType(), getLiveSettings().getKillCooldown().getCurrentValue() * 20);
                         }
                     }
                 }
@@ -1450,28 +1381,7 @@ public class SteveSusArena implements Arena {
         }
 
         // check game end
-        //todo enable this back
-        //getGameEndConditions().tickGameEndConditions(this);
-    }
-
-    @Override
-    public double getKillDistance() {
-        return getKillDistance;
-    }
-
-    @Override
-    public void setKillDistance(double distance) {
-        this.getKillDistance = distance;
-    }
-
-    @Override
-    public void setKillDelay(int seconds) {
-        this.killDelay = seconds;
-    }
-
-    @Override
-    public int getKillDelay() {
-        return killDelay;
+        getGameEndConditions().tickGameEndConditions(this);
     }
 
     @Override
@@ -1648,6 +1558,16 @@ public class SteveSusArena implements Arena {
         } else {
             this.teamAssigner = gameTeamAssigner;
         }
+    }
+
+    @Override
+    public @NotNull LiveSettings getLiveSettings() {
+        return liveSettings;
+    }
+
+    @Override
+    public void setLiveSettings(@NotNull LiveSettings liveSettings) {
+        this.liveSettings = liveSettings;
     }
 
     public Location getNextWaitingSpawn() {

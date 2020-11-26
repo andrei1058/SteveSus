@@ -7,15 +7,24 @@ import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleSprintEvent;
 
 public class PlayerMoveListener implements Listener {
+
+    @EventHandler(ignoreCancelled = true)
+    public void onSpring(PlayerToggleSprintEvent event){
+        if (!event.isSprinting()) return;
+        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
+        if (arena == null) return;
+        if (!arena.getLiveSettings().isSprintAllowed()){
+            event.setCancelled(true);
+        }
+    }
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -49,7 +58,7 @@ public class PlayerMoveListener implements Listener {
                     }
                 }
 
-                if (arena.getKillDistance() > 0) {
+                if (arena.getLiveSettings().getKillDistance().getCurrentValue() > 0) {
                     tickGlowingEffect(player, arena);
                 }
 
@@ -63,7 +72,7 @@ public class PlayerMoveListener implements Listener {
     private static void tickGlowingEffect(Player player, Arena arena) {
         Player currentlyGlowing = null;
         Player nearest = null;
-        double distance = arena.getKillDistance();
+        double distance = arena.getLiveSettings().getKillDistance().getCurrentValue();
         Team playerTeam = arena.getPlayerTeam(player);
 
         for (Player inGame : arena.getPlayers()) {
@@ -102,7 +111,7 @@ public class PlayerMoveListener implements Listener {
             if (currentlyGlowing.equals(nearest)){
                 return;
             }
-            if (currentlyGlowing.getLocation().distance(player.getLocation()) > arena.getKillDistance()) {
+            if (currentlyGlowing.getLocation().distance(player.getLocation()) > arena.getLiveSettings().getKillDistance().getCurrentValue()) {
                 GlowingManager.removeGlowing(currentlyGlowing, player);
             }
         }

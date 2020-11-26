@@ -351,49 +351,6 @@ public interface Arena extends DisplayableArena {
     ArenaTime getTime();
 
     /**
-     * Check if visual tasks are enabled.
-     */
-    boolean isVisualTasksEnabled();
-
-    /**
-     * Toggle visual tasks.
-     */
-    void setVisualTasksEnabled(boolean toggle);
-
-    /**
-     * Get number of common tasks.
-     */
-    int getCommonTasks();
-
-    /**
-     * Set number of common tasks.
-     * Changes allowed during waiting and starting phase.
-     */
-    void setCommonTasks(int commonTasks);
-
-    /**
-     * Get amount of short tasks.
-     */
-    int getShortTasks();
-
-    /**
-     * Set number of tasks.
-     * Changes allowed during waiting and starting phase.
-     */
-    void setShortTasks(int shortTasks);
-
-    /**
-     * Get amount of long tasks.
-     */
-    int getLongTasks();
-
-    /**
-     * Set number of tasks.
-     * Changes allowed during waiting and starting phase.
-     */
-    void setLongTasks(int longTasks);
-
-    /**
      * Get loaded game tasks.
      */
     LinkedList<GameTask> getLoadedGameTasks();
@@ -433,16 +390,6 @@ public interface Arena extends DisplayableArena {
     void refreshTaskMeter();
 
     /**
-     * Get arena task meter policy.
-     */
-    TaskMeterUpdatePolicy getTaskMeterUpdatePolicy();
-
-    /**
-     * Change task meter update policy.
-     */
-    void setTaskMeterUpdatePolicy(TaskMeterUpdatePolicy taskMeterPolicy);
-
-    /**
      * Get current meeting stage.
      */
     MeetingStage getMeetingStage();
@@ -473,41 +420,9 @@ public interface Arena extends DisplayableArena {
     MeetingButton getMeetingButton();
 
     /**
-     * Get how many meetings can a player start.
-     */
-    int getMeetingsPerPlayer();
-
-    /**
-     * Set meetings per player.
-     * Can do that only if the game didn't start already.
-     * If you want to give a player more meetings use {@link #setMeetingsLeft(Player, int)}.
-     */
-    void setMeetingsPerPlayer(int value);
-
-    /**
      * Set how many meetings can a player start.
      */
     void setMeetingsLeft(Player player, int amount);
-
-    /**
-     * How long meeting talk takes.
-     */
-    void setMeetingTalkDuration(int value);
-
-    /**
-     * How long meeting talk takes.
-     */
-    int getMeetingTalkDuration();
-
-    /**
-     * How long voting takes.
-     */
-    void setMeetingVotingDuration(int value);
-
-    /**
-     * How long voting takes.
-     */
-    int getMeetingVotingDuration();
 
     /**
      * Get current voting data.
@@ -520,16 +435,6 @@ public interface Arena extends DisplayableArena {
      * Usually set to null when meeting ended.
      */
     void setCurrentVoting(@Nullable ExclusionVoting exclusionVoting);
-
-    /**
-     * Check if votes are confidential.
-     */
-    boolean isAnonymousVotes();
-
-    /**
-     * Set if votes are confidential.
-     */
-    void setAnonymousVotes(boolean toggle);
 
     /**
      * @return true when there is an emergency and players shouldn't be allowed to do tasks.
@@ -601,26 +506,6 @@ public interface Arena extends DisplayableArena {
      * Kill a player.
      */
     void killPlayer(@NotNull Player killer, @NotNull Player victim);
-
-    /**
-     * Get kill distance.
-     */
-    double getKillDistance();
-
-    /**
-     * Change kill distance.
-     */
-    void setKillDistance(double distance);
-
-    /**
-     * Set kill delay.
-     */
-    void setKillDelay(int seconds);
-
-    /**
-     * Get kill delay.
-     */
-    int getKillDelay();
 
     /**
      * Add an active sabotage to the arena.
@@ -735,4 +620,9 @@ public interface Arena extends DisplayableArena {
      * Null to use default.
      */
     void setGameTeamAssigner(@Nullable GameTeamAssigner gameTeamAssigner);
+
+    @NotNull
+    LiveSettings getLiveSettings();
+
+    void setLiveSettings(@NotNull LiveSettings liveSettings);
 }

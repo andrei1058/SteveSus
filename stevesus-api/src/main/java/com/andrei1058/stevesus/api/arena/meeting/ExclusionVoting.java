@@ -30,7 +30,7 @@ public class ExclusionVoting {
             votes.put(voter, null);
             GameSound.VOTE_SOUND.playToPlayers(arena.getPlayers());
             GameSound.VOTE_SOUND.playToPlayers(arena.getSpectators());
-            if (arena.isAnonymousVotes()) {
+            if (arena.getLiveSettings().isAnonymousVotes()) {
                 arena.getPlayers().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_ANONYMOUS).replace("{player}", voter.getDisplayName())));
                 arena.getSpectators().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_ANONYMOUS).replace("{player}", voter.getDisplayName())));
             } else {
@@ -46,7 +46,7 @@ public class ExclusionVoting {
         if (!voted.isOnline()) return false;
         if (!arena.isPlayer(voted)) return false;
         votes.put(voter, voted);
-        if (arena.isAnonymousVotes()) {
+        if (arena.getLiveSettings().isAnonymousVotes()) {
             arena.getPlayers().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_ANONYMOUS).replace("{player}", voter.getDisplayName())));
             arena.getSpectators().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_ANONYMOUS).replace("{player}", voter.getDisplayName())));
         } else {
@@ -113,15 +113,15 @@ public class ExclusionVoting {
             }
         }
         // check if draw
-        boolean draw = false;
+        boolean tie = false;
         if (mostVotes > 0 && skip <= mostVotes) {
             if (skip == mostVotes) {
-                draw = true;
+                tie = true;
             } else {
                 int finalMostVotes = mostVotes;
                 int times = (int) results.values().stream().filter(value -> value == finalMostVotes).count();
                 if (times > 1) {
-                    draw = true;
+                    tie = true;
                 }
             }
         }
@@ -141,12 +141,12 @@ public class ExclusionVoting {
                         messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_VOTED_SKIP).replace("{amount}", String.valueOf(skip))));
                     }
                 } else if (string.contains("{exclusion}")) {
-                    if (draw) {
+                    if (tie) {
                         messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_TIE)));
                     } else if (votedOff == null) {
                         messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP)));
                     } else {
-                        if (arena.isAnonymousVotes()) {
+                        if (!arena.getLiveSettings().isConfirmEjects()) {
                             if (player.equals(votedOff)) {
                                 messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_EJECTED_SELF).replace("{player}", votedOff.getDisplayName())));
                             } else {
@@ -166,11 +166,12 @@ public class ExclusionVoting {
                     messages.add(ChatUtil.centerMessage(string));
                 }
             }
-            if (draw) {
+            if (tie) {
+                votedOff = null;
                 player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_TIE), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_TIE), 8, 70, 8);
             } else if (votedOff == null) {
                 player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SKIPPED), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SKIPPED), 8, 70, 8);
-            } else if (arena.isAnonymousVotes()) {
+            } else if (!arena.getLiveSettings().isConfirmEjects()) {
                 if (player.equals(votedOff)) {
                     player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SELF).replace("{player}", votedOff.getDisplayName()), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SELF).replace("{player}", votedOff.getDisplayName()), 8, 70, 8);
                 } else {
@@ -193,7 +194,7 @@ public class ExclusionVoting {
             GameSound.VOTE_EJECT_NONE.playToPlayers(arena.getPlayers());
             GameSound.VOTE_EJECT_NONE.playToPlayers(arena.getSpectators());
         } else {
-            if (arena.isAnonymousVotes()) {
+            if (!arena.getLiveSettings().isConfirmEjects()) {
                 GameSound.VOTE_EJECT_ANONYMOUS.playToPlayers(arena.getPlayers());
                 GameSound.VOTE_EJECT_ANONYMOUS.playToPlayers(arena.getSpectators());
             } else if (playerTeam.isInnocent()) {

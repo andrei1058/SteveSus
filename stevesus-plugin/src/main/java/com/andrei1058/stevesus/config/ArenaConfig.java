@@ -84,24 +84,61 @@ public class ArenaConfig implements SettingsHolder {
     })
     public static final StringListProperty SABOTAGES = new StringListProperty("sabotages", Collections.emptyList());
 
-    @Comment("Amount of common tasks.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON = new IntegerProperty("default-game-option.common-task-amount", 1);
+    @Comment("Amount of common tasks by default. -1 for all available.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON = new IntegerProperty("live-settings.common-task.default", 1);
+    @Comment("Min amount of common tasks.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON_MIN = new IntegerProperty("live-settings.common-task.min", 1);
+    @Comment("Max amount of common tasks. -1 for max available.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON_MAX = new IntegerProperty("live-settings.common-task.max", -1);
+
     @Comment("Amount of short tasks.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT = new IntegerProperty("default-game-option.short-task-amount", 2);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT = new IntegerProperty("live-settings.short-task.default", 1);
+    @Comment("Min amount of short tasks. -1 for all available.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT_MIN = new IntegerProperty("live-settings.short-task.min", 2);
+    @Comment("Max amount of short tasks. -1 for max available.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT_MAX = new IntegerProperty("live-settings.short-task.max", -1);
+
     @Comment("Amount of long tasks.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_LONG = new IntegerProperty("default-game-option.long-task-amount", 2);
-    @Comment("Should visual effects be enabled for visual tasks?")
-    public static final BooleanProperty DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED = new BooleanProperty("default-game-option.enable-visual-tasks", true);
-    @Comment("Cooldown before using emergency button again after a meeting. In seconds.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN = new IntegerProperty("default-game-option.meeting-button-cooldown", 15);
-    @Comment("How many meetings can a player start.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_PER_PLAYER = new IntegerProperty("default-game-option.meetings-per-player", 2);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_LONG = new IntegerProperty("live-settings.long-task.default", 2);
+    @Comment("Min amount of long tasks. -1 for all available.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_LONG_MIN = new IntegerProperty("live-settings.long-task.min", 0);
+    @Comment("Max amount of long tasks. -1 for all available.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_LONG_MAX = new IntegerProperty("live-settings.long-task.max", -1);
+
+    @Comment("How many meetings can a player start by default.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_PER_PLAYER = new IntegerProperty("live-settings.meetings-per-player.default", 2);
+    @Comment("Min meetings a player can start.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_PER_PLAYER_MIN = new IntegerProperty("live-settings.meetings-per-player.min", 0);
+    @Comment("Max meetings a player can start.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_PER_PLAYER_MAX = new IntegerProperty("live-settings.meetings-per-player.max", 10);
+
+
     @Comment("Talking time.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_TALK_TIME = new IntegerProperty("default-game-option.meeting-talk-timer", 45);
-    @Comment("Voting time.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_VOTE_TIME = new IntegerProperty("default-game-option.meeting-voting-timer", 25);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_TALK_TIME = new IntegerProperty("live-settings.meeting-talk-timer.default", 45);
+    @Comment("Min Talking time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_TALK_TIME_MIN = new IntegerProperty("live-settings.meeting-talk-timer.min", 5);
+    @Comment("Max Talking time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_TALK_TIME_MAX = new IntegerProperty("live-settings.meeting-talk-timer.max", 180);
+
+    @Comment("Default voting time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_VOTE_TIME = new IntegerProperty("live-settings.meeting-voting-timer.default", 25);
+    @Comment("Min voting time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_VOTE_TIME_MIN = new IntegerProperty("live-settings.meeting-voting-timer.min", 2);
+    @Comment("Max voting time.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_VOTE_TIME_MAX = new IntegerProperty("live-settings.meeting-voting-timer.max", 180);
+
+    @Comment("Should visual effects be enabled for visual tasks?")
+    public static final BooleanProperty DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED = new BooleanProperty("live-settings.enable-visual-tasks", true);
+
+    @Comment("Cooldown before using emergency button again after a meeting. In seconds.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN = new IntegerProperty("live-settings.meeting-button-cooldown.default", 15);
+    @Comment("Min cooldown before using emergency button again after a meeting. In seconds.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN_MIN = new IntegerProperty("live-settings.meeting-button-cooldown.min", 5);
+    @Comment("Max cooldown before using emergency button again after a meeting. In seconds.")
+    public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN_MAX = new IntegerProperty("live-settings.meeting-button-cooldown.max", 160);
+
     @Comment("Ignore color limit? If players amount is greater than color limit some players will have the same color.")
-    public static final BooleanProperty DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT = new BooleanProperty("default-game-option.ignore-color-limit", true);
+    public static final BooleanProperty DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT = new BooleanProperty("ignore-color-limit", true);
 
     @Comment({
             " ",

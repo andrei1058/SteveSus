@@ -169,7 +169,7 @@ public class SubmitScanTask extends GameTask {
                     }
                 }
                 player.playSound(scanCapsuleLocation, Sound.BLOCK_NOTE_BASS, (float) 1, (float) currentPitch[0]);
-                if (arena.isVisualTasksEnabled() && getHandler().isVisual()) {
+                if (arena.getLiveSettings().isVisualTasksEnabled() && getHandler().isVisual()) {
                     scanParticles.forEach(loc -> loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, currentY[0], 0), 1));
                 } else {
                     scanParticles.forEach(loc -> player.spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, currentY[0], 0), 1));
@@ -212,7 +212,7 @@ public class SubmitScanTask extends GameTask {
                 // check location
                 if (!startScan(player, arena)) {
                     player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, SubmitScanProvider.MSG_CANNOT_SCAN), 0, 35, 0);
-                    if (getHandler().isVisual() && arena.isVisualTasksEnabled()) {
+                    if (getHandler().isVisual() && arena.getLiveSettings().isVisualTasksEnabled()) {
                         player.playEffect(EntityEffect.VILLAGER_ANGRY);
                     }
                 }

@@ -81,7 +81,7 @@ public class CommandItemsManager {
             if (sabotageBase == null) {
                 if (tag.equals("kill")) {
                     Player nearest = null;
-                    double distance = arena.getKillDistance();
+                    double distance = arena.getLiveSettings().getKillDistance().getCurrentValue();
                     Team playerTeam = arena.getPlayerTeam(player);
                     for (Player inGame : arena.getPlayers()) {
                         if (player.equals(inGame)) continue;

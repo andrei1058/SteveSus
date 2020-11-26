@@ -35,11 +35,11 @@ public class GameTaskAssigner {
         // assign common tasks
         if (commonTasks.isEmpty()) {
             // eventually chose common tasks
-            if (arena.getCommonTasks() != 0) {
+            if (arena.getLiveSettings().getCommonTasks().getCurrentValue() != 0) {
                 List<GameTask> tasks = arena.getLoadedGameTasks().stream()
                         .distinct() // prevent overflow in do while
                         .filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).collect(Collectors.toList());
-                int maxEntry = Math.min(arena.getCommonTasks(), tasks.size());
+                int maxEntry = Math.min(arena.getLiveSettings().getCommonTasks().getCurrentValue(), tasks.size());
                 for (int i = 0; i < maxEntry; i++) {
                     int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size() - 1);
                     GameTask chosenTask = tasks.remove(entry);
@@ -52,11 +52,11 @@ public class GameTaskAssigner {
         }
 
         // assign short tasks
-        if (arena.getShortTasks() != 0) {
+        if (arena.getLiveSettings().getShortTasks().getCurrentValue() != 0) {
             List<GameTask> tasks = arena.getLoadedGameTasks().stream()
                     .distinct() // prevent overflow in do while
                     .filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).collect(Collectors.toList());
-            int maxEntry = Math.min(arena.getShortTasks(), tasks.size());
+            int maxEntry = Math.min(arena.getLiveSettings().getShortTasks().getCurrentValue(), tasks.size());
             for (int i = 0; i < maxEntry; i++) {
                 int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size() - 1);
                 GameTask chosenTask = tasks.remove(entry);
@@ -65,11 +65,11 @@ public class GameTaskAssigner {
         }
 
         // assign long tasks
-        if (arena.getLongTasks() != 0) {
+        if (arena.getLiveSettings().getLongTasks().getCurrentValue() != 0) {
             List<GameTask> tasks = arena.getLoadedGameTasks().stream()
                     .distinct() // prevent overflow in do while
                     .filter(task -> task.getHandler().getTaskType() == TaskType.LONG).collect(Collectors.toList());
-            int maxEntry = Math.min(arena.getLongTasks(), tasks.size());
+            int maxEntry = Math.min(arena.getLiveSettings().getLongTasks().getCurrentValue(), tasks.size());
             for (int i = 0; i < maxEntry; i++) {
                 int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size() - 1);
                 GameTask chosenTask = tasks.remove(entry);

@@ -169,7 +169,7 @@ public class ExclusionGUI extends BaseGUI {
                 if (arena.getMeetingButton().isLastRequester(target)) {
                     result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_REQUESTER)).append("\n");
                 }
-                if (arena.getCurrentVoting() != null && !arena.isAnonymousVotes()) {
+                if (arena.getCurrentVoting() != null && !arena.getLiveSettings().isAnonymousVotes()) {
                     Set<Player> votes = arena.getCurrentVoting().getVotes(target);
                     if (!votes.isEmpty()) {
                         result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_VOTERS)).append("\n");
