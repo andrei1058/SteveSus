@@ -142,7 +142,7 @@ public class ExclusionVoting {
                     }
                 } else if (string.contains("{exclusion}")) {
                     if (draw) {
-                        messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_DRAW)));
+                        messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_TIE)));
                     } else if (votedOff == null) {
                         messages.add(ChatUtil.centerMessage(lang.getMsg(player, Message.EXCLUSION_RESULT_FORMAT_EXCLUSION_SKIP)));
                     } else {
@@ -167,7 +167,7 @@ public class ExclusionVoting {
                 }
             }
             if (draw) {
-                player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_DRAW), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_DRAW), 8, 70, 8);
+                player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_TIE), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_TIE), 8, 70, 8);
             } else if (votedOff == null) {
                 player.sendTitle(lang.getMsg(player, Message.EXCLUSION_RESULT_TITLE_SKIPPED), lang.getMsg(player, Message.EXCLUSION_RESULT_SUBTITLE_SKIPPED), 8, 70, 8);
             } else if (arena.isAnonymousVotes()) {
