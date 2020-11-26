@@ -874,6 +874,7 @@ public class SteveSusArena implements Arena {
             if (getMeetingButton() != null) {
                 getMeetingButton().onGameStart();
                 getMeetingButton().refreshLines(this);
+                getMeetingButton().setLastUsage(System.currentTimeMillis());
             }
             //addActiveSabotage(new OxygenSabotage(this, 60));
         } else if (gameState == GameState.ENDING) {
