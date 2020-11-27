@@ -125,6 +125,11 @@ public class ExclusionVoting {
                 }
             }
         }
+        // skip
+        if (skip > mostVotes){
+            votedOff = null;
+            playerTeam = null;
+        }
 
         Team finalPlayerTeam = playerTeam;
         for (Player player : arena.getPlayers()) {
@@ -222,7 +227,7 @@ public class ExclusionVoting {
 
     /**
      * If most voted has left will skip.
-     * Draw is handled at {@link #performExclusion(Arena, Team)}.
+     * Tie is handled at {@link #performExclusion(Arena, Team)}.
      *
      * @return null if skip is the most voted.
      */
