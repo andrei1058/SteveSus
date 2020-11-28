@@ -8,9 +8,13 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.sabotage.*;
+import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.event.GameSabotageActivateEvent;
+import com.andrei1058.stevesus.api.event.GameSabotageDeactivateEvent;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.language.LanguageManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -66,6 +70,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             this.deadLineSeconds = warning.getOriginalSeconds();
             getArena().getPlayers().forEach(player -> player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, OxygenSabotageProvider.FIXED_SUBTITLE), 0, 40, 0));
             arena.tryEnableTaskIndicators();
+            Bukkit.getPluginManager().callEvent(new GameSabotageDeactivateEvent(getArena(), this, false));
         } else {
             warning.setBarName(LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, OxygenSabotageProvider.NAME_PATH).replace("{fixed}", String.valueOf(fixed)).replace("{total}", String.valueOf(monitors.size())));
         }
@@ -79,6 +84,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             monitor.onErrorFix(true);
         }
         arena.tryEnableTaskIndicators();
+        Bukkit.getPluginManager().callEvent(new GameSabotageDeactivateEvent(getArena(), this, true));
     }
 
     @Override
@@ -91,6 +97,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         }
         arena.interruptTasks();
         arena.disableTaskIndicators();
+        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this));
     }
 
     @Override
@@ -225,6 +232,8 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
 
         private void tryOpen(Player player, Entity entity) {
             if (!isActive()) return;
+            Team playerTeam = arena.getPlayerTeam(player);
+            if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) return;
             if (entity instanceof ArmorStand) {
                 for (OxygenMonitor monitor : monitors) {
                     if (entity.equals(monitor.armorStand) && !monitor.isFixed()) {

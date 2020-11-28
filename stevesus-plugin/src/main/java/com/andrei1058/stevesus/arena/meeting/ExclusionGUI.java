@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ExclusionGUI extends BaseGUI {
 
@@ -68,10 +69,16 @@ public class ExclusionGUI extends BaseGUI {
         Player targetPlayer = null;
         PlayerColorAssigner.PlayerColor playerColor = null;
 
+        List<Player> filteredPlayers = arena.getPlayers().stream().filter(pl -> {
+            Team team = arena.getPlayerTeam(pl);
+            if (team == null) return false;
+            return team.canBeVoted();
+        }).collect(Collectors.toList());
+
         // if current item should point to a player
         if (yml.getBoolean(path + "." + replacementString + ".vote")) {
-            if (arena.getPlayers().size() > currentPlayer) {
-                targetPlayer = arena.getPlayers().get(currentPlayer);
+            if (filteredPlayers.size() > currentPlayer) {
+                targetPlayer = filteredPlayers.get(currentPlayer);
                 if (arena.getPlayerColorAssigner() != null) {
                     playerColor = arena.getPlayerColorAssigner().getPlayerColor(targetPlayer);
                 }

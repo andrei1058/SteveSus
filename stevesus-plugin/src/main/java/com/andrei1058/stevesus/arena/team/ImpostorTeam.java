@@ -7,6 +7,7 @@ import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
+import com.andrei1058.stevesus.arena.ability.kill.KillListener;
 import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -51,7 +52,7 @@ public class ImpostorTeam implements Team {
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
         CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_IMPOSTOR);
         GameSound.GAME_START_IMPOSTOR.playToPlayer(player);
-
+        KillListener.updateKillItem(getArena(), player, getArena().getLiveSettings().getKillCooldown().getMinValue());
         Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
         player.sendTitle(lang.getMsg(player, Message.GAME_START_IMPOSTOR_TITLE), lang.getMsg(player, Message.GAME_START_IMPOSTOR_SUBTITLE), 10, 30, 10);
         for (String string : lang.getMsgList(player, Message.GAME_START_IMPOSTOR_CHAT)) {
@@ -62,7 +63,7 @@ public class ImpostorTeam implements Team {
     }
 
     @Override
-    public void removePlayer(Player player, boolean abandon) {
+    public void removePlayer(Player player) {
         members.remove(player);
     }
 
@@ -119,6 +120,11 @@ public class ImpostorTeam implements Team {
     @Override
     public boolean isInnocent() {
         return false;
+    }
+
+    @Override
+    public boolean canBeVoted() {
+        return true;
     }
 
     public int getTeamSize() {

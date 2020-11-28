@@ -3,7 +3,6 @@ package com.andrei1058.stevesus.api.arena.vent;
 import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
-import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -16,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.Openable;
@@ -57,13 +55,14 @@ public class VentHandler {
      * @return true if vented successfully.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public boolean startVenting(@NotNull Player player, Plugin plugin) {
-        if (arena.getGameState() != GameState.IN_GAME) return false;
-        if (isVenting(player)) return false;
+    public Vent startVenting(@NotNull Player player, Plugin plugin) {
+        if (arena.getGameState() != GameState.IN_GAME) return null;
+        if (isVenting(player)) return null;
         Vent vent = getVent(player.getLocation().getBlock());
-        if (vent == null) return false;
+        if (vent == null) return null;
         Team team = arena.getPlayerTeam(player);
-        if (team.isInnocent()) return false;
+        if (team == null) return null;
+        if (team.isInnocent()) return null;
 
         if (vent.getBlock().getState().getData() instanceof Openable) {
             BlockState state = vent.getBlock().getState();
@@ -94,7 +93,11 @@ public class VentHandler {
         player.sendTitle(" ", SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.VENT_ENTER_SUBTITLE), 0, 30, 0);
 
         currentlyVenting.put(player.getUniqueId(), inventoryBackup);
-        return true;
+        if (arena.getSabotageCooldown() != null){
+            arena.getSabotageCooldown().tryPause();
+        }
+        //todo re-apply kill cooldown
+        return vent;
     }
 
     private void sendItems(Player player, Vent currentVent) {
@@ -112,10 +115,11 @@ public class VentHandler {
         }
     }
 
-    public void unVent(@NotNull Player player, Plugin plugin) {
-        if (!isVenting(player)) return;
+    @Nullable
+    public Vent unVent(@NotNull Player player, Plugin plugin) {
+        if (!isVenting(player)) return null;
         Vent vent = getVent(player.getLocation().getBlock());
-        if (vent == null) return;
+        if (vent == null) return null;
 
         if (vent.getBlock().getState().getData() instanceof Openable) {
             BlockState state = vent.getBlock().getState();
@@ -148,19 +152,25 @@ public class VentHandler {
         player.removePotionEffect(PotionEffectType.INVISIBILITY);
         arena.setCantMove(player, false);
         currentlyVenting.remove(player.getUniqueId()).restore(player);
+        if (arena.getSabotageCooldown() != null){
+            arena.getSabotageCooldown().tryUnPause();
+            arena.getSabotageCooldown().updateCooldownOnItems(player, player.getInventory());
+        }
+        return vent;
     }
 
     /**
      * If the given player is venting, move to next vent.
      */
-    public void switchVent(Player player, String nextVent) {
-        if (!isVenting(player)) return;
+    public Vent switchVent(Player player, String nextVent) {
+        if (!isVenting(player)) return null;
         Vent vent = getVent(nextVent);
-        if (vent == null) return;
+        if (vent == null) return null;
         player.teleport(vent.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.sendTitle(" ", SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.VENT_ENTER_SUBTITLE), 0, 30, 0);
         sendItems(player, vent);
         // todo play sound
+        return vent;
     }
 
     /**
@@ -177,6 +187,10 @@ public class VentHandler {
             if (inventoryBackup != null){
                 inventoryBackup.restore(player);
             }
+        }
+        if (arena.getSabotageCooldown() != null){
+            arena.getSabotageCooldown().tryUnPause();
+            arena.getSabotageCooldown().updateCooldownOnItems(player, player.getInventory());
         }
     }
 

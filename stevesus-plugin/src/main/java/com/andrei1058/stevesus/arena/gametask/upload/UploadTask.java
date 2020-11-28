@@ -255,6 +255,7 @@ public class UploadTask extends GameTask {
     }
 
     private void tryOpenGUI(Player player, Entity entity, Arena arena) {
+        if (!arena.isTasksAllowedATM()) return;
         if (hasTask(player)) {
             // should prevent called twice
             if (currentlyDoing.containsKey(player.getUniqueId())) return;

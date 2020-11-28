@@ -5,13 +5,14 @@ import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
-import com.andrei1058.stevesus.api.arena.task.TaskMeterUpdatePolicy;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.arena.vent.VentHandler;
 import com.andrei1058.stevesus.api.locale.Locale;
+import com.andrei1058.stevesus.api.server.PlayerCoolDown;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.arena.GameState;
@@ -437,11 +438,6 @@ public interface Arena extends DisplayableArena {
     void setCurrentVoting(@Nullable ExclusionVoting exclusionVoting);
 
     /**
-     * @return true when there is an emergency and players shouldn't be allowed to do tasks.
-     */
-    boolean isEmergency();
-
-    /**
      * When set to true will disable things like tasks effects and player ability to do tasks.
      */
     void setEmergency(boolean toggle);
@@ -625,4 +621,14 @@ public interface Arena extends DisplayableArena {
     LiveSettings getLiveSettings();
 
     void setLiveSettings(@NotNull LiveSettings liveSettings);
+
+    /**
+     * Sabotages cool down util.
+     */
+    @Nullable
+    SabotageCooldown getSabotageCooldown();
+
+    void setSabotageCooldown(@Nullable SabotageCooldown sabotageCooldown);
+
+    int getActiveSabotages();
 }

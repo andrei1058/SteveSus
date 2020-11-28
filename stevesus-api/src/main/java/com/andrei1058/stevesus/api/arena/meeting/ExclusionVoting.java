@@ -58,7 +58,7 @@ public class ExclusionVoting {
         // short time if all voted
         if (arena.getPlayers().stream().allMatch(inGame -> {
             Team playerTeam = arena.getPlayerTeam(inGame);
-            if (playerTeam == null) {
+            if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) {
                 return true;
             }
             return !playerTeam.canVote() || playerTeam.canVote() && hasVoted(inGame);
@@ -126,7 +126,7 @@ public class ExclusionVoting {
             }
         }
         // skip
-        if (skip > mostVotes){
+        if (skip > mostVotes) {
             votedOff = null;
             playerTeam = null;
         }
@@ -209,7 +209,7 @@ public class ExclusionVoting {
                 GameSound.VOTE_EJECT_IMPOSTOR.playToPlayers(arena.getPlayers());
                 GameSound.VOTE_EJECT_IMPOSTOR.playToPlayers(arena.getSpectators());
             }
-            playerTeam.removePlayer(votedOff, false);
+            playerTeam.removePlayer(votedOff);
             String playerTeamIdentifier = playerTeam.getIdentifier();
             if (excludeToThisTeam == null) {
                 Team ghostTeam = arena.getGameTeams().stream().filter(team -> team.getIdentifier().equals(playerTeamIdentifier + "-ghost")).findFirst().orElse(null);

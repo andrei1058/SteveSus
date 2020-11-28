@@ -8,7 +8,6 @@ import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +47,7 @@ public class CrewTeam implements Team {
     }
 
     @Override
-    public void removePlayer(Player player, boolean abandon) {
+    public void removePlayer(Player player) {
         members.remove(player);
     }
 
@@ -104,6 +103,11 @@ public class CrewTeam implements Team {
 
     @Override
     public boolean isInnocent() {
+        return true;
+    }
+
+    @Override
+    public boolean canBeVoted() {
         return true;
     }
 }

@@ -39,6 +39,11 @@ public class ArenaTaskPlaying implements Runnable {
                 Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(playerLang.getMsg(player, Message.IN_GAME_ACTION_BAR).replace("{player}", player.getDisplayName()).replace("{room}", (room == null ? playerLang.getMsg(null, Message.GAME_ROOM_NO_NAME) : room.getDisplayName(playerLang)))));
             }
+            if (getArena().getSabotageCooldown() != null){
+                if (getArena().getSabotageCooldown().isPaused()){
+                    getArena().getSabotageCooldown().updateCooldownOnItems();
+                }
+            }
         } else {
             if (getArena().getMeetingButton() != null) {
                 getArena().getMeetingButton().refreshLines(getArena());

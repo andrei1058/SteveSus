@@ -126,3 +126,6 @@ Just copy "game-task-scoreboard-format" and add -templateName to its path.
 
 ## 3rd party dependencies
 - spigot-maps by JohnnyJayJay
+
+## When creating a custom sabotage
+You really need to call GameSabotageDeactivateEvent when it's done.

@@ -31,16 +31,14 @@ public class MeetingButton {
     private final Location buttonLocation;
     private final Hologram buttonHologram;
     private long lastUsage;
-    private int coolDown;
     private List<Location> particleLocations;
     private int currentEntry = -1;
     private UUID lastRequester;
 
-    public MeetingButton(Plugin plugin, Location location, Arena arena, int coolDown) {
+    public MeetingButton(Plugin plugin, Location location, Arena arena) {
         this.buttonLocation = location;
         this.buttonLocation.setX(location.getBlockX() + 0.5);
         this.buttonLocation.setZ(location.getBlockZ() + 0.5);
-        this.coolDown = coolDown * 1000;
         ArmorStand buttonKeeper = location.getWorld().spawn(location.clone().subtract(0, 1.5, 0), ArmorStand.class);
         buttonKeeper.setRemoveWhenFarAway(false);
         buttonKeeper.setVisible(false);
@@ -80,7 +78,7 @@ public class MeetingButton {
         }
     }
 
-    public void onGameStart(){
+    public void onGameStart() {
         buttonHologram.show();
     }
 
@@ -97,8 +95,8 @@ public class MeetingButton {
         }
         // check cool down
         if (lastUsage != 0) {
-            if (System.currentTimeMillis() - lastUsage < coolDown) {
-                int seconds = (int) ((coolDown - (System.currentTimeMillis() - lastUsage)) / 1000);
+            if (System.currentTimeMillis() - lastUsage < arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() * 1000) {
+                int seconds = (int) ((arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() - (System.currentTimeMillis() - lastUsage)) / 1000);
                 player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EMERGENCY_DENIED_COOL_DOWN).replace("{time}", String.valueOf(seconds + 1)));
                 return;
             }
@@ -115,13 +113,6 @@ public class MeetingButton {
             return;
         }
         lastUsage = System.currentTimeMillis();
-    }
-
-    /**
-     * Set button cool down.
-     */
-    public void setCoolDown(int coolDown) {
-        this.coolDown = coolDown * 1000;
     }
 
     public void setLastUsage(long lastUsage) {

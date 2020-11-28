@@ -11,6 +11,7 @@ import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.room.CuboidRegion;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
 import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
@@ -135,6 +136,7 @@ public class SteveSusArena implements Arena {
     private VentHandler ventHandler;
     private final HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
     private LiveSettings liveSettings = new LiveSettings();
+    private SabotageCooldown sabotageCooldown;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -188,9 +190,12 @@ public class SteveSusArena implements Arena {
         meetingLocations.forEach(location -> location.setWorld(this.world));
 
         teams.add(new CrewTeam(this));
-        teams.add(new ImpostorTeam(this, 1));
+        Team impostors = new ImpostorTeam(this, 1);
+        teams.add(impostors);
         teams.add(new GhostCrewTeam(this));
-        teams.add(new GhostImpostorTeam(this));
+        Team ghostImpostors = new GhostImpostorTeam(this);
+        teams.add(ghostImpostors);
+        sabotageCooldown = new SabotageCooldown(impostors, ghostImpostors, 60);
 
         if (getTime() != null) {
             world.setTime(getTime().getStartTick());
@@ -257,11 +262,22 @@ public class SteveSusArena implements Arena {
         getLiveSettings().getTalkingDuration().setMaxValue(Math.max(getLiveSettings().getTalkingDuration().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME_MAX)));
         getLiveSettings().getTalkingDuration().setCurrentValue(Math.min(getLiveSettings().getTalkingDuration().getMaxValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_TALK_TIME)));
         getLiveSettings().setVisualTasksEnabled(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_VISUAL_ENABLED));
+
         getLiveSettings().getVotingDuration().setMinValue(Math.min(2, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME_MIN)));
         getLiveSettings().getVotingDuration().setMaxValue(Math.max(getLiveSettings().getVotingDuration().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME_MAX)));
         getLiveSettings().getVotingDuration().setCurrentValue(Math.min(getLiveSettings().getVotingDuration().getMaxValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_VOTE_TIME)));
 
+        getLiveSettings().getEmergencyCoolDown().setMinValue(Math.min(5, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_COOL_DOWN_MIN)));
+        getLiveSettings().getEmergencyCoolDown().setCurrentValue(Math.max(getLiveSettings().getEmergencyCoolDown().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_COOL_DOWN)));
+        getLiveSettings().getEmergencyCoolDown().setMaxValue(Math.max(getLiveSettings().getEmergencyCoolDown().getMinValue(), config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_COOL_DOWN_MAX)));
 
+        getLiveSettings().getSabotageCooldown().setMinValue(Math.min(5, config.getProperty(ArenaConfig.LIVE_OPTION_SABOTAGE_COOL_DOWN_MIN)));
+        getLiveSettings().getSabotageCooldown().setCurrentValue(Math.max(getLiveSettings().getSabotageCooldown().getMinValue(), config.getProperty(ArenaConfig.LIVE_OPTION_SABOTAGE_COOL_DOWN_DEFAULT)));
+        getLiveSettings().getSabotageCooldown().setMaxValue(Math.max(getLiveSettings().getSabotageCooldown().getMinValue(), config.getProperty(ArenaConfig.LIVE_OPTION_SABOTAGE_COOL_DOWN_MAX)));
+
+        getLiveSettings().getKillCooldown().setMinValue(Math.min(2, config.getProperty(ArenaConfig.LIVE_OPTION_KILL_COOL_DOWN_MIN)));
+        getLiveSettings().getKillCooldown().setCurrentValue(Math.max(getLiveSettings().getKillCooldown().getMinValue(), config.getProperty(ArenaConfig.LIVE_OPTION_KILL_COOL_DOWN_DEFAULT)));
+        getLiveSettings().getKillCooldown().setMaxValue(Math.max(getLiveSettings().getKillCooldown().getCurrentValue(), config.getProperty(ArenaConfig.LIVE_OPTION_KILL_COOL_DOWN_MAX)));
         //
         getLiveSettings().init(this);
     }
@@ -270,7 +286,7 @@ public class SteveSusArena implements Arena {
         Location location = config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).orElse(null);
         if (location != null) {
             location.setWorld(world);
-            meetingButton = new MeetingButton(SteveSus.getInstance(), location, this, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_MEETING_COOL_DOWN));
+            meetingButton = new MeetingButton(SteveSus.getInstance(), location, this);
         }
     }
 
@@ -501,6 +517,7 @@ public class SteveSusArena implements Arena {
             SteveSus.newChain().delay(17).sync(() -> {
                 GameSound.JOIN_SOUND_SELF.playToPlayer(player);
                 for (Player onServer : Bukkit.getOnlinePlayers()) {
+                    if (onServer.equals(player)) continue;
                     if (isPlayer(onServer)) {
                         onServer.showPlayer(SteveSus.getInstance(), player);
                         player.showPlayer(SteveSus.getInstance(), onServer);
@@ -546,6 +563,11 @@ public class SteveSusArena implements Arena {
 
         if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
             InventoryBackup.createInventoryBackup(player);
+        }
+
+        Team team = getPlayerTeam(player);
+        if (team != null){
+            team.removePlayer(player);
         }
 
         if (target != null) {
@@ -600,6 +622,11 @@ public class SteveSusArena implements Arena {
         PlayerCoolDown.clearPlayerData(player);
         // clear glowing
         getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
+
+        Team team = getPlayerTeam(player);
+        if (team != null){
+            team.removePlayer(player);
+        }
 
         // call event
         PlayerToSpectatorEvent playerToSpectatorEvent = new PlayerToSpectatorEvent(this, player);
@@ -691,6 +718,7 @@ public class SteveSusArena implements Arena {
                 InventoryBackup.restoreInventory(player);
                 SteveSus.newChain().sync(() -> {
                     for (Player inLobby : player.getWorld().getPlayers()) {
+                        if (inLobby.equals(player)) continue;
                         if (!ArenaManager.getINSTANCE().isInArena(inLobby)) {
                             inLobby.showPlayer(SteveSus.getInstance(), player);
                             player.showPlayer(SteveSus.getInstance(), inLobby);
@@ -728,6 +756,13 @@ public class SteveSusArena implements Arena {
             GameSound.LEAVE_SOUND_CURRENT.playToPlayers(getPlayers());
         }
 
+        PreventionManager.getInstance().hasAbandoned(this, player);
+
+        Team team = getPlayerTeam(player);
+        if (team != null){
+            team.removePlayer(player);
+        }
+
         // if in game status, will check if it is the case to end this game
         getGameEndConditions().tickGameEndConditions(this);
 
@@ -754,7 +789,9 @@ public class SteveSusArena implements Arena {
         // clear count down cache
         PlayerCoolDown.clearPlayerData(player);
         // remove glowing
-        getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
+        for (Player inGame : players){
+            GlowingManager.removeGlowing(player, inGame);
+        }
 
         // trigger listener
         for (GameListener gameListener : gameListeners) {
@@ -789,6 +826,7 @@ public class SteveSusArena implements Arena {
                 InventoryBackup.restoreInventory(player);
                 SteveSus.newChain().sync(() -> {
                     for (Player inLobby : player.getWorld().getPlayers()) {
+                        if (inLobby.equals(player)) continue;
                         if (!ArenaManager.getINSTANCE().isInArena(inLobby)) {
                             inLobby.showPlayer(SteveSus.getInstance(), player);
                             player.showPlayer(SteveSus.getInstance(), inLobby);
@@ -855,6 +893,10 @@ public class SteveSusArena implements Arena {
             // assign teams
             Collections.shuffle(players);
             teamAssigner.assignTeams(this);
+            // apply start cool down to sabotages
+            if (getSabotageCooldown() != null) {
+                getSabotageCooldown().applyStartCooldown();
+            }
             // assign colors AFTER teams
             if (getPlayerColorAssigner() != null) {
                 getPlayers().forEach(player -> {
@@ -879,8 +921,12 @@ public class SteveSusArena implements Arena {
             //addActiveSabotage(new OxygenSabotage(this, 60));
         } else if (gameState == GameState.ENDING) {
             setMeetingStage(MeetingStage.NO_MEETING);
-            getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
-            getSpectators().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false));
+            for (Player player : getPlayers()){
+                GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false);
+            }
+            for (Player player : getSpectators()){
+                GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false);
+            }
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskRestarting(this), 0L, 20L).getTaskId();
         }
 
@@ -986,16 +1032,15 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void stopFirstPersonSpectate(Player spectator) {
-        if (!isSpectator(spectator)) return;
         if (isFirstPersonSpectate(spectator)) return;
-
+        Player target = (Player) spectator.getSpectatorTarget();
+        spectator.setSpectatorTarget(null);
         spectator.setGameMode(GameMode.ADVENTURE);
         spectator.setAllowFlight(true);
         spectator.setFlying(true);
 
-        Player target;
 
-        SpectatorFirstPersonEvent spectatorFirstPersonEvent = new SpectatorFirstPersonEvent(this, spectator, target = (Player) spectator.getSpectatorTarget(), SpectatorFirstPersonEvent.SpectateAction.STOP);
+        SpectatorFirstPersonEvent spectatorFirstPersonEvent = new SpectatorFirstPersonEvent(this, spectator, target, SpectatorFirstPersonEvent.SpectateAction.STOP);
         Bukkit.getPluginManager().callEvent(spectatorFirstPersonEvent);
 
         String title = LanguageManager.getINSTANCE().getMsg(spectator, Message.TITLE_SPECTATE_FIRST_PERSON_STOP).replace("{target}", target.getDisplayName()).replace("{target_raw}", target.getName());
@@ -1057,13 +1102,13 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void refreshTaskMeter() {
-        if (getLiveSettings().getTaskMeterUpdatePolicy() == TaskMeterUpdatePolicy.NEVER){
-            if (this.taskMeterBar != null){
+        if (getLiveSettings().getTaskMeterUpdatePolicy() == TaskMeterUpdatePolicy.NEVER) {
+            if (this.taskMeterBar != null) {
                 this.taskMeterBar.removeAll();
             }
             return;
         }
-        if (this.taskMeterBar == null){
+        if (this.taskMeterBar == null) {
             if (getGameState() == GameState.IN_GAME) {
                 createTaskMeterBar();
             }
@@ -1095,16 +1140,14 @@ public class SteveSusArena implements Arena {
     @Override
     public void setMeetingStage(MeetingStage meetingStage) {
         if (meetingStage == this.meetingStage) return;
-        for (GameListener listener : getGameListeners()) {
-            listener.onMeetingStageChange(this, this.meetingStage, meetingStage);
-        }
+        MeetingStage oldStage = this.meetingStage;
         this.meetingStage = meetingStage;
         if (meetingStage == MeetingStage.NO_MEETING) {
             if (getMeetingButton() != null) {
                 getMeetingButton().refreshLines(this);
                 getMeetingButton().setLastUsage(System.currentTimeMillis());
             }
-            getPlayers().forEach(player -> {
+            for (Player player : players) {
                 setCantMove(player, false);
                 player.closeInventory();
                 InventoryUtil.clearStorageContents(player);
@@ -1112,40 +1155,45 @@ public class SteveSusArena implements Arena {
                 if (backup != null) {
                     backup.restore(player);
                 }
-            });
+            }
             getGameEndConditions().tickGameEndConditions(this);
         } else if (meetingStage == MeetingStage.TALKING) {
             setCountdown(getLiveSettings().getTalkingDuration().getCurrentValue());
-            getPlayers().forEach(player -> {
+            for (Player player : players) {
                 player.closeInventory();
                 if (!meetingBackups.containsKey(player.getUniqueId())) {
                     meetingBackups.put(player.getUniqueId(), new InventoryBackup(player));
                 }
                 InventoryUtil.clearStorageContents(player);
                 setCantMove(player, true);
-            });
+            }
         } else if (meetingStage == MeetingStage.VOTING) {
             setCountdown(getLiveSettings().getVotingDuration().getCurrentValue());
-            getPlayers().forEach(player -> {
+            for (Player player : players) {
                 setCantMove(player, true);
                 if (!meetingBackups.containsKey(player.getUniqueId())) {
                     meetingBackups.put(player.getUniqueId(), new InventoryBackup(player));
                 }
                 VoteGUIManager.openToPlayer(player, this);
                 CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_VOTING, false);
-            });
+            }
         } else if (meetingStage == MeetingStage.EXCLUSION_SCREEN) {
             setCountdown(5);
-            getPlayers().forEach(player -> {
+            for (Player player : players) {
                 setCantMove(player, false);
                 player.closeInventory();
                 InventoryUtil.clearStorageContents(player);
-            });
+            }
             if (currentExclusionVoting != null) {
                 currentExclusionVoting.performExclusion(this, null);
                 setCurrentVoting(null);
             }
         }
+        for (GameListener listener : getGameListeners()) {
+            listener.onMeetingStageChange(this, oldStage, meetingStage);
+        }
+        GameMeetingStageChangeEvent event = new GameMeetingStageChangeEvent(this, oldStage, getMeetingStage());
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     @Override
@@ -1252,11 +1300,6 @@ public class SteveSusArena implements Arena {
     }
 
     @Override
-    public boolean isEmergency() {
-        return emergency;
-    }
-
-    @Override
     public void setEmergency(boolean toggle) {
         if (toggle == this.emergency) return;
         this.emergency = toggle;
@@ -1348,7 +1391,7 @@ public class SteveSusArena implements Arena {
 
         // make ghost
         if (victimTeam != null) {
-            victimTeam.removePlayer(victim, false);
+            victimTeam.removePlayer(victim);
         }
         if (event.getDestinationTeam() == null) {
             switchToSpectator(victim);
@@ -1379,6 +1422,10 @@ public class SteveSusArena implements Arena {
                     }
                 }
             }
+        }
+
+        for (GameListener listener : getGameListeners()){
+            listener.onPlayerKill(this, killer, victim, destinationTeam, corpse);
         }
 
         // check game end
@@ -1569,6 +1616,27 @@ public class SteveSusArena implements Arena {
     @Override
     public void setLiveSettings(@NotNull LiveSettings liveSettings) {
         this.liveSettings = liveSettings;
+    }
+
+    @Override
+    public @Nullable SabotageCooldown getSabotageCooldown() {
+        return sabotageCooldown;
+    }
+
+    @Override
+    public void setSabotageCooldown(@Nullable SabotageCooldown sabotageCooldown) {
+        this.sabotageCooldown = sabotageCooldown;
+    }
+
+    @Override
+    public int getActiveSabotages() {
+        int result = 0;
+        for (SabotageBase sabotage : loadedSabotages) {
+            if (sabotage.isActive()) {
+                result++;
+            }
+        }
+        return result;
     }
 
     public Location getNextWaitingSpawn() {

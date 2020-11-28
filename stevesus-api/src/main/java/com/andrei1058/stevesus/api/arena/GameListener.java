@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.api.arena;
 
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.arena.vent.Vent;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -83,6 +84,25 @@ public interface GameListener {
     }
 
     default void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+
+    }
+
+    default void onPlayerVent(Arena arena, Player player, Vent vent) {
+
+    }
+
+    default void onPlayerUnVent(Arena arena, Player player, Vent vent) {
+
+    }
+
+    default void onPlayerSwitchVent(Arena arena, Player player, Vent vent) {
+
+    }
+
+    /**
+     * Not triggered if bukkit event got cancelled.
+     */
+    default void onPlayerKill(Arena arena, Player killer, Player victim, Team destinationTeam, PlayerCorpse corpse) {
 
     }
 }

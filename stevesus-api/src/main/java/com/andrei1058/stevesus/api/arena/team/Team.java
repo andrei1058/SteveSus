@@ -5,7 +5,6 @@ import com.andrei1058.stevesus.api.locale.Locale;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Set;
 
 @SuppressWarnings("unused")
 public interface Team {
@@ -37,9 +36,8 @@ public interface Team {
     /**
      * Remove a player from this team. Used when a player leaves the arena.
      *
-     * @param abandon true if player has abandoned the game.
      */
-    void removePlayer(Player player, boolean abandon);
+    void removePlayer(Player player);
 
     /**
      * Get team's display name for the given player (language).
@@ -80,7 +78,6 @@ public interface Team {
     /**
      * Check if this team can use meeting button.
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean canUseMeetingButton();
 
     /**
@@ -100,4 +97,6 @@ public interface Team {
      * False if is impostor team etc.
      */
     boolean isInnocent();
+
+    boolean canBeVoted();
 }

@@ -52,7 +52,7 @@ public class GhostImpostorTeam implements Team {
     }
 
     @Override
-    public void removePlayer(Player player, boolean abandon) {
+    public void removePlayer(Player player) {
         members.remove(player);
     }
 
@@ -109,6 +109,11 @@ public class GhostImpostorTeam implements Team {
 
     @Override
     public boolean isInnocent() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeVoted() {
         return false;
     }
 

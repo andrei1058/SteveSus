@@ -99,7 +99,7 @@ public class GameSidebarManager {
             if (delay) {
                 // give with 5 ticks of delay
                 @Nullable Arena finalArena = arena;
-                SteveSus.newChain().delay(10).sync(() -> {
+                SteveSus.newChain().delay(20).sync(() -> {
                     GameSidebar sidebar = new GameSidebar(player, content, finalArena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
                     if (finalArena != null && finalArena.getGameState() != GameState.IN_GAME) {

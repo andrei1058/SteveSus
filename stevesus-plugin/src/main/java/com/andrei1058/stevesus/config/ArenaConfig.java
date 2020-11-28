@@ -6,7 +6,6 @@ import ch.jalu.configme.configurationdata.CommentsConfiguration;
 import ch.jalu.configme.properties.*;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
 import com.andrei1058.stevesus.common.api.selector.ArenaHolderConfig;
-import com.andrei1058.stevesus.config.properties.LocationProperty;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import org.bukkit.Location;
 
@@ -136,6 +135,21 @@ public class ArenaConfig implements SettingsHolder {
     public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN_MIN = new IntegerProperty("live-settings.meeting-button-cooldown.min", 5);
     @Comment("Max cooldown before using emergency button again after a meeting. In seconds.")
     public static final IntegerProperty DEFAULT_GAME_OPTION_MEETING_COOL_DOWN_MAX = new IntegerProperty("live-settings.meeting-button-cooldown.max", 160);
+
+    @Comment("Cooldown before using sabotage again. In seconds.")
+    public static final IntegerProperty LIVE_OPTION_SABOTAGE_COOL_DOWN_DEFAULT = new IntegerProperty("live-settings.sabotage-cooldown.default", 45);
+    @Comment({"Min cooldown before using sabotage again. In seconds.", "This is also applied when the game starts."})
+    public static final IntegerProperty LIVE_OPTION_SABOTAGE_COOL_DOWN_MIN = new IntegerProperty("live-settings.sabotage-cooldown.min", 10);
+    @Comment("Max cooldown before using sabotage again. In seconds.")
+    public static final IntegerProperty LIVE_OPTION_SABOTAGE_COOL_DOWN_MAX = new IntegerProperty("live-settings.sabotage-cooldown.max", 60);
+
+    @Comment("Cooldown before killing again. In seconds.")
+    public static final IntegerProperty LIVE_OPTION_KILL_COOL_DOWN_DEFAULT = new IntegerProperty("live-settings.kill-cooldown.default", 45);
+    @Comment("Min cooldown before killing again. In seconds.")
+    public static final IntegerProperty LIVE_OPTION_KILL_COOL_DOWN_MIN = new IntegerProperty("live-settings.kill-cooldown.min", 10);
+    @Comment("Max cooldown before killing again. In seconds.")
+    public static final IntegerProperty LIVE_OPTION_KILL_COOL_DOWN_MAX = new IntegerProperty("live-settings.kill-cooldown.max", 180);
+
 
     @Comment("Ignore color limit? If players amount is greater than color limit some players will have the same color.")
     public static final BooleanProperty DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT = new BooleanProperty("ignore-color-limit", true);

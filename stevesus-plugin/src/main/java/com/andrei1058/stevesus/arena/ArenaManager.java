@@ -14,6 +14,7 @@ import com.andrei1058.stevesus.api.event.GameInitializedEvent;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
+import com.andrei1058.stevesus.arena.ability.kill.KillListener;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
@@ -21,7 +22,7 @@ import com.andrei1058.stevesus.arena.gametask.upload.UploadTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
 import com.andrei1058.stevesus.arena.sabotage.oxygen.OxygenSabotageProvider;
-import com.andrei1058.stevesus.arena.vent.VentListener;
+import com.andrei1058.stevesus.arena.ability.vent.VentListener;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -207,6 +208,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         arenaByWorldName.put(arena.getWorld().getName(), arena);
         // register listeners
         arena.registerGameListener(VentListener.getInstance());
+        arena.registerGameListener(new KillListener());
         return arenas.add(arena);
     }
 

@@ -3,10 +3,11 @@ package com.andrei1058.stevesus.commanditem;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
-import com.andrei1058.stevesus.api.arena.sabotage.TimedSabotage;
+import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.api.server.PlayerCoolDown;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
@@ -97,10 +98,20 @@ public class CommandItemsManager {
                 }
             } else {
                 // usage cool down
-                int coolDown = 60; //todo retrieve from config
-                ItemStack inHand = player.getInventory().getItemInMainHand();
-                player.setCooldown(inHand.getType(), (coolDown + ((sabotageBase instanceof TimedSabotage) ? ((TimedSabotage) sabotageBase).getCountDown() : 0)) * 20);
-                // sabotage
+                SabotageCooldown sabotageCooldown = arena.getSabotageCooldown();
+                if (sabotageCooldown == null) {
+                    return;
+                }
+                if (sabotageBase.isActive()) {
+                    return;
+                }
+                if (sabotageCooldown.isPaused()) {
+                    sabotageCooldown.updateCooldownOnItems(player, player.getInventory());
+                    return;
+                }
+                if (sabotageCooldown.getCurrentSeconds() != 0) {
+                    return;
+                }
                 sabotageBase.activate(player);
             }
         }
@@ -233,7 +244,7 @@ public class CommandItemsManager {
                 player.getInventory().remove(itemStack);
             }
         }
-        yml.getConfigurationSection(category).getKeys(false).forEach(item -> {
+        for (String item : yml.getConfigurationSection(category).getKeys(false)) {
             String permPath = category + "." + item + PERMISSION;
 
             // if player has permission
@@ -267,6 +278,21 @@ public class CommandItemsManager {
                         if (playerCMDs != null && !playerCMDs.trim().isEmpty()) {
                             tags.add(INTERACT_NBT_TAG_PLAYER_INTERACT);
                             tags.add(playerCMDs);
+                            // if giving kill item apply delay
+                            if (playerCMDs.equals("kill")) {
+                                Material material;
+                                try {
+                                    material = Material.valueOf(yml.getString(materialPath));
+                                } catch (Exception ignored) {
+                                    break;
+                                }
+                                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+                                if (arena != null) {
+                                    PlayerCoolDown cooldown = PlayerCoolDown.getOrCreatePlayerData(player);
+                                    cooldown.updateCoolDown("kill", arena.getLiveSettings().getKillCooldown().getMinValue());
+                                    player.setCooldown(material, cooldown.getCoolDown("kill") * 20);
+                                }
+                            }
                         }
                     }
 
@@ -298,7 +324,7 @@ public class CommandItemsManager {
                     SteveSus.getInstance().getLogger().warning("Invalid material in join-items config at: " + materialPath);
                 }
             }
-        });
+        }
     }
 
     /**

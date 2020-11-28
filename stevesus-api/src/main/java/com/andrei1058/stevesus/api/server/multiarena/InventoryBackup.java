@@ -1,5 +1,7 @@
 package com.andrei1058.stevesus.api.server.multiarena;
 
+import com.andrei1058.stevesus.api.server.PlayerCoolDown;
+import com.andrei1058.stevesus.common.CommonManager;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

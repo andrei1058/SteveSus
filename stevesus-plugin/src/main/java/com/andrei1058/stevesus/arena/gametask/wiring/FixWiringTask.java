@@ -245,12 +245,12 @@ public class FixWiringTask extends GameTask {
     private class WiringListener implements GameListener {
         @Override
         public void onEntityPunch(Arena arena, Player player, Entity entity) {
-            tryOpenGUI(player, entity);
+            tryOpenGUI(player, entity, arena);
         }
 
         @Override
         public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
-            tryOpenGUI(player, entity);
+            tryOpenGUI(player, entity, arena);
         }
 
         @Override
@@ -281,11 +281,13 @@ public class FixWiringTask extends GameTask {
 
         @Override
         public void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+            player.setItemOnCursor(null);
             currentlyOpenPanel.remove(player.getUniqueId());
         }
     }
 
-    private void tryOpenGUI(Player player, Entity entity) {
+    private void tryOpenGUI(Player player, Entity entity, Arena arena) {
+        if (!arena.isTasksAllowedATM()) return;
         if (hasTask(player)) {
             // should prevent called twice
             if (currentlyOpenPanel.contains(player.getUniqueId())) return;

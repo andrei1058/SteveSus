@@ -28,6 +28,7 @@ public class LiveSettings {
     private DoubleRange playerSpeed = new DoubleRange(0.5, 1.0, 2.0);
     private TaskMeterUpdatePolicy taskMeterUpdatePolicy = TaskMeterUpdatePolicy.ALWAYS;
     private boolean sprintAllowed = false;
+    private IntegerRange sabotageCooldown = new IntegerRange(10, 45, 60);
     private Arena arena;
 
     /**
@@ -187,6 +188,14 @@ public class LiveSettings {
 
     public void setPlayerSpeed(DoubleRange playerSpeed) {
         this.playerSpeed = playerSpeed;
+    }
+
+    public IntegerRange getSabotageCooldown() {
+        return sabotageCooldown;
+    }
+
+    public void setSabotageCooldown(IntegerRange sabotageCooldown) {
+        this.sabotageCooldown = sabotageCooldown;
     }
 
     /**

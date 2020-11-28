@@ -8,6 +8,7 @@ import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.listener.*;
 import com.andrei1058.stevesus.arena.listener.spectator.SpectatorListener;
+import com.andrei1058.stevesus.arena.sabotage.listener.SabotageListener;
 import com.andrei1058.stevesus.commanditem.CommandItemListener;
 import com.andrei1058.stevesus.common.api.packet.DefaultChannel;
 import com.andrei1058.stevesus.config.MainConfig;
@@ -121,7 +122,7 @@ public class ServerManager {
         for (Listener listener : new Listener[]{new ServerQuitListener(), new JoinCommonListener(), new PlayerChatListener(), new CommandItemListener(),
                 new DropPickListener(), new BreakPlaceListener(), new RestartArenaListener(), new DamageListener(), new CreatureSpawnListener(),
                 new SpectatorListener(), new WeatherListener(), new PlayerSneakEvent(), new PlayerMoveListener(), new EntityInteractListener(),
-                new InventoryListener()}) {
+                new InventoryListener(), new SabotageListener()}) {
             Bukkit.getPluginManager().registerEvents(listener, SteveSus.getInstance());
         }
 

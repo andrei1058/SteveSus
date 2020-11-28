@@ -17,11 +17,11 @@ import org.bukkit.event.player.PlayerToggleSprintEvent;
 public class PlayerMoveListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
-    public void onSpring(PlayerToggleSprintEvent event){
+    public void onSpring(PlayerToggleSprintEvent event) {
         if (!event.isSprinting()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
         if (arena == null) return;
-        if (!arena.getLiveSettings().isSprintAllowed()){
+        if (!arena.getLiveSettings().isSprintAllowed()) {
             event.setCancelled(true);
         }
     }
@@ -62,7 +62,7 @@ public class PlayerMoveListener implements Listener {
                     tickGlowingEffect(player, arena);
                 }
 
-                for (GameListener listener : arena.getGameListeners()){
+                for (GameListener listener : arena.getGameListeners()) {
                     listener.onPlayerMove(arena, player, location, playerTeam);
                 }
             }
@@ -96,27 +96,29 @@ public class PlayerMoveListener implements Listener {
                             }
                         }
                         if (nearestsTarget == null) {
-                            GlowingManager.setGlowing(player, inGame);
+                            GlowingManager.setGlowingRed(player, inGame, arena);
                         } else if (!nearestsTarget.equals(player) && currentDistance < nearestsTarget.getLocation().distance(inGame.getLocation())) {
                             GlowingManager.removeGlowing(nearestsTarget, inGame);
-                            GlowingManager.setGlowing(player, inGame);
+                            GlowingManager.setGlowingRed(player, inGame, arena);
                         }
                     }
                 }
             } else {
-                GlowingManager.removeGlowing(player, inGame);
+                // if exiting a killer range update glowing on someone in his range if is not moving
+                if (GlowingManager.isGlowing(player, inGame)) {
+                    GlowingManager.removeGlowing(player, inGame);
+                    // todo send glowing on nearest player to inGame
+                }
             }
         }
         if (currentlyGlowing != null) {
-            if (currentlyGlowing.equals(nearest)){
+            if (currentlyGlowing.equals(nearest)) {
                 return;
             }
-            if (currentlyGlowing.getLocation().distance(player.getLocation()) > arena.getLiveSettings().getKillDistance().getCurrentValue()) {
-                GlowingManager.removeGlowing(currentlyGlowing, player);
-            }
+            GlowingManager.removeGlowing(currentlyGlowing, player);
         }
         if (nearest != null) {
-            GlowingManager.setGlowing(nearest, player);
+            GlowingManager.setGlowingRed(nearest, player, arena);
         }
     }
 }

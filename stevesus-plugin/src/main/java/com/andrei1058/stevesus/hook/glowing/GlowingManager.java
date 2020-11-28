@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.hook.glowing;
 
+import com.andrei1058.stevesus.api.arena.Arena;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -19,9 +20,12 @@ public class GlowingManager {
         }
     }
 
-    public static void setGlowing(@NotNull Entity player, @NotNull Player receiver) {
+    public static void setGlowingRed(@NotNull Entity player, @NotNull Player receiver, Arena arena) {
         if (!isGlowing(player, receiver)) {
             GlowAPI.setGlowing(player, GlowAPI.Color.RED, "NEVER", "NEVER", receiver);
+            for (Player inGame : arena.getPlayers()) {
+                sendRemove(player, inGame);
+            }
         }
     }
 
@@ -45,5 +49,17 @@ public class GlowingManager {
 
     public static boolean isGlowing(@NotNull Entity player, @NotNull Player receiver) {
         return glowingAPI && GlowAPI.isGlowing(player, receiver);
+    }
+
+    /**
+     * This will remove white glowing on entities because the GlowAPI is a bit buggy.
+     */
+    public static void sendRemove(@NotNull Entity player, @NotNull Player receiver) {
+        if (glowingAPI) {
+            GlowAPI.Color glowColor = GlowAPI.getGlowColor(player, receiver);
+            if (glowColor == null || glowColor == GlowAPI.Color.WHITE) {
+                GlowAPI.setGlowing(player, null, receiver);
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.arena.listener.spectator;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.event.PlayerKillEvent;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.CommonManager;
@@ -83,12 +84,9 @@ public class SpectatorListener implements Listener {
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent e) {
-        if (e.isCancelled()) return;
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
         if (arena == null) return;
-        if (arena.isSpectator(e.getPlayer()) && arena.isFirstPersonSpectate(e.getPlayer())) {
             arena.stopFirstPersonSpectate(e.getPlayer());
-        }
     }
 
     @EventHandler
@@ -104,11 +102,22 @@ public class SpectatorListener implements Listener {
     public void onTargetDeath(PlayerDeathEvent e) {
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getEntity());
         if (arena == null) return;
-        arena.getSpectators().forEach(spectator -> {
+        for (Player spectator : arena.getSpectators()) {
             if (spectator.getSpectatorTarget() != null && spectator.getSpectatorTarget().equals(e.getEntity())) {
                 arena.stopFirstPersonSpectate(spectator);
             }
-        });
+        }
+    }
+
+    // stop first person
+    @EventHandler
+    public void onTargetDeath(PlayerKillEvent e) {
+        for (Player spectator : e.getArena().getSpectators()) {
+            if (spectator.getSpectatorTarget() != null && spectator.getSpectatorTarget().equals(e.getVictim())) {
+                spectator.sendMessage("PlayerKillEvent a");
+                e.getArena().stopFirstPersonSpectate(spectator);
+            }
+        }
     }
 
     // Disable hits from spectators

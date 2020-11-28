@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.server;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -22,6 +23,11 @@ public class PlayerCoolDown {
         return coolDownByPlayer.get(player.getUniqueId());
     }
 
+    @NotNull
+    public static PlayerCoolDown getOrCreatePlayerData(Player player) {
+        return coolDownByPlayer.getOrDefault(player.getUniqueId(), new PlayerCoolDown(player));
+    }
+
     public static void clearPlayerData(Player player) {
         coolDownByPlayer.remove(player.getUniqueId());
     }
@@ -39,7 +45,8 @@ public class PlayerCoolDown {
     public int getCoolDown(String key) {
         CoolDown coolDown = this.coolDown.get(key);
         if (coolDown != null) {
-            return (int) ((coolDown.getNextAllowed() - System.currentTimeMillis()) / 1000);
+            int seconds = (int) ((coolDown.getNextAllowed() - System.currentTimeMillis()) / 1000);
+            return Math.max(seconds, 0);
         }
         return 0;
     }

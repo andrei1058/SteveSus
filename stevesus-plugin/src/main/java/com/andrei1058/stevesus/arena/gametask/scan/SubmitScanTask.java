@@ -115,7 +115,6 @@ public class SubmitScanTask extends GameTask {
 
     @Override
     public void enableIndicators() {
-        Bukkit.broadcastMessage("enableIndicators submit scan");
         taskHologram.show();
     }
 
@@ -225,11 +224,11 @@ public class SubmitScanTask extends GameTask {
                 Bukkit.getScheduler().cancelTask(preGameTaskId);
 
                 // hide hologram for those who do not have this task
-                arena.getPlayers().forEach(player -> {
+                for (Player player : arena.getPlayers()) {
                     if (!hasTask(player)) {
                         taskHologram.hide(player);
                     }
-                });
+                }
             }
         }
     }
