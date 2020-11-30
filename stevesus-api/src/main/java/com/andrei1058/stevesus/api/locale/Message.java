@@ -110,7 +110,7 @@ public enum Message {
 
     SCOREBOARD_SIDEBAR_LOBBY("scoreboard-sidebar-lobby", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "", "&7{date}", "", "&7{player}", "", "&8Game Stats:", "&7Wins: &f{games_won}", "&7Abandons: &f{games_abandoned}", "&7Losts: &f{games_lost}", "", "&b{server_name}")),
+            "", "&7{date}", "", "&7{player}", "", "&8Game Stats:", "&7Wins: &f{games_won}", "&7Abandons: &f{games_abandoned}", "&7Losts: &f{games_lost}", "", "&7Version: &f{version}","", "&b{server_name}")),
 
     SCOREBOARD_SIDEBAR_WAITING("scoreboard-sidebar-waiting", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
@@ -155,7 +155,7 @@ public enum Message {
     DEAD_BODY_HOLO_LINE2("dead-body-holo-line2", "&cClick to report!"),
     YOU_DIED_TITLE("you-died-title", " "),
     YOU_DIED_SUBTITLE("you-died-subtitle", "&c&lYou died!"),
-    YOU_DIED_CHAT("you-died-chat", Arrays.asList(" ", " ", "&cYou died! But it's not over!!", "&aPlease continue doing your tasks to help crewmates win!", " ")),
+    YOU_DIED_CHAT_CREW("you-died-chat", Arrays.asList(" ", " ", "&cYou died! But it's not over!!", "&aPlease continue doing your tasks to help crewmates win!", " ")),
     // {format_impostor}
     GAME_START_CHAT_CREWMATES("game-start-chat-crew", Arrays.asList(" ", "{format_impostor}", "&eComplete your tasks or eject all impostors", "&ein order to win this game!", "", "&aComplete your tasks even if you died!")),
     GAME_START_CHAT_FORMAT_IMPOSTOR("game-start-chat-crew-format-impostor", "&cThere is an impostor among us!"),
@@ -177,7 +177,11 @@ public enum Message {
     WIN_REASON_PATH_(true, "win-reason-", ""),
     IN_GAME_ACTION_BAR("action-bar-in-game", "&fYour color: {player} &7| &fRoom: {room}" ),
     VENT_HOLO("vent-holo", "&6&lShift to vent!"),
-    VENT_ENTER_SUBTITLE("vent-enter-subtitle", "&fShift to exit.")
+    VENT_ENTER_SUBTITLE("vent-enter-subtitle", "&fShift to exit."),
+    TAB_LIST_GENERIC_PREFIX("tab-list-prefix-format-generic", "{display_name}"),
+    TAB_LIST_GENERIC_SUGGIX("tab-list-suffix-format-generic", ""),
+    TAB_LIST_GHOST_PREFIX("tab-list-prefix-format-ghost", "&o{display_name}"),
+    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", "")
     ;
 
     private final String path;

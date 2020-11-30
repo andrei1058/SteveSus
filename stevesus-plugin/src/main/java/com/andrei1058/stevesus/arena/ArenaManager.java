@@ -31,6 +31,7 @@ import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.common.ServerQuitListener;
 import com.andrei1058.stevesus.setup.SetupManager;
+import com.andrei1058.stevesus.sidebar.GameSidebarManager;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -108,6 +109,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
                     a.removeSpectator(p, true);
                 }
             }
+            GameSidebarManager.getInstance().removeSidebar(p);
         });
 
         // create arenas from templates

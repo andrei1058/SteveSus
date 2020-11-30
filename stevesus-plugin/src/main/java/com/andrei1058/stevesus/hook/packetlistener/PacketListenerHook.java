@@ -9,8 +9,6 @@ import org.inventivetalent.packetlistener.handler.PacketHandler;
 import org.inventivetalent.packetlistener.handler.ReceivedPacket;
 import org.inventivetalent.packetlistener.handler.SentPacket;
 
-import java.time.Instant;
-
 public class PacketListenerHook {
 
     private static boolean loaded = false;
@@ -40,7 +38,9 @@ public class PacketListenerHook {
                     if (slotString.endsWith("HAND")) {
                         sentPacket.setCancelled(true);
                     }
-                }
+                } /*else if (sentPacket.getPacketName().equals("PacketPlayOutEntityMetadata")){
+                    sentPacket.getPlayer().sendMessage(sentPacket.getPacketName());
+                }*/
             }
 
             @Override

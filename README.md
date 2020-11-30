@@ -124,6 +124,9 @@ Just copy "game-task-scoreboard-format" and add -templateName to its path.
 ## Scoreboard task string placeholders
 {task_name}, {task_stage}, {stage_stages}
 
+## Scoreboard tab format placeholders
+{display_name}
+
 ## 3rd party dependencies
 - spigot-maps by JohnnyJayJay
 

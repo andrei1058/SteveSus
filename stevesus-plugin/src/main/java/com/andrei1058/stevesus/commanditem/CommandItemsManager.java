@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.commanditem;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
 import com.andrei1058.stevesus.api.arena.team.Team;
@@ -10,6 +11,7 @@ import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.PlayerCoolDown;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
@@ -43,6 +45,7 @@ public class CommandItemsManager {
     public static final String CATEGORY_SPECTATING = "game-spectating";
     public static final String CATEGORY_VOTING = "game-voting";
     public static final String CATEGORY_IMPOSTOR = "game-impostor";
+    public static final String CATEGORY_IMPOSTOR_GHOST = "game-impostor-ghost";
 
     private static final String MATERIAL = ".material";
     private static final String DATA = ".data";
@@ -103,6 +106,12 @@ public class CommandItemsManager {
                     return;
                 }
                 if (sabotageBase.isActive()) {
+                    return;
+                }
+                if (arena.getMeetingStage() != MeetingStage.NO_MEETING){
+                    return;
+                }
+                if (arena.getGameState() != GameState.IN_GAME){
                     return;
                 }
                 if (sabotageCooldown.isPaused()) {
@@ -166,6 +175,8 @@ public class CommandItemsManager {
 
             saveCommandItem(CATEGORY_IMPOSTOR, "kill", "", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "&fplayers turn red."), "kill");
             saveCommandItem(CATEGORY_IMPOSTOR, "oxygen", "", "", "", false, ItemUtil.getMaterial("SAPLING", "ACACIA_SAPLING"), 0, 3, "&c&lSabotage Oxygen", Arrays.asList(" ", "&fRight click to", "&fsabotage oxygen."), "sabotage:" + SteveSus.getInstance().getName() + ",oxygen");
+
+            saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "oxygen", "", "", "", false, ItemUtil.getMaterial("SAPLING", "ACACIA_SAPLING"), 0, 3, "&c&lSabotage Oxygen", Arrays.asList(" ", "&fRight click to", "&fsabotage oxygen."), "sabotage:" + SteveSus.getInstance().getName() + ",oxygen");
         }
 
         save();

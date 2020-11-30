@@ -15,7 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class EntityInteractListener implements Listener {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler
     public void onEntityInteract(PlayerInteractEntityEvent event) {
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
         if (arena == null) return;

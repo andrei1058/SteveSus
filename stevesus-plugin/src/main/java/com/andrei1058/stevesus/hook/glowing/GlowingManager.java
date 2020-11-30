@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.hook.glowing;
 
+import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -47,7 +48,9 @@ public class GlowingManager {
         }
     }
 
-    public static boolean isGlowing(@NotNull Entity player, @NotNull Player receiver) {
+    public static boolean isGlowing(Entity player,  Player receiver) {
+        if (player == null) return false;
+        if (receiver == null) return false;
         return glowingAPI && GlowAPI.isGlowing(player, receiver);
     }
 
@@ -58,7 +61,7 @@ public class GlowingManager {
         if (glowingAPI) {
             GlowAPI.Color glowColor = GlowAPI.getGlowColor(player, receiver);
             if (glowColor == null || glowColor == GlowAPI.Color.WHITE) {
-                GlowAPI.setGlowing(player, null, receiver);
+                SteveSus.newChain().delay(1).sync(()-> GlowAPI.setGlowing(player, null, receiver)).execute();
             }
         }
     }

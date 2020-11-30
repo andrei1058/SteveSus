@@ -5,6 +5,7 @@ import com.andrei1058.spigot.sidebar.SidebarManager;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Locale;
+import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.config.MainConfig;
@@ -116,16 +117,17 @@ public class GameSidebarManager {
                                     @NotNull
                                     @Override
                                     public String getLine() {
-                                        return inGame.getDisplayName();
+                                        return "a";
                                     }
                                 },
                                 new SidebarLine() {
                                     @NotNull
                                     @Override
                                     public String getLine() {
-                                        return "";
+                                        return "b";
                                     }
                                 });
+                        sidebar.getHandle().playerListRefreshAnimation();
                         sidebar.hidePlayerName(inGame);
                     });
                 } else {
@@ -142,16 +144,17 @@ public class GameSidebarManager {
                                 @NotNull
                                 @Override
                                 public String getLine() {
-                                    return inGame.getDisplayName();
+                                    return "a";
                                 }
                             },
                             new SidebarLine() {
                                 @NotNull
                                 @Override
                                 public String getLine() {
-                                    return "";
+                                    return "b";
                                 }
                             });
+                    previousSidebar.getHandle().playerListRefreshAnimation();
                     previousSidebar.hidePlayerName(inGame);
                 });
             } else {
@@ -162,28 +165,56 @@ public class GameSidebarManager {
 
     public static void hidePlayerNames(Arena arena) {
         if (arena.getGameState() != GameState.IN_GAME) return;
-        SteveSus.newChain().delay(10).sync(() -> {
+        SteveSus.newChain().delay(20).sync(() -> {
             for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
                 for (Player player : arena.getPlayers()) {
+                    final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GENERIC_PREFIX).replace("{display_name}", player.getDisplayName());
+                    final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GENERIC_SUGGIX).replace("{display_name}", player.getDisplayName());
                     sidebar.getHandle().playerListCreate(player,
                             new SidebarLine() {
                                 @NotNull
                                 @Override
                                 public String getLine() {
-                                    return player.getDisplayName();
+                                    return prefix;
                                 }
                             },
                             new SidebarLine() {
                                 @NotNull
                                 @Override
                                 public String getLine() {
-                                    return "";
+                                    return suffix;
                                 }
                             });
-                    sidebar.hidePlayerName(player);
+                    sidebar.getHandle().playerListHideNameTag(player);
                 }
             }
-        });
+        }).execute();
+    }
+
+    public static void spoilGhostInTab(Player ghost, Arena arena) {
+        if (arena.getGameState() != GameState.IN_GAME) return;
+
+        for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
+            final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_PREFIX).replace("{display_name}", ghost.getDisplayName());
+            final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_SUFFIX).replace("{display_name}", ghost.getDisplayName());
+            sidebar.getHandle().playerListCreate(ghost,
+                    new SidebarLine() {
+                        @NotNull
+                        @Override
+                        public String getLine() {
+                            return prefix;
+                        }
+                    },
+                    new SidebarLine() {
+                        @NotNull
+                        @Override
+                        public String getLine() {
+                            return suffix;
+                        }
+                    });
+            sidebar.hidePlayerName(ghost);
+            sidebar.getHandle().playerListRefreshAnimation();
+        }
     }
 
     /**
@@ -197,10 +228,10 @@ public class GameSidebarManager {
      * Remove a sidebar from list.
      */
     public void removeSidebar(Player player) {
-        GameSidebar sidebar = getPlayerSidebar(player.getUniqueId());
+        GameSidebar sidebar = sidebarByPlayer.remove(player.getUniqueId());
         if (sidebar != null) {
             // remove sidebar from active list
-            sidebarByPlayer.remove(player.getUniqueId());
+            //sidebarByPlayer.remove(player.getUniqueId());;
             // remove player data from current sidebar
             sidebar.getHandle().remove(player.getUniqueId());
             // remove trace of player from other scoreboards

@@ -44,11 +44,11 @@ public class GhostCrewTeam implements Team {
         if (getArena().getGameState() != GameState.IN_GAME) return false;
         if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false));
         player.getInventory().clear();
         Locale lang = LanguageManager.getINSTANCE().getLocale(player);
         player.sendTitle(lang.getMsg(player, Message.YOU_DIED_TITLE), lang.getMsg(player, Message.YOU_DIED_SUBTITLE), 10, 60, 10);
-        lang.getMsgList(player, Message.YOU_DIED_CHAT).forEach(player::sendMessage);
+        lang.getMsgList(player, Message.YOU_DIED_CHAT_CREW).forEach(player::sendMessage);
         player.playEffect(EntityEffect.TOTEM_RESURRECT);
         return members.add(player);
     }

@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.api.arena;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
+import com.andrei1058.stevesus.api.arena.meeting.TabRevealQueue;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
@@ -12,7 +13,6 @@ import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.arena.vent.VentHandler;
 import com.andrei1058.stevesus.api.locale.Locale;
-import com.andrei1058.stevesus.api.server.PlayerCoolDown;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.arena.DisplayableArena;
 import com.andrei1058.stevesus.common.api.arena.GameState;
@@ -617,9 +617,15 @@ public interface Arena extends DisplayableArena {
      */
     void setGameTeamAssigner(@Nullable GameTeamAssigner gameTeamAssigner);
 
+    /**
+     * Game settings.
+     */
     @NotNull
     LiveSettings getLiveSettings();
 
+    /**
+     * Game settings.
+     */
     void setLiveSettings(@NotNull LiveSettings liveSettings);
 
     /**
@@ -628,7 +634,13 @@ public interface Arena extends DisplayableArena {
     @Nullable
     SabotageCooldown getSabotageCooldown();
 
+    /**
+     * Get sabotage coolDown manager.
+     */
     void setSabotageCooldown(@Nullable SabotageCooldown sabotageCooldown);
 
+    /**
+     * Get amount of active sabotages.
+     */
     int getActiveSabotages();
 }

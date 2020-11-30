@@ -566,7 +566,7 @@ public class SteveSusArena implements Arena {
         }
 
         Team team = getPlayerTeam(player);
-        if (team != null){
+        if (team != null) {
             team.removePlayer(player);
         }
 
@@ -624,7 +624,7 @@ public class SteveSusArena implements Arena {
         getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
 
         Team team = getPlayerTeam(player);
-        if (team != null){
+        if (team != null) {
             team.removePlayer(player);
         }
 
@@ -759,7 +759,7 @@ public class SteveSusArena implements Arena {
         PreventionManager.getInstance().hasAbandoned(this, player);
 
         Team team = getPlayerTeam(player);
-        if (team != null){
+        if (team != null) {
             team.removePlayer(player);
         }
 
@@ -789,7 +789,7 @@ public class SteveSusArena implements Arena {
         // clear count down cache
         PlayerCoolDown.clearPlayerData(player);
         // remove glowing
-        for (Player inGame : players){
+        for (Player inGame : players) {
             GlowingManager.removeGlowing(player, inGame);
         }
 
@@ -899,13 +899,14 @@ public class SteveSusArena implements Arena {
             }
             // assign colors AFTER teams
             if (getPlayerColorAssigner() != null) {
-                getPlayers().forEach(player -> {
+                Collections.shuffle(players);
+                for (Player player : players){
                     PlayerColorAssigner.PlayerColor playerColor = getPlayerColorAssigner().assignPlayerColor(player, this, isIgnoreColorLimit());
                     if (playerColor == null) {
                         throw new IllegalStateException("Could not assign a color to: " + player.getName() + "! Player amount was greater than available colors. To avoid this issue change arena's player limit or set " + ArenaConfig.DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT.getPath() + " to true.");
                     }
                     playerColor.apply(player, this);
-                });
+                }
             }
             // assign tasks
             GameTaskAssigner gameTaskAssigner = new GameTaskAssigner(this);
@@ -921,10 +922,10 @@ public class SteveSusArena implements Arena {
             //addActiveSabotage(new OxygenSabotage(this, 60));
         } else if (gameState == GameState.ENDING) {
             setMeetingStage(MeetingStage.NO_MEETING);
-            for (Player player : getPlayers()){
+            for (Player player : getPlayers()) {
                 GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false);
             }
-            for (Player player : getSpectators()){
+            for (Player player : getSpectators()) {
                 GameSidebarManager.getInstance().setSidebar(player, SidebarType.ENDING, this, false);
             }
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskRestarting(this), 0L, 20L).getTaskId();
@@ -1032,7 +1033,7 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void stopFirstPersonSpectate(Player spectator) {
-        if (isFirstPersonSpectate(spectator)) return;
+        if (!isFirstPersonSpectate(spectator)) return;
         Player target = (Player) spectator.getSpectatorTarget();
         spectator.setSpectatorTarget(null);
         spectator.setGameMode(GameMode.ADVENTURE);
@@ -1220,7 +1221,14 @@ public class SteveSusArena implements Arena {
         // interrupt tasks
         interruptTasks();
         // clear dead bodies
-        getDeadBodies().forEach(PlayerCorpse::destroy);
+        // show new ghosts in tab
+        for (PlayerCorpse corpse : getDeadBodies()) {
+            Player ghost = Bukkit.getPlayer(corpse.getOwner());
+            if (ghost != null && isPlayer(ghost)) {
+                GameSidebarManager.spoilGhostInTab(ghost, this);
+            }
+            corpse.destroy();
+        }
         // add voting manager
         setCurrentVoting(new ExclusionVoting());
         // clear glowing
@@ -1366,6 +1374,7 @@ public class SteveSusArena implements Arena {
     @SuppressWarnings("UnstableApiUsage")
     @Override
     public void killPlayer(@NotNull Player killer, @NotNull Player victim) {
+        if (getGameState() != GameState.IN_GAME) return;
         Team killerTeam = getPlayerTeam(killer);
         if (killerTeam == null) return;
         if (!killerTeam.canKill(victim)) return;
@@ -1424,7 +1433,7 @@ public class SteveSusArena implements Arena {
             }
         }
 
-        for (GameListener listener : getGameListeners()){
+        for (GameListener listener : getGameListeners()) {
             listener.onPlayerKill(this, killer, victim, destinationTeam, corpse);
         }
 
@@ -1494,6 +1503,7 @@ public class SteveSusArena implements Arena {
 
     @Override
     public boolean isTasksAllowedATM() {
+        if (getGameState() != GameState.IN_GAME) return false;
         return getLoadedSabotages().stream().noneMatch(sabotage -> sabotage.isActive() && !sabotage.isAllowTasks());
     }
 

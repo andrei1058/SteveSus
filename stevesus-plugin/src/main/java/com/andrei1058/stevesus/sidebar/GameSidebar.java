@@ -64,11 +64,11 @@ public class GameSidebar {
             }
         }));
         somePlaceholders.add(new PlaceholderProvider("{room}", () -> {
-            if (getArena() == null){
+            if (getArena() == null) {
                 return "";
             }
             GameRoom room = getArena().getPlayerRoom(getPlayer());
-            if (room == null){
+            if (room == null) {
                 return LanguageManager.getINSTANCE().getMsg(getPlayer(), Message.GAME_ROOM_NO_NAME);
             }
             return room.getDisplayName(LanguageManager.getINSTANCE().getLocale(getPlayer()));
@@ -181,7 +181,8 @@ public class GameSidebar {
                         .replace("{game_tag}", arena.getTag()).replace("{game_id}", String.valueOf(arena.getGameId()));
             }
             line = line.replace("{player_raw}", player.getName())
-                    .replace("{server_name}", ServerManager.getINSTANCE().getServerName());
+                    .replace("{server_name}", ServerManager.getINSTANCE().getServerName())
+                    .replace("{version}", SteveSus.getInstance().getDescription().getVersion());
             line = StatsManager.getINSTANCE().replaceStats(player, line);
 
             // Add the line to the sidebar

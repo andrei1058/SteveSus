@@ -36,14 +36,14 @@ public class PlayerChatListener implements Listener {
                 }
             }
         } else {
+            Team playerTeam = arena.getPlayerTeam(player);
+            e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()) || (playerTeam != null && playerTeam.chatFilter(receiver)));
             if (arena.getGameState() == GameState.IN_GAME) {
                 if (!(arena.getMeetingStage() == MeetingStage.TALKING || arena.getMeetingStage() == MeetingStage.VOTING)) {
                     player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.TALK_ALLOWED_DURING_MEETINGS));
                     e.setCancelled(true);
                     return;
                 }
-                Team playerTeam = arena.getPlayerTeam(player);
-                e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()) || (playerTeam != null && playerTeam.chatFilter(receiver)));
             }
             Message format;
             switch (arena.getGameState()) {

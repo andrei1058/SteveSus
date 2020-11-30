@@ -4,6 +4,7 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.commanditem.CommandItemsManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.entity.Player;
@@ -48,6 +49,7 @@ public class GhostImpostorTeam implements Team {
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
         player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false));
         player.getInventory().clear();
+        CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_IMPOSTOR_GHOST);
         return members.add(player);
     }
 

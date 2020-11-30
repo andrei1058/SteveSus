@@ -75,8 +75,8 @@ public class SpectatorListener implements Listener {
     public void onEntityInteract(PlayerInteractAtEntityEvent e) {
         if (e.isCancelled()) return;
         if (e.getRightClicked().getType() != EntityType.PLAYER) return;
-
         Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+
         if (arena == null) return;
         e.setCancelled(true);
         arena.startFirstPersonSpectate(e.getPlayer(), (Player) e.getRightClicked());

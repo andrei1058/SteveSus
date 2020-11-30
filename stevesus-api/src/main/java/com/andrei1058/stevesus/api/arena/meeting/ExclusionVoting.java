@@ -38,7 +38,10 @@ public class ExclusionVoting {
                 arena.getSpectators().forEach(player -> player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EXCLUSION_CHAT_ANNOUNCEMENT_SKIP).replace("{player}", voter.getDisplayName())));
             }
             // short time if all voted
-            if (arena.getPlayers().stream().allMatch(this::hasVoted)) {
+            if (arena.getPlayers().stream().noneMatch(inGame -> {
+                Team playerTeam = arena.getPlayerTeam(inGame);
+                return playerTeam != null && playerTeam.canVote() && !hasVoted(inGame);
+            })) {
                 arena.setCountdown(5);
             }
             return true;
@@ -55,13 +58,11 @@ public class ExclusionVoting {
         }
         GameSound.VOTE_SOUND.playToPlayers(arena.getPlayers());
         GameSound.VOTE_SOUND.playToPlayers(arena.getSpectators());
+
         // short time if all voted
-        if (arena.getPlayers().stream().allMatch(inGame -> {
+        if (arena.getPlayers().stream().noneMatch(inGame -> {
             Team playerTeam = arena.getPlayerTeam(inGame);
-            if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) {
-                return true;
-            }
-            return !playerTeam.canVote() || playerTeam.canVote() && hasVoted(inGame);
+            return playerTeam != null && playerTeam.canVote() && !hasVoted(inGame);
         })) {
             arena.setCountdown(5);
         }
@@ -75,9 +76,23 @@ public class ExclusionVoting {
     /**
      * @param player null to get players who voted to skip.
      */
-    public Set<Player> getVotes(@Nullable Player player) {
+    public Set<Player> getVotes(@Nullable Player player, Arena arena) {
         if (player == null) {
-            return votes.entrySet().stream().filter(e -> e.getValue() == null).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getKey)).keySet();
+            Set<Player> skipped = new HashSet<>();
+            for (Map.Entry<Player, Player> votes : votes.entrySet()) {
+                if (votes.getValue() == null) {
+                    skipped.add(votes.getKey());
+                }
+            }
+            for (Player inGame : arena.getPlayers()) {
+                Team team = arena.getPlayerTeam(inGame);
+                if (team.canVote()) {
+                    if (!hasVoted(inGame)) {
+                        skipped.add(inGame);
+                    }
+                }
+            }
+            return skipped;
         } else {
             return votes.entrySet().stream().filter(e -> e.getValue() != null && e.getValue().equals(player)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).keySet();
         }
@@ -102,10 +117,10 @@ public class ExclusionVoting {
         }
 
         LinkedHashMap<Player, Integer> results = new LinkedHashMap<>();
-        int skip = getVotes(null).size();
+        int skip = getVotes(null, arena).size();
         int mostVotes = 0;
         for (Player voter : votes.keySet()) {
-            int currentVotes = getVotes(voter).size();
+            int currentVotes = getVotes(voter, arena).size();
             results.put(voter, currentVotes);
             // used for draw check
             if (currentVotes > mostVotes) {

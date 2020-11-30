@@ -97,6 +97,7 @@ public class WallPanel {
 
     public void startGlowing(UUID player){
         Player player1 = Bukkit.getPlayer(player);
+        if (player1 == null) return;
         GlowingManager.setGlowingGreen(getItemFrame(), player1);
         hologram.show(player1);
     }
@@ -108,6 +109,7 @@ public class WallPanel {
 
     public void stopGlowing(UUID player){
         Player player1 = Bukkit.getPlayer(player);
+        if (player1 == null) return;
         GlowingManager.removeGlowing(getItemFrame(), player1);
         hologram.hide(player1);
     }
