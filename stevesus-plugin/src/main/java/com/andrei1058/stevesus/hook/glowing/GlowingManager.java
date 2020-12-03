@@ -23,7 +23,7 @@ public class GlowingManager {
 
     public static void setGlowingRed(@NotNull Entity player, @NotNull Player receiver, Arena arena) {
         if (!isGlowing(player, receiver)) {
-            GlowAPI.setGlowing(player, GlowAPI.Color.RED, "NEVER", "NEVER", receiver);
+            GlowAPI.setGlowing(player, GlowAPI.Color.RED, "never", "never", receiver);
             for (Player inGame : arena.getPlayers()) {
                 sendRemove(player, inGame);
             }
@@ -36,6 +36,12 @@ public class GlowingManager {
         }
     }
 
+    public static void setGlowingYellow(@NotNull Entity player, @NotNull Player receiver) {
+        if (!isGlowing(player, receiver)) {
+            GlowAPI.setGlowing(player, GlowAPI.Color.YELLOW, "never", "never", receiver);
+        }
+    }
+
     public static void setGlowingBlue(@NotNull Entity player, @NotNull Player receiver) {
         if (!isGlowing(player, receiver)) {
             GlowAPI.setGlowing(player, GlowAPI.Color.BLUE, "never", "never", receiver);
@@ -44,7 +50,7 @@ public class GlowingManager {
 
     public static void removeGlowing(@NotNull Entity player, @NotNull Player receiver) {
         if (isGlowing(player, receiver)) {
-            GlowAPI.setGlowing(player, null, receiver);
+            GlowAPI.setGlowing(player, null, "never", "never", receiver);
         }
     }
 
@@ -61,7 +67,7 @@ public class GlowingManager {
         if (glowingAPI) {
             GlowAPI.Color glowColor = GlowAPI.getGlowColor(player, receiver);
             if (glowColor == null || glowColor == GlowAPI.Color.WHITE) {
-                SteveSus.newChain().delay(1).sync(()-> GlowAPI.setGlowing(player, null, receiver)).execute();
+                SteveSus.newChain().delay(1).sync(()-> GlowAPI.setGlowing(player, null, "never", "never", receiver)).execute();
             }
         }
     }

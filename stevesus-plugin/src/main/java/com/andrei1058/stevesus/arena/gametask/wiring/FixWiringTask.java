@@ -101,8 +101,8 @@ public class FixWiringTask extends GameTask {
     }
 
     @Override
-    public boolean isDoingTask(UUID player) {
-        return currentlyOpenPanel.contains(player);
+    public boolean isDoingTask(Player player) {
+        return currentlyOpenPanel.contains(player.getUniqueId());
     }
 
     @Override
@@ -273,7 +273,7 @@ public class FixWiringTask extends GameTask {
                 wallPanels.forEach(panel -> panel.getHologram().hide(player));
             } else {
                 // hide existing glowing
-                for (WallPanel wallPanel : wallPanels){
+                for (WallPanel wallPanel : wallPanels) {
                     GlowingManager.removeGlowing(wallPanel.getItemFrame(), player);
                 }
             }

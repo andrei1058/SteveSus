@@ -190,7 +190,7 @@ public class SteveSusArena implements Arena {
         meetingLocations.forEach(location -> location.setWorld(this.world));
 
         teams.add(new CrewTeam(this));
-        Team impostors = new ImpostorTeam(this, 1);
+        Team impostors = new ImpostorTeam(this);
         teams.add(impostors);
         teams.add(new GhostCrewTeam(this));
         Team ghostImpostors = new GhostImpostorTeam(this);

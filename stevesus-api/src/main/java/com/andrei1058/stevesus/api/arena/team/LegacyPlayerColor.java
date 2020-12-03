@@ -71,7 +71,7 @@ public enum LegacyPlayerColor implements PlayerColorAssigner.PlayerColor {
     public void apply(Player player, Arena arena) {
         String displayName = SteveSusAPI.getInstance().getLocaleHandler().getDefaultLocale().getMsg(player, Message.COLOR_NAME_PATH_.toString() + getUniqueIdentifier());
         player.setDisplayName(displayName);
-        player.setPlayerListName(displayName);
+        //player.setPlayerListName(displayName);
         player.getInventory().setHelmet(helmet);
 
         ItemStack content = new ItemStack(Material.LEATHER_CHESTPLATE);
@@ -104,5 +104,10 @@ public enum LegacyPlayerColor implements PlayerColorAssigner.PlayerColor {
     @Override
     public @NotNull String getDefaultDisplayName() {
         return defaultDisplayName;
+    }
+
+    @Override
+    public @NotNull String getDisplayColor(Player player) {
+        return player.getDisplayName();
     }
 }

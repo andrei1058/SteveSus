@@ -61,6 +61,9 @@ public enum GameSound {
     GAME_START_IMPOSTOR(false, "game-start-impostor", "ENTITY_ZOMBIE_VILLAGER_CURE", "ITEM_TRIDENT_THUNDER", 1, 1),
     SABOTAGE_COUNT_DOWN(false, "sabotage-count-down", "BLOCK_LAVA_POP", "BLOCK_LAVA_POP", 1, 1),
     SABOTAGE_FIX_PROGRESS_RESET(false, "sabotage-fix-progress-reset", "ENTITY_CAT_HISS", "ENTITY_CAT_HISS", 1,1),
+    TASK_PROGRESS_RESET(false, "task-progress-reset", "ENTITY_CAT_HISS", "ENTITY_CAT_HISS", 1,1),
+    TASK_PROGRESS_PLUS(false, "task-progress-plus", "UI_BUTTON_CLICK", "UI_BUTTON_CLICK", 1,1),
+    TASK_PROGRESS_DONE(false, "task-progress-done", "ENTITY_CAT_PURREOW", "ENTITY_CAT_PURREOW", 1,1),
     SABOTAGE_FIX_PROGRESS(false, "sabotage-fix-progress", "UI_BUTTON_CLICK", "UI_BUTTON_CLICK", 1,1),
     SABOTAGE_FIX_SUCCESS(false, "sabotage-fix-success", "ENTITY_PLAYER_LEVELUP", "ENTITY_PLAYER_LEVELUP", 1,1)
     ;

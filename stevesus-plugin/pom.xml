@@ -46,6 +46,16 @@
             <artifactId>plugin-annotations</artifactId>
             <version>[1.2.3-SNAPSHOT,)</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bukkit</groupId>
+                    <artifactId>bukkit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--CommandLib -->
         <dependency>
@@ -173,12 +183,19 @@
             <groupId>org.inventivetalent</groupId>
             <artifactId>glowapi</artifactId>
             <version>1.4.14-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         <!-- PacketListener API -->
         <dependency>
             <groupId>org.inventivetalent.packetlistener</groupId>
             <artifactId>api</artifactId>
             <version>3.7.8-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>

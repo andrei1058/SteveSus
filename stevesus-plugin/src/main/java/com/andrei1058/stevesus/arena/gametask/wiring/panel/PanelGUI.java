@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.arena.gametask.wiring.panel;
 
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringTask;
 import com.andrei1058.stevesus.common.CommonManager;
@@ -83,13 +84,13 @@ public class PanelGUI extends BaseGUI {
     private void processClick(Player player, ItemStack itemStack, int slot) {
         String tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, "wire");
         if (tag == null) {
-            player.playSound(player.getLocation(), Sound.ENTITY_CAT_HISS, 1, 1);
+            GameSound.TASK_PROGRESS_RESET.playToPlayer(player);
             return;
         }
         char wire = tag.charAt(0);
         // cancel if clicked on a fixed wire
         if (fixedWires.contains(wire)) {
-            player.playSound(player.getLocation(), Sound.ENTITY_CAT_HISS, 1, 1);
+            GameSound.TASK_PROGRESS_RESET.playToPlayer(player);
             return;
         }
 
@@ -98,7 +99,7 @@ public class PanelGUI extends BaseGUI {
             player.getOpenInventory().setCursor(itemStack);
             lastSlot = (byte) slot;
             lastClickedWire = wire;
-            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
+            GameSound.TASK_PROGRESS_PLUS.playToPlayer(player);
             return;
         }
 
@@ -121,10 +122,10 @@ public class PanelGUI extends BaseGUI {
                 // close with delay
                 SteveSus.newChain().delay(20).sync(player::closeInventory).execute();
             } else {
-                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
+                GameSound.TASK_PROGRESS_PLUS.playToPlayer(player);
             }
         } else {
-            player.playSound(player.getLocation(), Sound.ENTITY_CAT_HISS, 1, 1);
+            GameSound.TASK_PROGRESS_RESET.playToPlayer(player);
         }
     }
 

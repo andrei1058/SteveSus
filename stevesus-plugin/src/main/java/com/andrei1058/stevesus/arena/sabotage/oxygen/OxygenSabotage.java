@@ -225,7 +225,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
 
         @Override
         public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
-            if (oldStage == MeetingStage.NO_MEETING && newStage == MeetingStage.TALKING) {
+            if (oldStage == MeetingStage.NO_MEETING) {
                 forceFixOnDeadBody();
             }
         }

@@ -150,7 +150,7 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
     public void restorePlayer(Player player) {
         if (hasColor(player)) {
             playerColor.remove(player.getUniqueId());
-            player.setPlayerListName(null);
+            //player.setPlayerListName(null);
             player.setDisplayName(null);
         }
     }
@@ -191,5 +191,10 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
          * Color's default display name which will be automatically saved to language files
          */
         @NotNull String getDefaultDisplayName();
+
+        /**
+         * Get color display name. Usually used in TAB.
+         */
+        @NotNull String getDisplayColor(Player player);
     }
 }

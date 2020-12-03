@@ -210,8 +210,8 @@ public class UploadTask extends GameTask {
     }
 
     @Override
-    public boolean isDoingTask(UUID player) {
-        return currentlyDoing.containsKey(player);
+    public boolean isDoingTask(Player player) {
+        return currentlyDoing.containsKey(player.getUniqueId());
     }
 
     @Override

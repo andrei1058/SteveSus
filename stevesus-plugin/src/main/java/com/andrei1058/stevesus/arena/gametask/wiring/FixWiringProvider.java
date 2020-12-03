@@ -178,6 +178,7 @@ public class FixWiringProvider extends TaskProvider {
                 panelEntities.forEach(Entity::remove);
                 player.sendTitle(ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()), ChatColor.RED + "Not saved!", 0, 60, 0);
                 player.sendMessage(ChatColor.RED + getDefaultDisplayName() + " wasn't saved because you didn't add enough wiring panels: " + stagesAmount[0]);
+                setupSession.setAllowCommands(true);
                 return null;
             }
             JsonArray panels = new JsonArray();

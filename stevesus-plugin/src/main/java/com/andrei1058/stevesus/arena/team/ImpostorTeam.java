@@ -20,11 +20,9 @@ public class ImpostorTeam implements Team {
     private final LinkedList<Player> members = new LinkedList<>();
     private boolean canVote = true;
     private final Arena arena;
-    private int teamSize;
 
-    public ImpostorTeam(Arena arena, int teamSize) {
+    public ImpostorTeam(Arena arena) {
         this.arena = arena;
-        this.teamSize = teamSize;
     }
 
     @Override
@@ -46,9 +44,17 @@ public class ImpostorTeam implements Team {
     @Override
     public boolean addPlayer(Player player, boolean gameStartAssign) {
         if (!gameStartAssign) return false;
-        if (getMembers().size() == getTeamSize()) return false;
-        if (getArena().getGameState() != GameState.IN_GAME) return false;
+        if (arena.getPlayers().size() >= 10) {
+            if (arena.getLiveSettings().getImpostors().getCurrentValue() == getMembers().size()) {
+                return false;
+            }
+        } else {
+            if (arena.getLiveSettings().getImpostors().getMinValue() == getMembers().size()){
+                return false;
+            }
+        }
         if (getArena().getPlayerTeam(player) != null) return false;
+        if (getArena().getGameState() != GameState.IN_GAME) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
         CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_IMPOSTOR);
         GameSound.GAME_START_IMPOSTOR.playToPlayer(player);
@@ -125,13 +131,5 @@ public class ImpostorTeam implements Team {
     @Override
     public boolean canBeVoted() {
         return true;
-    }
-
-    public int getTeamSize() {
-        return teamSize;
-    }
-
-    public void setTeamSize(int teamSize) {
-        this.teamSize = teamSize;
     }
 }

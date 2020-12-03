@@ -112,7 +112,7 @@ public class GameSidebar {
 
         // Remove previous placeholders
         List<String> placeholdersToRemove = new LinkedList<>();
-        Arrays.asList("{on}", "{spectating}", "{countdown}").forEach(toUnregister -> handle.getPlaceholders().forEach(placeholder -> {
+        Arrays.asList("{spectating}", "{countdown}").forEach(toUnregister -> handle.getPlaceholders().forEach(placeholder -> {
             if (placeholder.getPlaceholder().equals(toUnregister)) {
                 placeholdersToRemove.add(placeholder.getPlaceholder());
             } else if (placeholder.getPlaceholder().startsWith("{task_")) {
@@ -176,7 +176,7 @@ public class GameSidebar {
                     continue;
                 }
                 line = line.replace("{template}", arena.getTemplateWorld()).replace("{name}", arena.getDisplayName())
-                        .replace("{status}", arena.getDisplayState(player)).replace("{on}", String.valueOf(arena.getCurrentPlayers()))
+                        .replace("{status}", arena.getDisplayState(player))
                         .replace("{max}", String.valueOf(arena.getMaxPlayers())).replace("{spectating}", String.valueOf(arena.getCurrentSpectators()))
                         .replace("{game_tag}", arena.getTag()).replace("{game_id}", String.valueOf(arena.getGameId()));
             }
