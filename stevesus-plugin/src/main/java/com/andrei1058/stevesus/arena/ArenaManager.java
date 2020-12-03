@@ -17,6 +17,7 @@ import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.ability.kill.KillListener;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
+import com.andrei1058.stevesus.arena.gametask.manifolds.UnlockManifoldsProvider;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
 import com.andrei1058.stevesus.arena.gametask.upload.UploadTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
@@ -150,6 +151,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         getINSTANCE().registerGameTask(FixWiringProvider.getInstance());
         getINSTANCE().registerGameTask(SubmitScanProvider.getInstance());
         getINSTANCE().registerGameTask(UploadTaskProvider.getInstance());
+        getINSTANCE().registerGameTask(UnlockManifoldsProvider.getInstance());
 
         // register default sabotages
         getINSTANCE().registerSabotage(OxygenSabotageProvider.getInstance());
