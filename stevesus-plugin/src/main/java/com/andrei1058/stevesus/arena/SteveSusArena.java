@@ -184,6 +184,7 @@ public class SteveSusArena implements Arena {
         this.world.setAutoSave(false);
         this.world.getWorldBorder().setSize(1000);
         this.world.getWorldBorder().setWarningDistance(0);
+        this.world.setGameRuleValue("announceAdvancements", "false");
 
         waitingLocations.forEach(location -> location.setWorld(this.world));
         spectatingLocations.forEach(location -> location.setWorld(this.world));
