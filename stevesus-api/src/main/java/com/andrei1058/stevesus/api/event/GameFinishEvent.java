@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.event;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -13,19 +14,19 @@ public class GameFinishEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final Arena arena;
-    private final LinkedList<UUID> winners;
+    private final LinkedList<Team> winners;
 
     /**
      * Triggered when a game is finished.
      *
      * @param arena  arena.
      */
-    public GameFinishEvent(Arena arena, LinkedList<UUID> winners) {
+    public GameFinishEvent(Arena arena, LinkedList<Team> winners) {
         this.arena = arena;
         this.winners = winners;
     }
 
-    public LinkedList<UUID> getWinners() {
+    public LinkedList<Team> getWinners() {
         return winners;
     }
 

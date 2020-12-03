@@ -90,8 +90,18 @@ public enum Message {
     MEETING_START_CHAT_MSG_NO_BODY(false, "meeting-start-no-body", Arrays.asList(" ", "&c&lEmergency Meeting", " ", "&e{requester} &erequested an &cemergency &emeeting!", " ")),
     // {reporter}, {dead}
     MEETING_START_CHAT_MSG_BODY(false, "meeting-start-body", Arrays.asList(" ", " &c&lDead body Found", " ", "&e{reporter} &efound {dead}'s body.", " ")),
-    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!", "{todo} names here", "{reason}")),
-    GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrewmates won!", "{todo} names here", "")),
+
+    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!","", "{names} names here", "{reason}")),
+    // {display_name}, {name}, {display_color}, {kills}, {sabotages}
+    GAME_END_IMPOSTORS_WON_NAME_FORMAT("game-end-impostors-won-name-format", "{display_color} {name} &7&o{kills} kills/ {sabotages} sabotages"),
+    GAME_END_IMPOSTORS_WON_NAME_SEPARATOR("game-end-impostors-won-name-separator", "&b,\n"),
+    GAME_END_IMPOSTORS_WON_NAME_DOT("game-end-impostors-won-name-dot", "&b."),
+    // names is formatted elsewhere
+    GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrewmates won!", " ","{names} names here", "")),
+    // {display_name}, {name}, {display_color}, {tasks_done}, {tasks_total}
+    GAME_END_CREW_WON_NAME_FORMAT("game-end-crew-won-name-format", "{display_color} {name} &7&o({tasks_done}/{tasks_total} tasks)"),
+    GAME_END_CREW_WON_NAME_SEPARATOR("game-end-crew-won-name-separator", "&b,\n"),
+    GAME_END_CREW_WON_NAME_DOT("game-end-crew-won-name-dot", "&b."),
 
     GAME_END_IMPOSTORS_WON_TITLE("game-end-impostors-won-title", "&4Impostors won!"),
     GAME_END_IMPOSTORS_WON_SUBTITLE("game-end-impostors-won-subtitle", " "),
