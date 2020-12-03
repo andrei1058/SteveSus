@@ -8,6 +8,7 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -109,8 +110,8 @@ public class SubmitScanTask extends GameTask {
     }
 
     @Override
-    public boolean isDoingTask(UUID player) {
-        return currentScan != null && currentScan.equals(player);
+    public boolean isDoingTask(Player player) {
+        return currentScan != null && currentScan.equals(player.getUniqueId());
     }
 
     @Override
@@ -134,6 +135,7 @@ public class SubmitScanTask extends GameTask {
         if (!arena.isTasksAllowedATM()) return false;
         player.teleport(scanCapsuleLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         arena.setCantMove(player, true);
+        Team playerTeam = arena.getPlayerTeam(player);
         currentScan = player.getUniqueId();
         final int fraction = 4;
         final int[] currentSecond = {scanDuration * fraction}; // its * multiplied because task is running every half tick
@@ -168,7 +170,7 @@ public class SubmitScanTask extends GameTask {
                     }
                 }
                 player.playSound(scanCapsuleLocation, Sound.BLOCK_NOTE_BASS, (float) 1, (float) currentPitch[0]);
-                if (arena.getLiveSettings().isVisualTasksEnabled() && getHandler().isVisual()) {
+                if (arena.getLiveSettings().isVisualTasksEnabled() && getHandler().isVisual() && (playerTeam == null || !playerTeam.getIdentifier().endsWith("-ghost"))) {
                     scanParticles.forEach(loc -> loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, currentY[0], 0), 1));
                 } else {
                     scanParticles.forEach(loc -> player.spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, currentY[0], 0), 1));
@@ -196,6 +198,7 @@ public class SubmitScanTask extends GameTask {
         currentScanTask = -1;
     }
 
+    @SuppressWarnings("unused")
     public void setScanDuration(int scanDuration) {
         this.scanDuration = scanDuration;
     }
