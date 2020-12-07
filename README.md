@@ -132,3 +132,6 @@ Just copy "game-task-scoreboard-format" and add -templateName to its path.
 
 ## When creating a custom sabotage
 You really need to call GameSabotageDeactivateEvent when it's done.
+
+### Suggest anti miniMap plugins
+

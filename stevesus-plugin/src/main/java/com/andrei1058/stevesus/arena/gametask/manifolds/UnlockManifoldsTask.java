@@ -1,5 +1,8 @@
 package com.andrei1058.stevesus.arena.gametask.manifolds;
 
+import com.andrei1058.hologramapi.Hologram;
+import com.andrei1058.hologramapi.HologramPage;
+import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
@@ -7,13 +10,13 @@ import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Shulker;
+import org.bukkit.Material;
+import org.bukkit.entity.*;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -26,29 +29,55 @@ public class UnlockManifoldsTask extends GameTask {
     private final HashMap<UUID, Boolean> assignedPlayers = new HashMap<>();
     private final Arena arena;
     private final Shulker shulkerEntity;
+    private final Hologram hologram;
 
     public UnlockManifoldsTask(String localName, Arena arena, Location location) {
         this.localName = localName;
         this.arena = arena;
         LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_PATH_ + UnlockManifoldsProvider.getInstance().getIdentifier() + "-" + localName, "&0Count to ten");
+        location.getBlock().setType(Material.AIR);
 
-        shulkerEntity = location.getWorld().spawn(location, Shulker.class);
+        shulkerEntity = (Shulker) location.getWorld().spawnEntity(location, EntityType.SHULKER);
         shulkerEntity.setInvulnerable(true);
+        shulkerEntity.setGravity(false);
         shulkerEntity.setAI(false);
-        shulkerEntity.setSilent(true);
         shulkerEntity.setColor(DyeColor.BLACK);
+
+        hologram = new Hologram(location.clone().add(0, 2, 0), 2);
+        hologram.allowCollisions(false);
+        HologramPage page = hologram.getPage(0);
+        assert page != null;
+        page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_NAME_PATH_.toString() + getHandler().getIdentifier())));
+        page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_DESCRIPTION_PATH_.toString() + getHandler().getIdentifier())));
+        hologram.hide();
+
         arena.registerGameListener(new GameListener() {
             @Override
             public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
-                if (entity.equals(shulkerEntity)){
+                if (entity.equals(shulkerEntity)) {
                     tryOpenGUI(player, arena);
                 }
             }
 
             @Override
             public void onEntityPunch(Arena arena, Player player, Entity entity) {
-                if (entity.equals(shulkerEntity)){
+                if (entity.equals(shulkerEntity)) {
                     tryOpenGUI(player, arena);
+                }
+            }
+
+            @Override
+            public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
+                if (newState == GameState.IN_GAME) {
+
+                    // hide hologram for those who do not have this task
+                    for (Player player : arena.getPlayers()) {
+                        if (!hasTask(player)) {
+                            hologram.hide(player);
+                        }
+                    }
+                    hologram.show();
+
                 }
             }
         });
@@ -110,10 +139,10 @@ public class UnlockManifoldsTask extends GameTask {
 
     @Override
     public boolean isDoingTask(Player player) {
-        if (player.getOpenInventory() == null){
+        if (player.getOpenInventory() == null) {
             return false;
         }
-        if (player.getOpenInventory().getTopInventory() == null){
+        if (player.getOpenInventory().getTopInventory() == null) {
             return false;
         }
         return player.getOpenInventory().getTopInventory().getHolder().getClass().getSimpleName().equals(UnlockGUI.UnlockManifoldsHandler.class.getSimpleName());
@@ -121,18 +150,20 @@ public class UnlockManifoldsTask extends GameTask {
 
     @Override
     public void enableIndicators() {
-        for (Player player : arena.getPlayers()){
-            if (hasTask(player) && (getCurrentStage(player) != getTotalStages(player))){
+        for (Player player : arena.getPlayers()) {
+            if (hasTask(player) && (getCurrentStage(player) != getTotalStages(player))) {
                 GlowingManager.setGlowingYellow(shulkerEntity, player);
+                hologram.hide(player);
             }
         }
     }
 
     @Override
     public void disableIndicators() {
-        for (Player player : arena.getPlayers()){
-            if (hasTask(player)){
+        for (Player player : arena.getPlayers()) {
+            if (hasTask(player)) {
                 GlowingManager.removeGlowing(shulkerEntity, player);
+                hologram.show(player);
             }
         }
     }
@@ -143,6 +174,7 @@ public class UnlockManifoldsTask extends GameTask {
         arena.refreshTaskMeter();
         arena.getGameEndConditions().tickGameEndConditions(arena);
         GlowingManager.removeGlowing(shulkerEntity, player);
+        hologram.hide(player);
     }
 
     private void tryOpenGUI(Player player, Arena arena) {
@@ -151,11 +183,11 @@ public class UnlockManifoldsTask extends GameTask {
             // should prevent called twice
             if (isDoingTask(player)) return;
             if (getCurrentStage(player) != getTotalStages(player)) {
-                    SteveSus.newChain().async(() -> {
-                        Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
-                        UnlockGUI gui = new UnlockGUI(playerLang, getLocalName(), this);
-                        SteveSus.newChain().sync(() -> gui.open(player)).execute();
-                    }).execute();
+                SteveSus.newChain().async(() -> {
+                    Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
+                    UnlockGUI gui = new UnlockGUI(playerLang, getLocalName(), this);
+                    SteveSus.newChain().sync(() -> gui.open(player)).execute();
+                }).execute();
             }
         }
     }

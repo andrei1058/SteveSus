@@ -91,13 +91,13 @@ public enum Message {
     // {reporter}, {dead}
     MEETING_START_CHAT_MSG_BODY(false, "meeting-start-body", Arrays.asList(" ", " &c&lDead body Found", " ", "&e{reporter} &efound {dead}'s body.", " ")),
 
-    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!","", "{names} names here", "{reason}")),
+    GAME_END_IMPOSTORS_WON_CHAT("game-end-impostors-won-chat", Arrays.asList(" ", " ", "&4Impostors won!", " ", "{names} names here", " ", "{reason}")),
     // {display_name}, {name}, {display_color}, {kills}, {sabotages}
     GAME_END_IMPOSTORS_WON_NAME_FORMAT("game-end-impostors-won-name-format", "{display_color} {name} &7&o{kills} kills/ {sabotages} sabotages"),
     GAME_END_IMPOSTORS_WON_NAME_SEPARATOR("game-end-impostors-won-name-separator", "&b,\n"),
     GAME_END_IMPOSTORS_WON_NAME_DOT("game-end-impostors-won-name-dot", "&b."),
     // names is formatted elsewhere
-    GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrewmates won!", " ","{names} names here", "")),
+    GAME_END_CREW_WON_CHAT("game-end-crew-won-chat", Arrays.asList(" ", " ", "&bCrewmates won!", " ", "{names} names here", "")),
     // {display_name}, {name}, {display_color}, {tasks_done}, {tasks_total}
     GAME_END_CREW_WON_NAME_FORMAT("game-end-crew-won-name-format", "{display_color} {name} &7&o({tasks_done}/{tasks_total} tasks)"),
     GAME_END_CREW_WON_NAME_SEPARATOR("game-end-crew-won-name-separator", "&b,\n"),
@@ -120,7 +120,7 @@ public enum Message {
 
     SCOREBOARD_SIDEBAR_LOBBY("scoreboard-sidebar-lobby", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "", "&7{date}", "", "&7{player}", "", "&8Game Stats:", "&7Wins: &f{games_won}", "&7Abandons: &f{games_abandoned}", "&7Losts: &f{games_lost}", "", "&7Version: &f{version}","", "&b{server_name}")),
+            "", "&7{date}", "", "&7{player}", "", "&8Game Stats:", "&7Wins: &f{games_won}", "&7Abandons: &f{games_abandoned}", "&7Losts: &f{games_lost}", "", "&7Version: &f{version}", "", "&b{server_name}")),
 
     SCOREBOARD_SIDEBAR_WAITING("scoreboard-sidebar-waiting", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
@@ -178,21 +178,20 @@ public enum Message {
     GAME_START_IMPOSTOR_CHAT("game-start-chat-impostor", Arrays.asList(" ", "&cYou are an impostor!", "", "&eSabotage and kill crewmates to win!", "They can't see what item you're holding in your hand.")),
     SABOTAGE_PATH_(true, "game-sabotage-", ""),
     GAME_ROOM_NAME_(true, "game-room-name-", ""),
-    GAME_ROOM_NO_NAME( "game-no-room", "&7No Room"),
+    GAME_ROOM_NO_NAME("game-no-room", "&7No Room"),
     DEFEAT_REASON_PATH_(true, "defeat-reason-", ""),
     DEFEAT_REASON_NO_MORE_INNOCENTS("defeat-reason-innocents-died", "&bAll innocents died!"),
     DEFEAT_REASON_ALL_KILLED("defeat-reason-all-killed", "&bImpostors killed everyone!"),
     WIN_REASON_IMPOSTORS_EXCLUDED("win-reason-impostors-excluded", "&eNo more impostors among us!"),
     WIN_REASON_TASKS_COMPLETED("win-reason-tasks-completed", "&eAll tasks were completed!"),
     WIN_REASON_PATH_(true, "win-reason-", ""),
-    IN_GAME_ACTION_BAR("action-bar-in-game", "&fYour color: {player} &7| &fRoom: {room}" ),
+    IN_GAME_ACTION_BAR("action-bar-in-game", "&fYour color: {player} &7| &fRoom: {room}"),
     VENT_HOLO("vent-holo", "&6&lShift to vent!"),
     VENT_ENTER_SUBTITLE("vent-enter-subtitle", "&fShift to exit."),
     TAB_LIST_GENERIC_PREFIX("tab-list-prefix-format-generic", "{display_color} "),
     TAB_LIST_GENERIC_SUGGIX("tab-list-suffix-format-generic", ""),
     TAB_LIST_GHOST_PREFIX("tab-list-prefix-format-ghost", "&o{display_color} "),
-    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", "&7 (Ghost)")
-    ;
+    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", "&7 (Ghost)");
 
     private final String path;
     private final boolean manual;

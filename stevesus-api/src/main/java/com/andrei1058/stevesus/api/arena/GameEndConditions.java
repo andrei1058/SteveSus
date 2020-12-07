@@ -12,6 +12,7 @@ import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -170,7 +171,7 @@ public class GameEndConditions {
         Bukkit.getPluginManager().callEvent(event);
     }
 
-    private static void impostorsWin(Arena arena, String reasonPath) {
+    public static void impostorsWin(Arena arena, @Nullable String reasonPath) {
         arena.switchState(GameState.ENDING);
 
         // this list is passed to the game end/ win event

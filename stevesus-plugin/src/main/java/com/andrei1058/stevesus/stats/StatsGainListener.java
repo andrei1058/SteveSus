@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.stats;
 
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.GameFinishEvent;
 import com.andrei1058.stevesus.api.event.PlayerGameLeaveEvent;
 import com.andrei1058.stevesus.api.event.PlayerToSpectatorEvent;
@@ -27,7 +28,7 @@ public class StatsGainListener implements Listener {
             PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(e.getPlayer().getUniqueId());
             if (stats != null) {
                 boolean isAbandon = e.isAbandon();
-                if (isAbandon){
+                if (isAbandon) {
                     stats.saveStats(e.isAbandon());
                     return;
                 }
@@ -69,25 +70,26 @@ public class StatsGainListener implements Listener {
 
     @EventHandler
     public void onGameEnd(GameFinishEvent e) {
-        e.getWinners().forEach(winner -> {
-            Player playerWinner = Bukkit.getPlayer(winner);
-            if (playerWinner != null) {
-                Arena winnerArena = ArenaManager.getINSTANCE().getArenaByPlayer(playerWinner);
-                if (winnerArena != null && winnerArena.equals(e.getArena())) {
-                    if (PreventionManager.getInstance().canReceiveWin(winnerArena)) {
-                        PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(winner);
-                        if (stats != null) {
-                            stats.setGamesPlayed(stats.getGamesPlayed() + 1);
-                            stats.setGamesWon(stats.getGamesWon() + 1);
-                            stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
-                            stats.saveStats(false);
+        for (Team winnerTeam : e.getWinners()) {
+            for (Player winner : winnerTeam.getMembers()) {
+                if (winner != null) {
+                    Arena winnerArena = ArenaManager.getINSTANCE().getArenaByPlayer(winner);
+                    if (winnerArena != null && winnerArena.equals(e.getArena())) {
+                        if (PreventionManager.getInstance().canReceiveWin(winnerArena)) {
+                            PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(winner.getUniqueId());
+                            if (stats != null) {
+                                stats.setGamesPlayed(stats.getGamesPlayed() + 1);
+                                stats.setGamesWon(stats.getGamesWon() + 1);
+                                stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
+                                stats.saveStats(false);
+                            }
+                        } else {
+                            winner.sendMessage(LanguageManager.getINSTANCE().getMsg(winner, Message.PREVENTION_GAME_TOO_SHORT)
+                                    .replace("{map}", e.getArena().getDisplayName()));
                         }
-                    } else {
-                        playerWinner.sendMessage(LanguageManager.getINSTANCE().getMsg(playerWinner, Message.PREVENTION_GAME_TOO_SHORT)
-                                .replace("{map}", e.getArena().getDisplayName()));
                     }
                 }
             }
-        });
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.andrei1058.stevesus.arena;
 import ch.jalu.configme.SettingsManager;
 import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.*;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
@@ -767,7 +766,7 @@ public class SteveSusArena implements Arena {
         // if in game status, will check if it is the case to end this game
         getGameEndConditions().tickGameEndConditions(this);
 
-        if (getGameState() != GameState.ENDING) {
+        //if (getGameState() != GameState.ENDING) {
             for (Player inArena : getPlayers()) {
                 inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
                         .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
@@ -777,7 +776,7 @@ public class SteveSusArena implements Arena {
                 inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
                         .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
             }
-        }
+        //}
         // enable movement if disabled
         setCantMove(player, false);
         meetingsLeft.remove(player.getUniqueId());
@@ -1558,38 +1557,7 @@ public class SteveSusArena implements Arena {
 
     @Override
     public void defeatBySabotage(@Nullable String reasonPath) {
-        // impostors won
-        switchState(GameState.ENDING);
-        getPlayers().forEach(player -> {
-            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-            lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> {
-                if (string.contains("{reason}")) {
-                    if (reasonPath != null) {
-                        string = lang.getMsg(player, reasonPath);
-                        player.sendMessage(ChatUtil.centerMessage(string));
-                    }
-                } else {
-                    player.sendMessage(ChatUtil.centerMessage(string));
-                }
-            });
-            player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
-        });
-        getSpectators().forEach(player -> {
-            Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
-            lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT).forEach(string -> {
-                if (string.contains("{reason}")) {
-                    if (reasonPath != null) {
-                        string = lang.getMsg(player, reasonPath);
-                        player.sendMessage(ChatUtil.centerMessage(string));
-                    }
-                } else {
-                    player.sendMessage(ChatUtil.centerMessage(string));
-                }
-            });
-            player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
-        });
-        GameSound.IMPOSTORS_WIN.playToPlayers(getPlayers());
-        GameSound.IMPOSTORS_WIN.playToPlayers(getSpectators());
+        GameEndConditions.impostorsWin(this, reasonPath);
     }
 
     @Override
