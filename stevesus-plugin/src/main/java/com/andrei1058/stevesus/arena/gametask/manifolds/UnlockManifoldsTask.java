@@ -162,7 +162,7 @@ public class UnlockManifoldsTask extends GameTask {
     public void disableIndicators() {
         for (Player player : arena.getPlayers()) {
             if (hasTask(player)) {
-                GlowingManager.removeGlowing(shulkerEntity, player);
+                GlowingManager.getInstance().removeGlowing(shulkerEntity, player);
                 hologram.show(player);
             }
         }
@@ -173,7 +173,7 @@ public class UnlockManifoldsTask extends GameTask {
         assignedPlayers.replace(player.getUniqueId(), true);
         arena.refreshTaskMeter();
         arena.getGameEndConditions().tickGameEndConditions(arena);
-        GlowingManager.removeGlowing(shulkerEntity, player);
+        GlowingManager.getInstance().removeGlowing(shulkerEntity, player);
         hologram.hide(player);
     }
 

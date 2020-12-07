@@ -11,6 +11,8 @@ import com.andrei1058.stevesus.api.arena.sabotage.*;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.GameSabotageActivateEvent;
 import com.andrei1058.stevesus.api.event.GameSabotageDeactivateEvent;
+import com.andrei1058.stevesus.api.glow.GlowColor;
+import com.andrei1058.stevesus.api.glow.GlowingBox;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -133,6 +135,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         private byte nextPulseFace = -1;
         private boolean fixed = true;
         private final Hologram hologram;
+        private final GlowingBox glowingBox;
 
         public OxygenMonitor(Location location) {
             // try to create error state hologram
@@ -142,6 +145,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             assert page != null;
             page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, OxygenSabotageProvider.TO_FIX_HOLOGRAM)));
             hologram.hide();
+            glowingBox = new GlowingBox(location.clone().add(0, 1.5, 0), 1, GlowColor.RED);
 
 
             /*if (standardFace == null) {
@@ -176,6 +180,13 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             hologram.show();
             hologram.refreshLines();
             fixed = false;
+            for (Player player : getArena().getPlayers()) {
+                getGlowingBox().startGlowing(player);
+            }
+        }
+
+        public GlowingBox getGlowingBox() {
+            return glowingBox;
         }
 
         public void nextFace() {
@@ -194,6 +205,9 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
                 tryDeactivate();
             }
             hologram.hide();
+            for (Player player : getArena().getPlayers()) {
+                getGlowingBox().stopGlowing(player);
+            }
         }
 
         public boolean isFixed() {
@@ -234,14 +248,12 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             if (!isActive()) return;
             Team playerTeam = arena.getPlayerTeam(player);
             if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) return;
-            if (entity instanceof ArmorStand) {
-                for (OxygenMonitor monitor : monitors) {
-                    if (entity.equals(monitor.armorStand) && !monitor.isFixed()) {
-                        SteveSus.newChain().async(() -> {
-                            OxygenDisplay gui = new OxygenDisplay(LanguageManager.getINSTANCE().getLocale(player), monitor);
-                            SteveSus.newChain().sync(() -> gui.open(player)).execute();
-                        }).execute();
-                    }
+            for (OxygenMonitor monitor : monitors) {
+                if ((entity.equals(monitor.armorStand) || entity.equals(monitor.getGlowingBox().getMagmaCube())) && !monitor.isFixed()) {
+                    SteveSus.newChain().async(() -> {
+                        OxygenDisplay gui = new OxygenDisplay(LanguageManager.getINSTANCE().getLocale(player), monitor);
+                        SteveSus.newChain().sync(() -> gui.open(player)).execute();
+                    }).execute();
                 }
             }
         }

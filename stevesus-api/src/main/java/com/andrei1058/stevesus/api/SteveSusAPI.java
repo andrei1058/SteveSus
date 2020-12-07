@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.api;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.stevesus.api.arena.ArenaHandler;
+import com.andrei1058.stevesus.api.glow.GlowingHandler;
 import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
@@ -61,6 +62,11 @@ public interface SteveSusAPI extends Plugin {
      * Get locale manager.
      */
     LocaleManager getLocaleHandler();
+
+    /**
+     * Get glowing manager.
+     */
+    GlowingHandler getGlowingHandler();
 
     /**
      * Get API instance.

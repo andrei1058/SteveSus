@@ -1,6 +1,5 @@
 package com.andrei1058.stevesus.api.arena.sabotage;
 
-import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.server.GameSound;
 import org.bukkit.Bukkit;

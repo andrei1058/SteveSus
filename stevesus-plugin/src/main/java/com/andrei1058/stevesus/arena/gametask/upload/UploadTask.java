@@ -53,7 +53,7 @@ public class UploadTask extends GameTask {
             return;
         }
         panel.getHologram().hide(player);
-        GlowingManager.removeGlowing(panel.getItemFrame(), player);
+        GlowingManager.getInstance().removeGlowing(panel.getItemFrame(), player);
         int taskId = currentlyDoing.remove(player.getUniqueId());
         Bukkit.getScheduler().cancelTask(taskId);
         if (panel.getPanelType() == WallPanel.PanelType.DOWNLOAD) {
@@ -123,7 +123,7 @@ public class UploadTask extends GameTask {
             } else {
                 // hide existing glowing
                 for (WallPanel panel : panels){
-                    GlowingManager.removeGlowing(panel.getItemFrame(), player);
+                    GlowingManager.getInstance().removeGlowing(panel.getItemFrame(), player);
                 }
             }
         }
@@ -229,7 +229,7 @@ public class UploadTask extends GameTask {
         for (Map.Entry<UUID, WallPanel> entry : currentPlayerStage.entrySet()) {
             if (entry.getValue() != null) {
                 // disable blue indicator
-                GlowingManager.removeGlowing(entry.getValue().getItemFrame(), Bukkit.getPlayer(entry.getKey()));
+                GlowingManager.getInstance().removeGlowing(entry.getValue().getItemFrame(), Bukkit.getPlayer(entry.getKey()));
             }
         }
     }

@@ -540,8 +540,8 @@ public class SteveSusArena implements Arena {
 
             // remove existing glowing on players
             for (Player inGame : getPlayers()) {
-                GlowingManager.removeGlowing(inGame, player);
-                GlowingManager.removeGlowing(player, inGame);
+                GlowingManager.getInstance().removeGlowing(inGame, player);
+                GlowingManager.getInstance().removeGlowing(player, inGame);
             }
 
             SteveSus.debug("Player " + player.getName() + " was added as player to game " + getGameId() + "(" + getTemplateWorld() + ").");
@@ -621,7 +621,7 @@ public class SteveSusArena implements Arena {
         // clear countdown cache
         PlayerCoolDown.clearPlayerData(player);
         // clear glowing
-        getPlayers().forEach(inGame -> GlowingManager.removeGlowing(player, inGame));
+        getPlayers().forEach(inGame -> GlowingManager.getInstance().removeGlowing(player, inGame));
 
         Team team = getPlayerTeam(player);
         if (team != null) {
@@ -790,7 +790,7 @@ public class SteveSusArena implements Arena {
         PlayerCoolDown.clearPlayerData(player);
         // remove glowing
         for (Player inGame : players) {
-            GlowingManager.removeGlowing(player, inGame);
+            GlowingManager.getInstance().removeGlowing(player, inGame);
         }
 
         // trigger listener
@@ -1234,7 +1234,7 @@ public class SteveSusArena implements Arena {
         // clear glowing
         getGameTeams().forEach(team -> {
             if (!team.isInnocent()) {
-                getPlayers().forEach(inGame -> team.getMembers().forEach(member -> GlowingManager.removeGlowing(inGame, member)));
+                getPlayers().forEach(inGame -> team.getMembers().forEach(member -> GlowingManager.getInstance().removeGlowing(inGame, member)));
             }
         });
         //
@@ -1390,7 +1390,7 @@ public class SteveSusArena implements Arena {
         GameSound.KILL.playAtLocation(victim.getLocation(), getPlayers());
 
         // remove glowing
-        GlowingManager.removeGlowing(victim, killer);
+        GlowingManager.getInstance().removeGlowing(victim, killer);
 
         ItemStack helmet = victim.getInventory().getHelmet();
         ItemStack chestPlate = victim.getInventory().getChestplate();

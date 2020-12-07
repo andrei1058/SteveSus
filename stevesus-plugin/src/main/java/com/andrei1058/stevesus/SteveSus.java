@@ -6,6 +6,7 @@ import co.aikar.taskchain.TaskChainFactory;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.versionsupport.ChatSupport;
 import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.glow.GlowingHandler;
 import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
@@ -58,7 +59,7 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
 import java.io.File;
 
-@Plugin(name = "SteveSus", version = "1.1.5-beta")
+@Plugin(name = "SteveSus", version = "1.1.6-beta")
 @Description(value = "A murder mystery mini-game")
 @Author(value = "andrei1058")
 @Website(value = "www.andrei1058.com")
@@ -310,6 +311,11 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
     @Override
     public LocaleManager getLocaleHandler() {
         return LanguageManager.getINSTANCE();
+    }
+
+    @Override
+    public GlowingHandler getGlowingHandler() {
+        return GlowingManager.getInstance();
     }
 
     public static SteveSus getInstance() {

@@ -2,17 +2,25 @@ package com.andrei1058.stevesus.hook.glowing;
 
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.glow.GlowColor;
+import com.andrei1058.stevesus.api.glow.GlowingHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.inventivetalent.glow.GlowAPI;
 import org.jetbrains.annotations.NotNull;
 
-public class GlowingManager {
+public class GlowingManager implements GlowingHandler {
 
     private static boolean glowingAPI = false;
+    private static GlowingManager instance;
 
     private GlowingManager() {
+        instance = this;
+    }
+
+    public static GlowingManager getInstance() {
+        return instance == null ? instance = new GlowingManager() : instance;
     }
 
     public static void init() {
@@ -48,7 +56,7 @@ public class GlowingManager {
         }
     }
 
-    public static void removeGlowing(@NotNull Entity player, @NotNull Player receiver) {
+    public void removeGlowing(@NotNull Entity player, @NotNull Player receiver) {
         if (isGlowing(player, receiver)) {
             GlowAPI.setGlowing(player, null, "never", "never", receiver);
         }
@@ -70,5 +78,20 @@ public class GlowingManager {
                 SteveSus.newChain().delay(1).sync(()-> GlowAPI.setGlowing(player, null, "never", "never", receiver)).execute();
             }
         }
+    }
+
+    @Override
+    public void setGlowing(@NotNull Entity player, @NotNull Player receiver, GlowColor color) {
+        if (!isGlowing(player, receiver)){
+            GlowAPI.setGlowing(player, getLegacyColor(color), "never", "never", receiver);
+        }
+    }
+
+    private GlowAPI.Color getLegacyColor(GlowColor color){
+       try {
+           return GlowAPI.Color.valueOf(color.name().toUpperCase());
+       } catch (Exception ex){
+           return GlowAPI.Color.WHITE;
+       }
     }
 }

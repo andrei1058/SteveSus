@@ -98,7 +98,7 @@ public class PlayerMoveListener implements Listener {
                         if (nearestsTarget == null) {
                             GlowingManager.setGlowingRed(player, inGame, arena);
                         } else if (!nearestsTarget.equals(player) && currentDistance < nearestsTarget.getLocation().distance(inGame.getLocation())) {
-                            GlowingManager.removeGlowing(nearestsTarget, inGame);
+                            GlowingManager.getInstance().removeGlowing(nearestsTarget, inGame);
                             GlowingManager.setGlowingRed(player, inGame, arena);
                         }
                     }
@@ -106,7 +106,7 @@ public class PlayerMoveListener implements Listener {
             } else {
                 // if exiting a killer range update glowing on someone in his range if is not moving
                 if (GlowingManager.isGlowing(player, inGame)) {
-                    GlowingManager.removeGlowing(player, inGame);
+                    GlowingManager.getInstance().removeGlowing(player, inGame);
                     // todo send glowing on nearest player to inGame
                 }
             }
@@ -115,7 +115,7 @@ public class PlayerMoveListener implements Listener {
             if (currentlyGlowing.equals(nearest)) {
                 return;
             }
-            GlowingManager.removeGlowing(currentlyGlowing, player);
+            GlowingManager.getInstance().removeGlowing(currentlyGlowing, player);
         }
         if (nearest != null) {
             GlowingManager.setGlowingRed(nearest, player, arena);

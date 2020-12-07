@@ -274,7 +274,7 @@ public class FixWiringTask extends GameTask {
             } else {
                 // hide existing glowing
                 for (WallPanel wallPanel : wallPanels) {
-                    GlowingManager.removeGlowing(wallPanel.getItemFrame(), player);
+                    GlowingManager.getInstance().removeGlowing(wallPanel.getItemFrame(), player);
                 }
             }
         }
