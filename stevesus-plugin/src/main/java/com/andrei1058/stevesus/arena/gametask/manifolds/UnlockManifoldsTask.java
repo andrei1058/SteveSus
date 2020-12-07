@@ -8,15 +8,17 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.glow.GlowColor;
+import com.andrei1058.stevesus.api.glow.GlowingBox;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
-import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -28,20 +30,18 @@ public class UnlockManifoldsTask extends GameTask {
     // player uuid, finished boolean
     private final HashMap<UUID, Boolean> assignedPlayers = new HashMap<>();
     private final Arena arena;
-    private final Shulker shulkerEntity;
+    private final Block shulkerBlock;
     private final Hologram hologram;
+    private final GlowingBox glowingBox;
 
     public UnlockManifoldsTask(String localName, Arena arena, Location location) {
         this.localName = localName;
         this.arena = arena;
         LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_PATH_ + UnlockManifoldsProvider.getInstance().getIdentifier() + "-" + localName, "&0Count to ten");
         location.getBlock().setType(Material.AIR);
-
-        shulkerEntity = (Shulker) location.getWorld().spawnEntity(location, EntityType.SHULKER);
-        shulkerEntity.setInvulnerable(true);
-        shulkerEntity.setGravity(false);
-        shulkerEntity.setAI(false);
-        shulkerEntity.setColor(DyeColor.BLACK);
+        shulkerBlock = location.getBlock();
+        shulkerBlock.setType(Material.BLACK_SHULKER_BOX);
+        glowingBox = new GlowingBox(location, 2, GlowColor.YELLOW);
 
         hologram = new Hologram(location.clone().add(0, 2, 0), 2);
         hologram.allowCollisions(false);
@@ -54,15 +54,25 @@ public class UnlockManifoldsTask extends GameTask {
         arena.registerGameListener(new GameListener() {
             @Override
             public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
-                if (entity.equals(shulkerEntity)) {
+                if (entity.equals(getGlowingBox().getMagmaCube())) {
                     tryOpenGUI(player, arena);
                 }
             }
 
             @Override
             public void onEntityPunch(Arena arena, Player player, Entity entity) {
-                if (entity.equals(shulkerEntity)) {
+                if (entity.equals(getGlowingBox().getMagmaCube())) {
                     tryOpenGUI(player, arena);
+                }
+            }
+
+            @Override
+            public void onPlayerInteract(Arena arena, Player player, PlayerInteractEvent event, boolean hasItemInHand) {
+                if (event.getClickedBlock() != null){
+                    if (event.getClickedBlock().equals(shulkerBlock)){
+                        event.setCancelled(true);
+                        tryOpenGUI(player, arena);
+                    }
                 }
             }
 
@@ -81,6 +91,10 @@ public class UnlockManifoldsTask extends GameTask {
                 }
             }
         });
+    }
+
+    public GlowingBox getGlowingBox() {
+        return glowingBox;
     }
 
     @Override
@@ -124,7 +138,7 @@ public class UnlockManifoldsTask extends GameTask {
     public void assignToPlayer(Player player, Arena arena) {
         assignedPlayers.remove(player.getUniqueId());
         assignedPlayers.put(player.getUniqueId(), false);
-        GlowingManager.setGlowingYellow(shulkerEntity, player);
+        getGlowingBox().startGlowing(player);
     }
 
     @Override
@@ -152,7 +166,7 @@ public class UnlockManifoldsTask extends GameTask {
     public void enableIndicators() {
         for (Player player : arena.getPlayers()) {
             if (hasTask(player) && (getCurrentStage(player) != getTotalStages(player))) {
-                GlowingManager.setGlowingYellow(shulkerEntity, player);
+                getGlowingBox().startGlowing(player);
                 hologram.hide(player);
             }
         }
@@ -162,7 +176,7 @@ public class UnlockManifoldsTask extends GameTask {
     public void disableIndicators() {
         for (Player player : arena.getPlayers()) {
             if (hasTask(player)) {
-                GlowingManager.getInstance().removeGlowing(shulkerEntity, player);
+                getGlowingBox().stopGlowing(player);
                 hologram.show(player);
             }
         }
@@ -173,7 +187,7 @@ public class UnlockManifoldsTask extends GameTask {
         assignedPlayers.replace(player.getUniqueId(), true);
         arena.refreshTaskMeter();
         arena.getGameEndConditions().tickGameEndConditions(arena);
-        GlowingManager.getInstance().removeGlowing(shulkerEntity, player);
+        getGlowingBox().stopGlowing(player);
         hologram.hide(player);
     }
 
