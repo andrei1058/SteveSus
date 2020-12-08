@@ -236,9 +236,9 @@ public class SteveSusArena implements Arena {
             getLiveSettings().getShortTasks().setMaxValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT_MAX), shortTasks));
         }
         if (config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT) < 0) {
-            getLiveSettings().getShortTasks().setCurrentValue(getLiveSettings().getShortTasks().getMaxValue());
+            getLiveSettings().getShortTasks().setCurrentValue(0);
         } else {
-            getLiveSettings().getShortTasks().setCurrentValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_COMMON), getLiveSettings().getShortTasks().getMaxValue()));
+            getLiveSettings().getShortTasks().setCurrentValue(Math.min(config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_SHORT), getLiveSettings().getShortTasks().getMaxValue()));
         }
         // long tasks
         getLiveSettings().getLongTasks().setMinValue(Math.max(0, config.getProperty(ArenaConfig.DEFAULT_GAME_OPTION_TASKS_LONG_MIN)));

@@ -153,4 +153,9 @@ public interface Locale extends CommonLocale {
      * Save a message at the given path if it does not exist.
      */
     void addDefault(String path, String message);
+
+    /**
+     * Save a message at the given path if it does not exist.
+     */
+    void addDefault(String path, List<String> message);
 }

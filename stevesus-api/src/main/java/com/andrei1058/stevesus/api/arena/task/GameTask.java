@@ -11,6 +11,13 @@ import java.util.UUID;
  */
 public abstract class GameTask {
 
+    private final String localName;
+
+    public GameTask(String localName){
+        this.localName = localName;
+    }
+
+
     /**
      * Get task manager.
      */
@@ -20,7 +27,9 @@ public abstract class GameTask {
      * Get string used to by the server owner to remember this task configuration.
      * Used for 'distinct' purposes. Like {@link #equals(Object)}.
      */
-    public abstract String getLocalName();
+    public String getLocalName(){
+        return localName;
+    }
 
     /**
      * Triggered on emergency meeting, player leave, player kill, INVENTORY CLOSE etc.

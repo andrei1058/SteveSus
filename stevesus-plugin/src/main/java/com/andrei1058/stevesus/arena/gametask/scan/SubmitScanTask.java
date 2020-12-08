@@ -24,7 +24,6 @@ public class SubmitScanTask extends GameTask {
     private int scanDuration;
     private final int preGameTaskId;
     private final Hologram taskHologram;
-    private final String localName;
     private final List<Location> scanParticles;
     private final Location scanCapsuleLocation;
     // one scan at a time.
@@ -32,9 +31,9 @@ public class SubmitScanTask extends GameTask {
     private int currentScanTask = -1;
 
     public SubmitScanTask(double radius, int scanDuration, Location capsuleLocation, Arena arena, String localName) {
+        super(localName);
         this.scanCapsuleLocation = capsuleLocation.clone();
         this.scanCapsuleLocation.add(0, 1, 0);
-        this.localName = localName;
         this.capsuleRadius = radius;
         this.scanDuration = scanDuration;
         this.taskHologram = new Hologram(capsuleLocation.clone().add(0, 1.8, 0), 2);
@@ -59,11 +58,6 @@ public class SubmitScanTask extends GameTask {
     @Override
     public TaskProvider getHandler() {
         return SubmitScanProvider.getInstance();
-    }
-
-    @Override
-    public String getLocalName() {
-        return localName;
     }
 
     @Override

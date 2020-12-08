@@ -26,28 +26,22 @@ public class FixWiringTask extends GameTask {
 
     private final List<WallPanel> wallPanels = new ArrayList<>();
     private final int stages;
-    private final String localName;
 
     // panels are removed when gets fixed
     private final HashMap<UUID, LinkedList<WallPanel>> playerAssignedPanels = new HashMap<>();
     private final LinkedList<UUID> currentlyOpenPanel = new LinkedList<>();
 
     public FixWiringTask(List<WallPanel> panelList, int stages, String localName, Arena arena) {
+        super(localName);
         wallPanels.addAll(panelList);
         Collections.shuffle(wallPanels);
         this.stages = stages;
-        this.localName = localName;
         arena.registerGameListener(new WiringListener());
     }
 
     @Override
     public TaskProvider getHandler() {
         return FixWiringProvider.getInstance();
-    }
-
-    @Override
-    public String getLocalName() {
-        return localName;
     }
 
     @Override

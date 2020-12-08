@@ -26,7 +26,6 @@ import java.util.UUID;
 
 public class UnlockManifoldsTask extends GameTask {
 
-    private final String localName;
     // player uuid, finished boolean
     private final HashMap<UUID, Boolean> assignedPlayers = new HashMap<>();
     private final Arena arena;
@@ -35,7 +34,7 @@ public class UnlockManifoldsTask extends GameTask {
     private final GlowingBox glowingBox;
 
     public UnlockManifoldsTask(String localName, Arena arena, Location location) {
-        this.localName = localName;
+        super(localName);
         this.arena = arena;
         LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_PATH_ + UnlockManifoldsProvider.getInstance().getIdentifier() + "-" + localName, "&0Count to ten");
         location.getBlock().setType(Material.AIR);
@@ -87,7 +86,6 @@ public class UnlockManifoldsTask extends GameTask {
                         }
                     }
                     hologram.show();
-
                 }
             }
         });
@@ -100,11 +98,6 @@ public class UnlockManifoldsTask extends GameTask {
     @Override
     public TaskProvider getHandler() {
         return UnlockManifoldsProvider.getInstance();
-    }
-
-    @Override
-    public String getLocalName() {
-        return localName;
     }
 
     @Override

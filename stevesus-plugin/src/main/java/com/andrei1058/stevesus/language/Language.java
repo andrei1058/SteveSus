@@ -180,6 +180,14 @@ public class Language extends YamlConfiguration implements Locale {
         }
     }
 
+    @Override
+    public void addDefault(String path, List<String> message) {
+        if (!hasPath(path)){
+            setList(path, message);
+            save();
+        }
+    }
+
     public String getPrefix() {
         return prefix;
     }

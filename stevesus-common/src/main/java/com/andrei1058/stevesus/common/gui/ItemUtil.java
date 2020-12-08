@@ -52,6 +52,10 @@ public class ItemUtil {
         if (mat == null) {
             mat = Material.BEDROCK;
         }
+        return createItem(mat, data, amount, enchanted, tags, displayName, lore);
+    }
+
+    public static ItemStack createItem(Material mat, byte data, int amount, boolean enchanted, @Nullable List<String> tags, String displayName, @Nullable List<String> lore) {
 
         ItemStack item = CommonManager.getINSTANCE().getItemSupport().createItem(mat, Math.max(amount, 1), (byte) Math.max(data, 0));
         if (tags != null && tags.size() > 1) {

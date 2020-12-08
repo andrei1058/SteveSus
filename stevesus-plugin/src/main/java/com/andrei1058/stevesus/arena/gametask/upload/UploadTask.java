@@ -28,7 +28,6 @@ public class UploadTask extends GameTask {
 
     private int downloadTime;
     private int uploadTime;
-    private final String localName;
     // if null he ended, if download stage 0, if upload stage 1
     private final HashMap<UUID, WallPanel> currentPlayerStage = new HashMap<>();
     // player, taskId
@@ -36,9 +35,9 @@ public class UploadTask extends GameTask {
     private final LinkedList<WallPanel> panels = new LinkedList<>();
 
     public UploadTask(Arena arena, int downloadTime, int uploadTime, LinkedList<Location> downloadFrame, LinkedList<Location> uploadFrame, String localName) {
+        super(localName);
         this.downloadTime = downloadTime;
         this.uploadTime = uploadTime;
-        this.localName = localName;
 
         downloadFrame.forEach(loc -> panels.add(new WallPanel(arena, loc, WallPanel.PanelType.DOWNLOAD)));
         uploadFrame.forEach(loc -> panels.add(new WallPanel(arena, loc, WallPanel.PanelType.UPLOAD)));
@@ -140,11 +139,6 @@ public class UploadTask extends GameTask {
     @Override
     public TaskProvider getHandler() {
         return UploadTaskProvider.getInstance();
-    }
-
-    @Override
-    public String getLocalName() {
-        return localName;
     }
 
     @Override

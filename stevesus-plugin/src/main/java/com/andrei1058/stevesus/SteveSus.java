@@ -59,7 +59,7 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
 import java.io.File;
 
-@Plugin(name = "SteveSus", version = "1.1.6-beta")
+@Plugin(name = "SteveSus", version = "1.2.0-beta")
 @Description(value = "A murder mystery mini-game")
 @Author(value = "andrei1058")
 @Website(value = "www.andrei1058.com")
