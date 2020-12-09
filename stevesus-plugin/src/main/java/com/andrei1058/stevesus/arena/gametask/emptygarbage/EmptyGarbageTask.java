@@ -142,7 +142,7 @@ public class EmptyGarbageTask extends GameTask {
         if (arena == null) return;
         if (getCurrentStage(player) != getTotalStages(player)) {
             WallLever currentPanel = assignedLevers.get(player.getUniqueId()).removeFirst();
-            if (currentPanel.getDropLocation() != null) {
+            if (currentPanel.getDropLocation() != null && arena.getLiveSettings().isVisualTasksEnabled()) {
                 TaskChain<?> chain = SteveSus.newChain();
                 for (Material material : GarbageGUI.CANDIDATES) {
                     chain.sync(() -> currentPanel.getDropLocation().getWorld().dropItemNaturally(currentPanel.getDropLocation(), new ItemStack(material))).delay(15);
