@@ -4,6 +4,7 @@ import com.andrei1058.stevesus.SteveSus;
 import org.bukkit.ChatColor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ public enum OrderPriority {
         if (options.isEmpty()) {
             SteveSus.getInstance().getLogger().warning("Tried to assign FIRST clean garbage panel but they seem to be all assigned as NEVER_FIRST or ALWAYS_LAST");
         } else {
+            Collections.shuffle(options);
             current = options.remove(0);
 
             // pick first
@@ -64,6 +66,7 @@ public enum OrderPriority {
         // pick middle panels
         options = emptyGarbageTask.getWallLevers().stream().filter(panel -> !(panel.getOrderPriority() == ALWAYS_FIRST || panel.getOrderPriority() == ALWAYS_LAST) && !picked.contains(panel)).collect(Collectors.toList());
         if (!options.isEmpty()) {
+            Collections.shuffle(options);
             // foreach stage to be added
             for (int x = 1; x < stages - 1; x++) {
                 current = options.get(0);
@@ -84,6 +87,7 @@ public enum OrderPriority {
         if (options.isEmpty()) {
             SteveSus.getInstance().getLogger().warning("Tried to assign LAST clean garbage panel but they seem to be all assigned as ALWAYS_FIRST or NEVER_LAST");
         } else {
+            Collections.shuffle(options);
             current = options.remove(0);
 
             for (WallLever p : options) {
