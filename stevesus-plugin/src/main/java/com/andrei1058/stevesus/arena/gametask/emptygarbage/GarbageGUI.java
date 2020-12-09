@@ -19,6 +19,7 @@ import java.util.List;
 public class GarbageGUI extends BaseGUI {
 
     private static final List<String> pattern = Arrays.asList("#########", "#########", "#########", "#########", "#########", "#########");
+    public static final Material[] CANDIDATES = new Material[]{Material.DEAD_BUSH, Material.SAND, Material.GOLD_INGOT, Material.CLAY_BALL, Material.STRING, Material.BONE, Material.AIR, Material.AIR, Material.AIR};
     private static int clickDelay = 500;
     private int leverSlot = 8;
     private long nextClick = 0;
@@ -35,7 +36,7 @@ public class GarbageGUI extends BaseGUI {
         List<String> garbageItemLore = lang.getMsgList(null, EmptyGarbageTaskProvider.GARBAGE_ITEM_LORE);
 
         List<ItemStack> garbage = new ArrayList<>();
-        for (Material candidate : new Material[]{Material.DEAD_BUSH, Material.SAND, Material.GOLD_INGOT, Material.CLAY_BALL, Material.STRING, Material.BONE, Material.AIR, Material.AIR, Material.AIR}) {
+        for (Material candidate : CANDIDATES) {
             ItemStack item = ItemUtil.createItem(candidate, (byte) 0, 1, false, null, garbageItemName, garbageItemLore);
             garbage.add(item);
         }

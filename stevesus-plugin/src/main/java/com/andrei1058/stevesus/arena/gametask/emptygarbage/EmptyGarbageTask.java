@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.arena.gametask.emptygarbage;
 
+import co.aikar.taskchain.TaskChain;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
@@ -12,11 +13,13 @@ import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -139,6 +142,13 @@ public class EmptyGarbageTask extends GameTask {
         if (arena == null) return;
         if (getCurrentStage(player) != getTotalStages(player)) {
             WallLever currentPanel = assignedLevers.get(player.getUniqueId()).removeFirst();
+            if (currentPanel.getDropLocation() != null) {
+                TaskChain<?> chain = SteveSus.newChain();
+                for (Material material : GarbageGUI.CANDIDATES) {
+                    chain.sync(() -> currentPanel.getDropLocation().getWorld().dropItemNaturally(currentPanel.getDropLocation(), new ItemStack(material))).delay(15);
+                }
+                chain.execute();
+            }
             currentPanel.getGlowingBox().stopGlowing(player);
             currentlyOpenPanel.remove(player.getUniqueId());
             SteveSus.newChain().delay(20).sync(player::closeInventory).execute();
