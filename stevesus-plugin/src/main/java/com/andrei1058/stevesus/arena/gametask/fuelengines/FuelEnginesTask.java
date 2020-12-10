@@ -50,7 +50,7 @@ public class FuelEnginesTask extends GameTask {
                 if (!hasTask(player)) return;
                 FuelStage stage = getCurrent(player);
                 if (stage == null) return;
-                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena);
+                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena, entity);
             }
 
             @Override
@@ -59,7 +59,7 @@ public class FuelEnginesTask extends GameTask {
                 if (!hasTask(player)) return;
                 FuelStage stage = getCurrent(player);
                 if (stage == null) return;
-                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena);
+                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena, entity);
 
             }
         });

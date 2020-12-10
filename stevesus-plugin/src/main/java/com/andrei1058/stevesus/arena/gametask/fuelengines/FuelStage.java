@@ -9,8 +9,10 @@ import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.hook.glowing.GlowingManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -56,7 +58,11 @@ public class FuelStage {
         page2.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "holo2")));
     }
 
-    public void onInteract(Player player, boolean halfDone, FuelEnginesTask task, Arena arena) {
+    public void onInteract(Player player, boolean halfDone, FuelEnginesTask task, Arena arena, Entity entity) {
+        if (!GlowingManager.isGlowing(entity, player)) {
+            return;
+        }
+
         if (nextAllowed.containsKey(player.getUniqueId())) {
             if (nextAllowed.get(player.getUniqueId()) > System.currentTimeMillis()) {
                 return;

@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.api.glow;
 
 import com.andrei1058.stevesus.api.SteveSusAPI;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Player;
@@ -10,7 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class GlowingBox {
 
-    private final MagmaCube magmaCube;
+    private MagmaCube magmaCube;
     private final GlowColor color;
 
     public GlowingBox(Location location, int boxSize, GlowColor color){
@@ -19,14 +20,23 @@ public class GlowingBox {
         }
         location.setYaw(0);
         location.setPitch(0);
-        magmaCube = (MagmaCube) location.getWorld().spawnEntity(location, EntityType.MAGMA_CUBE);
-        magmaCube.setSize(boxSize);
-        magmaCube.setInvulnerable(true);
-        magmaCube.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false));
-        magmaCube.setAI(false);
-        magmaCube.setRemoveWhenFarAway(false);
-        magmaCube.setGravity(false);
-        magmaCube.setSilent(true);
+        // check of there is a glowing box already
+        for (Entity entity : location.getWorld().getNearbyEntities(location, 1,1,1)){
+            if (entity.getType() == EntityType.MAGMA_CUBE && entity.isInvulnerable() && entity.isSilent() && !entity.hasGravity()){
+                magmaCube = (MagmaCube) entity;
+                break;
+            }
+        }
+        if (magmaCube == null) {
+            magmaCube = (MagmaCube) location.getWorld().spawnEntity(location, EntityType.MAGMA_CUBE);
+            magmaCube.setSize(boxSize);
+            magmaCube.setInvulnerable(true);
+            magmaCube.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false));
+            magmaCube.setAI(false);
+            magmaCube.setRemoveWhenFarAway(false);
+            magmaCube.setGravity(false);
+            magmaCube.setSilent(true);
+        }
         this.color = color;
     }
 
