@@ -40,7 +40,9 @@ public abstract class GameTask {
     /**
      * Get player current stage.
      */
-    public abstract int getCurrentStage(Player player);
+    public int getCurrentStage(Player player){
+        return getCurrentStage(player.getUniqueId());
+    }
 
     /**
      * Get player current stage.
@@ -50,7 +52,9 @@ public abstract class GameTask {
     /**
      * Get stages.
      */
-    public abstract int getTotalStages(Player player);
+    public int getTotalStages(Player player){
+        return getTotalStages(player.getUniqueId());
+    }
 
     /**
      * Get stages.

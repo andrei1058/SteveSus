@@ -57,7 +57,9 @@ public class EmptyGarbageTask extends GameTask {
 
     @Override
     public void onInterrupt(Player player, Arena arena) {
-
+        if (hasTask(player)){
+            player.closeInventory();
+        }
     }
 
     @Override

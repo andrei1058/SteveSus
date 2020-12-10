@@ -18,6 +18,7 @@ import com.andrei1058.stevesus.arena.ability.kill.KillListener;
 import com.andrei1058.stevesus.arena.command.ForceStartCmd;
 import com.andrei1058.stevesus.arena.command.GameCmd;
 import com.andrei1058.stevesus.arena.gametask.emptygarbage.EmptyGarbageTaskProvider;
+import com.andrei1058.stevesus.arena.gametask.fuelengines.FuelEnginesTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.manifolds.UnlockManifoldsProvider;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
 import com.andrei1058.stevesus.arena.gametask.upload.UploadTaskProvider;
@@ -154,6 +155,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         getINSTANCE().registerGameTask(UploadTaskProvider.getInstance());
         getINSTANCE().registerGameTask(UnlockManifoldsProvider.getInstance());
         getINSTANCE().registerGameTask(EmptyGarbageTaskProvider.getInstance());
+        getINSTANCE().registerGameTask(FuelEnginesTaskProvider.getInstance());
 
         // register default sabotages
         getINSTANCE().registerSabotage(OxygenSabotageProvider.getInstance());
