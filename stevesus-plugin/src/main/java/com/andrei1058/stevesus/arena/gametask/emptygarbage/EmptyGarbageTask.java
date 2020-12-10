@@ -145,6 +145,7 @@ public class EmptyGarbageTask extends GameTask {
             if (currentPanel.getDropLocation() != null && arena.getLiveSettings().isVisualTasksEnabled()) {
                 TaskChain<?> chain = SteveSus.newChain();
                 for (Material material : GarbageGUI.CANDIDATES) {
+                    if (material == Material.AIR) continue;
                     chain.sync(() -> currentPanel.getDropLocation().getWorld().dropItemNaturally(currentPanel.getDropLocation(), new ItemStack(material))).delay(15);
                 }
                 chain.execute();
