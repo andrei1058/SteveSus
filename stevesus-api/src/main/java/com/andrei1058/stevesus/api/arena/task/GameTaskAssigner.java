@@ -5,9 +5,7 @@ import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import org.bukkit.entity.Player;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GameTaskAssigner {
@@ -41,7 +39,7 @@ public class GameTaskAssigner {
                         .filter(task -> task.getHandler().getTaskType() == TaskType.COMMON).collect(Collectors.toList());
                 int maxEntry = Math.min(arena.getLiveSettings().getCommonTasks().getCurrentValue(), tasks.size());
                 for (int i = 0; i < maxEntry; i++) {
-                    int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size() - 1);
+                    int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size());
                     GameTask chosenTask = tasks.remove(entry);
                     commonTasks.add(chosenTask);
                     chosenTask.assignToPlayer(player, arena);
@@ -58,7 +56,7 @@ public class GameTaskAssigner {
                     .filter(task -> task.getHandler().getTaskType() == TaskType.SHORT).collect(Collectors.toList());
             int maxEntry = Math.min(arena.getLiveSettings().getShortTasks().getCurrentValue(), tasks.size());
             for (int i = 0; i < maxEntry; i++) {
-                int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size() - 1);
+                int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size());
                 GameTask chosenTask = tasks.remove(entry);
                 chosenTask.assignToPlayer(player, arena);
             }
@@ -71,7 +69,7 @@ public class GameTaskAssigner {
                     .filter(task -> task.getHandler().getTaskType() == TaskType.LONG).collect(Collectors.toList());
             int maxEntry = Math.min(arena.getLiveSettings().getLongTasks().getCurrentValue(), tasks.size());
             for (int i = 0; i < maxEntry; i++) {
-                int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size() - 1);
+                int entry = tasks.size() == 1 ? 0 : random.nextInt(tasks.size());
                 GameTask chosenTask = tasks.remove(entry);
                 chosenTask.assignToPlayer(player, arena);
             }
