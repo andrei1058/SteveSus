@@ -188,10 +188,10 @@ public enum Message {
     IN_GAME_ACTION_BAR("action-bar-in-game", "&fYour color: {player} &7| &fRoom: {room}"),
     VENT_HOLO("vent-holo", "&6&lShift to vent!"),
     VENT_ENTER_SUBTITLE("vent-enter-subtitle", "&fShift to exit."),
-    TAB_LIST_GENERIC_PREFIX("tab-list-prefix-format-generic", "{display_color} "),
+    TAB_LIST_GENERIC_PREFIX("tab-list-prefix-format-generic", "[{display_color}] "),
     TAB_LIST_GENERIC_SUGGIX("tab-list-suffix-format-generic", ""),
-    TAB_LIST_GHOST_PREFIX("tab-list-prefix-format-ghost", "&o{display_color} "),
-    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", "&7 (Ghost)");
+    TAB_LIST_GHOST_PREFIX("tab-list-prefix-format-ghost", "&7&oGhost "),
+    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", " [{display_color}]");
 
     private final String path;
     private final boolean manual;
