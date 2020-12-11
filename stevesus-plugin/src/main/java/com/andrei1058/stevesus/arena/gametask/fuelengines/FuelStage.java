@@ -24,7 +24,7 @@ public class FuelStage {
     private final GlowingBox engineGlowing;
     private Hologram storageHologram;
     private Hologram engineHologram;
-    private WeakHashMap<UUID, Long> nextAllowed = new WeakHashMap<>();
+    private final WeakHashMap<UUID, Long> nextAllowed = new WeakHashMap<>();
 
     public FuelStage(Location storage, Location reactor) {
         storageGlowing = new GlowingBox(storage.add(0.5, 0, 0.5), 2, GlowColor.DARK_AQUA);
@@ -59,6 +59,7 @@ public class FuelStage {
     }
 
     public void onInteract(Player player, boolean halfDone, FuelEnginesTask task, Arena arena, Entity entity) {
+        if (!arena.isTasksAllowedATM()) return;
         if (!GlowingManager.isGlowing(entity, player)) {
             return;
         }

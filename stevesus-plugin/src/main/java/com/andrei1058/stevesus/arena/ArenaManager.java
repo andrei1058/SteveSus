@@ -21,6 +21,7 @@ import com.andrei1058.stevesus.arena.gametask.emptygarbage.EmptyGarbageTaskProvi
 import com.andrei1058.stevesus.arena.gametask.fuelengines.FuelEnginesTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.manifolds.UnlockManifoldsProvider;
 import com.andrei1058.stevesus.arena.gametask.scan.SubmitScanProvider;
+import com.andrei1058.stevesus.arena.gametask.startreactor.StartReactorTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.upload.UploadTaskProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
@@ -156,6 +157,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         getINSTANCE().registerGameTask(UnlockManifoldsProvider.getInstance());
         getINSTANCE().registerGameTask(EmptyGarbageTaskProvider.getInstance());
         getINSTANCE().registerGameTask(FuelEnginesTaskProvider.getInstance());
+        getINSTANCE().registerGameTask(StartReactorTaskProvider.getInstance());
 
         // register default sabotages
         getINSTANCE().registerSabotage(OxygenSabotageProvider.getInstance());
