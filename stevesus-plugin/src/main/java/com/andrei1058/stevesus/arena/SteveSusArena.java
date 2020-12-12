@@ -1701,7 +1701,7 @@ public class SteveSusArena implements Arena {
                     SteveSus.getInstance().getLogger().warning("Could not load game task " + taskName + " on " + getTemplateWorld() + " on id:" + getTag() + " because task provider (" + providerName + ") was not found!");
                 } else {
                     GameTask result = taskProvider.onGameInit(this, taskConfiguration, taskName);
-                    if (result == null) {
+                    if (result == null || result.getHandler() == null) {
                         SteveSus.debug("Could not initialize game task " + taskName + " on " + getTemplateWorld() + " id: " + getTag());
                     } else {
                         this.gameTasks.add(result);
