@@ -22,7 +22,6 @@ public class SubmitScanTask extends GameTask {
 
     private final double capsuleRadius;
     private int scanDuration;
-    private final int preGameTaskId;
     private final Hologram taskHologram;
     private final List<Location> scanParticles;
     private final Location scanCapsuleLocation;
@@ -43,11 +42,6 @@ public class SubmitScanTask extends GameTask {
         page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_DESCRIPTION_PATH_.toString() + getHandler().getIdentifier())));
 
         scanParticles = new ArrayList<>(SubmitScanProvider.getInstance().getCircle(capsuleLocation.add(0, 0.3, 0), radius, 15));
-
-        this.preGameTaskId = Bukkit.getScheduler().runTaskTimerAsynchronously(SteveSus.getInstance(), () -> scanParticles.forEach(loc -> {
-            loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc, 1);
-            loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, 1.2, 0), 1);
-        }), 0L, 10).getTaskId();
 
         arena.registerGameListener(new ScanListener());
     }
@@ -218,15 +212,17 @@ public class SubmitScanTask extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
-                Bukkit.getScheduler().cancelTask(preGameTaskId);
-
-                // hide hologram for those who do not have this task
                 for (Player player : arena.getPlayers()) {
-                    if (!hasTask(player)) {
-                        taskHologram.hide(player);
+                    if (hasTask(player)) {
+                        taskHologram.show(player);
                     }
                 }
             }
+        }
+
+        @Override
+        public void onPlayerJoin(Arena arena, Player player) {
+            taskHologram.hide(player);
         }
     }
 }
