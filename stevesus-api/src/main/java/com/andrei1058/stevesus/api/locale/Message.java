@@ -124,19 +124,19 @@ public enum Message {
 
     SCOREBOARD_SIDEBAR_WAITING("scoreboard-sidebar-waiting", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "&7{date}", "&8{game_tag}", "", "&fMap: &b{name}", "&fPlayers: &b{on}/{max}", "", "Waiting...", "", "", "&b{server_name}")),
+            "&7{date}", "&8game-{game_tag}", "", "&fMap: &b{name}", "&fPlayers: &b{on}/{max}", "", "Waiting...", "", "&8Tasks", "&7Long: &f{tasks_long}", "&7Short: &f{tasks_short}", "&7Common: &f{tasks_common}", "&7Visual: &f{tasks_visual}", " ", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_STARTING("scoreboard-sidebar-starting", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "&7{date}", "&8{game_tag}", "", "&fMap: &b{name}", "&fPlayers: &b{on}/{max}", "", "Starting in &b{countdown}s", "", "", "&b{server_name}")),
+            "&7{date}", "&8game-{game_tag}", "", "&fMap: &b{name}", "&fPlayers: &b{on}/{max}", "", "Starting in &b{countdown}s", "", "&8Tasks", "&7Long: &f{tasks_long}", "&7Short: &f{tasks_short}", "&7Common: &f{tasks_common}", "&7Visual: &f{tasks_visual}", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_IN_GAME("scoreboard-sidebar-playing", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
             " ", "&7Room: {room}", " ", "{task}", "", "{task}", "", "{task}", "", "{task}", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_ENDING("scoreboard-sidebar-ending", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "&7{date}", "&8{game_tag}", "", "&7Game Ended", "&fMap: &b{name}", "&7Spectators: &f{spectating}", "", "", "", "&b{server_name}")),
+            "&7{date}", "&8game-{game_tag}", "", "&7Game Ended", "&fMap: &b{name}", "&7Spectators: &f{spectating}", "", "", "", "&b{server_name}")),
     SCOREBOARD_SIDEBAR_SPECTATOR("scoreboard-sidebar-spectating", Arrays.asList("&f&lSteve Sus\n&f&lSteve Sus\n&b&lS&f&lteve Sus\n&b&lSt&f&leve Sus\n&b&lSte&f&lve Sus\n" +
                     "&b&lStev&f&le Sus\n&b&lSteve&f&l Sus\n&b&lSteve S&f&lus\n&b&lSteve Su&f&ls\n&b&lSteve Sus\n&b&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus\n&f&lSteve Sus\n&b&lSteve Sus",
-            "&7{date}", "&8{game_tag}", "", "&fMap: &b{name}", "", "", "", "&7Spectators: &f{spectating}", "", "&b{server_name}")),
+            "&7{date}", "&8game-{game_tag}", "", "&fMap: &b{name}", "", "&7Spectators: &f{spectating}", "", "&8Tasks", "&7Long: &f{tasks_long}", "&7Short: &f{tasks_short}", "&7Common: &f{tasks_common}", "&7Visual: &f{tasks_visual}", "", "&b{server_name}")),
 
     PREVENTION_GAME_TOO_SHORT("prevention-game-too-short", " \n \n {prefix}&cUnfortunately your play-time on &f{map} &cwas too short and no stats will be applied!\n "),
     TEAM_NAME_PATH_(true, "team-name-", ""),

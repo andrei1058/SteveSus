@@ -73,6 +73,34 @@ public class GameSidebar {
             }
             return room.getDisplayName(LanguageManager.getINSTANCE().getLocale(getPlayer()));
         }));
+        somePlaceholders.add(new PlaceholderProvider("{tasks_long}", ()->{
+            if (getArena() == null){
+                return "0";
+            } else {
+                return String.valueOf(getArena().getLiveSettings().getLongTasks().getCurrentValue());
+            }
+        }));
+        somePlaceholders.add(new PlaceholderProvider("{tasks_short}", ()->{
+            if (getArena() == null){
+                return "0";
+            } else {
+                return String.valueOf(getArena().getLiveSettings().getShortTasks().getCurrentValue());
+            }
+        }));
+        somePlaceholders.add(new PlaceholderProvider("{tasks_common}", ()->{
+            if (getArena() == null){
+                return "0";
+            } else {
+                return String.valueOf(getArena().getLiveSettings().getCommonTasks().getCurrentValue());
+            }
+        }));
+        somePlaceholders.add(new PlaceholderProvider("{tasks_visual}", ()->{
+            if (getArena() == null){
+                return "false";
+            } else {
+                return String.valueOf(getArena().getLiveSettings().isVisualTasksEnabled());
+            }
+        }));
 
         // create sidebar
         handle = GameSidebarManager.getInstance().getHandle().createSidebar(new SidebarLine() {
