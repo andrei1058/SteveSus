@@ -64,7 +64,7 @@ public class PlayerCoolDown {
         }
 
         public void update(int seconds) {
-            this.nextAllowed = System.currentTimeMillis() + (seconds * 1000);
+            this.nextAllowed = System.currentTimeMillis() + (seconds * 1000L);
         }
     }
 }

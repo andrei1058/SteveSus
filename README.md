@@ -37,6 +37,7 @@ List: blocks TNTs, blocks entity explosions, blocks entity spawn (only CUSTOM an
 - {name} arena display name, {template} arena template name, {status} game state, {on} current players (spectators excluded),
  {max} player limit, {spectating} among of players spectating, {game_tag}, {game_id}, {date}, {player}, {player_raw}, {server_name},
 {countdown} for countdown (available at starting/ ending).
+  - {tasks_long}, {tasks_short}, {tasks_common}, {tasks_visual}
 
 ## Game countdown sound configuration  
 - path for second 5 -> `count-down-tick-5: ENTITY_CHICKEN_EGG`.

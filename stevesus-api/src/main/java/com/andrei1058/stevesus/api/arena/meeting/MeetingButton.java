@@ -28,17 +28,15 @@ public class MeetingButton {
     // use this to identify armor stand entity
     public static final String MEETING_BUTTON_META_DATA_KEY = "mbtnss";
 
-    private final Location buttonLocation;
     private final Hologram buttonHologram;
     private long lastUsage;
-    private List<Location> particleLocations;
+    private final List<Location> particleLocations;
     private int currentEntry = -1;
     private UUID lastRequester;
 
     public MeetingButton(Plugin plugin, Location location, Arena arena) {
-        this.buttonLocation = location;
-        this.buttonLocation.setX(location.getBlockX() + 0.5);
-        this.buttonLocation.setZ(location.getBlockZ() + 0.5);
+        location.setX(location.getBlockX() + 0.5);
+        location.setZ(location.getBlockZ() + 0.5);
         ArmorStand buttonKeeper = location.getWorld().spawn(location.clone().subtract(0, 1.5, 0), ArmorStand.class);
         buttonKeeper.setRemoveWhenFarAway(false);
         buttonKeeper.setVisible(false);
@@ -61,7 +59,7 @@ public class MeetingButton {
             return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT).replace("{amount}", String.valueOf(arena.getMeetingsLeft(s)));
         }));
 
-        this.particleLocations = getCircle(this.buttonLocation.clone().add(0, 0.3, 0), 0.6, 15);
+        this.particleLocations = getCircle(location.clone().add(0, 0.3, 0), 0.6, 15);
         buttonHologram.hide();
     }
 
@@ -95,8 +93,9 @@ public class MeetingButton {
         }
         // check cool down
         if (lastUsage != 0) {
-            if (System.currentTimeMillis() - lastUsage < arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() * 1000) {
-                int seconds = (int) ((arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() - (System.currentTimeMillis() - lastUsage)) / 1000);
+            int delay = (int) ((System.currentTimeMillis() - lastUsage) / 1000L);
+            if (delay < arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue()) {
+                int seconds = arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() - delay;
                 player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EMERGENCY_DENIED_COOL_DOWN).replace("{time}", String.valueOf(seconds + 1)));
                 return;
             }
