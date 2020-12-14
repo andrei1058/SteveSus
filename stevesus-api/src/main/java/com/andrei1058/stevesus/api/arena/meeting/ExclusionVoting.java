@@ -3,10 +3,12 @@ package com.andrei1058.stevesus.api.arena.meeting;
 import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.event.PlayerEjectEvent;
 import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -238,6 +240,8 @@ public class ExclusionVoting {
             }
         }
         votes.clear();
+        PlayerEjectEvent event = new PlayerEjectEvent(arena, votedOff);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**
