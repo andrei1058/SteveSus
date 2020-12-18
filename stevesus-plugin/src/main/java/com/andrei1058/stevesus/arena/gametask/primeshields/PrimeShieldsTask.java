@@ -10,8 +10,6 @@ import com.andrei1058.stevesus.api.glow.GlowingBox;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.PlayerCoolDown;
-import com.andrei1058.stevesus.arena.gametask.startreactor.StartPatternGUI;
-import com.andrei1058.stevesus.arena.gametask.startreactor.StartReactorTask;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
