@@ -176,9 +176,11 @@ public class CommandItemsManager {
             saveCommandItem(CATEGORY_IMPOSTOR, "kill", "", "", "", false, "FLINT", 0, 0, "&cKill", Arrays.asList(" ", "&fRight click on nearby", "&fplayers turn red."), "kill");
             saveCommandItem(CATEGORY_IMPOSTOR, "oxygen", "", "", "", false, ItemUtil.getMaterial("SAPLING", "ACACIA_SAPLING"), 0, 3, "&c&lSabotage Oxygen", Arrays.asList(" ", "&fRight click to", "&fsabotage oxygen."), "sabotage:" + SteveSus.getInstance().getName() + ",oxygen");
             saveCommandItem(CATEGORY_IMPOSTOR, "lights", "", "", "", false, ItemUtil.getMaterial("REDSTONE_LAMP_OFF", "REDSTONE_LAMP"), 0, 4, "&c&lSabotage Lights", Arrays.asList(" ", "&fRight click to", "&fsabotage lights."), "sabotage:" + SteveSus.getInstance().getName() + ",lights");
+            saveCommandItem(CATEGORY_IMPOSTOR, "reactor", "", "", "", false, ItemUtil.getMaterial("END_CRYSTAL", "END_CRYSTAL"), 0, 5, "&c&lReactor Meltdown", Arrays.asList(" ", "&fRight click to", "&fsabotage reactor."), "sabotage:" + SteveSus.getInstance().getName() + ",reactor_meltdown");
 
             saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "oxygen", "", "", "", false, ItemUtil.getMaterial("SAPLING", "ACACIA_SAPLING"), 0, 3, "&c&lSabotage Oxygen", Arrays.asList(" ", "&fRight click to", "&fsabotage oxygen."), "sabotage:" + SteveSus.getInstance().getName() + ",oxygen");
             saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "lights", "", "", "", false, ItemUtil.getMaterial("REDSTONE_LAMP_OFF", "REDSTONE_LAMP"), 0, 4, "&c&lSabotage Lights", Arrays.asList(" ", "&fRight click to", "&fsabotage lights."), "sabotage:" + SteveSus.getInstance().getName() + ",lights");
+            saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "reactor", "", "", "", false, ItemUtil.getMaterial("END_CRYSTAL", "END_CRYSTAL"), 0, 5, "&c&lReactor Meltdown", Arrays.asList(" ", "&fRight click to", "&fsabotage reactor."), "sabotage:" + SteveSus.getInstance().getName() + ",reactor_meltdown");
         }
 
         save();

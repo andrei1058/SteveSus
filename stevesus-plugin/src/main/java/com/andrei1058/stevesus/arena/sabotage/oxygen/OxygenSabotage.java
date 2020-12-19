@@ -118,6 +118,9 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             if (deadLineSeconds == 0) {
                 getArena().removeSabotage(this);
                 warning.refreshWarning(0);
+                for (Player player : getArena().getPlayers()){
+                    player.closeInventory();
+                }
                 getArena().defeatBySabotage(Message.DEFEAT_REASON_PATH_.toString() + getProvider().getUniqueIdentifier());
             } else {
                 warning.refreshWarning(--deadLineSeconds);

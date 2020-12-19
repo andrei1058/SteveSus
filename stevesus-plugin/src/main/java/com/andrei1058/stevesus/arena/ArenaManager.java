@@ -29,6 +29,7 @@ import com.andrei1058.stevesus.arena.runnable.MapTimeTask;
 import com.andrei1058.stevesus.arena.sabotage.fixlights.LightsSabotageProvider;
 import com.andrei1058.stevesus.arena.sabotage.oxygen.OxygenSabotageProvider;
 import com.andrei1058.stevesus.arena.ability.vent.VentListener;
+import com.andrei1058.stevesus.arena.sabotage.reactor.ReactorSabotageProvider;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
@@ -165,6 +166,7 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         // register default sabotages
         getINSTANCE().registerSabotage(OxygenSabotageProvider.getInstance());
         getINSTANCE().registerSabotage(LightsSabotageProvider.getInstance());
+        getINSTANCE().registerSabotage(ReactorSabotageProvider.getInstance());
     }
 
     public static void onDisable() {
