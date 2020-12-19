@@ -47,6 +47,7 @@ public class LightsSabotage extends SabotageBase {
             @Override
             public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
+                if (!isActive()) return;
                 if (!entity.equals(glowingBox.getMagmaCube())) return;
                 PlayerCoolDown coolDown = PlayerCoolDown.getOrCreatePlayerData(player);
                 if (coolDown.hasCoolDown("magmaCube")) return;
@@ -71,7 +72,22 @@ public class LightsSabotage extends SabotageBase {
 
             @Override
             public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
-                // remove dark, re-add dark on end
+                if (newStage == MeetingStage.NO_MEETING){
+                    for (Team team : arena.getGameTeams()){
+                        if (!team.getIdentifier().endsWith("-ghost")){
+                            for (Player member : team.getMembers()){
+                                glowingBox.startGlowing(member);
+                                if (team.isInnocent()){
+                                    member.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 5, false));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (Player inGame : arena.getPlayers()){
+                        inGame.removePotionEffect(PotionEffectType.BLINDNESS);
+                    }
+                }
             }
 
             @Override
