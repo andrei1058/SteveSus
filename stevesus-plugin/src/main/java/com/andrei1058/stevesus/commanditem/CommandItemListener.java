@@ -55,6 +55,7 @@ public class CommandItemListener implements Listener {
                 }
             }
             if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
+                e.setCancelled(true);
                 CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e);
             }
         }
@@ -87,8 +88,10 @@ public class CommandItemListener implements Listener {
             }
         }
         if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
+            e.setCancelled(true);
             CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e);
         }
+
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -110,6 +113,7 @@ public class CommandItemListener implements Listener {
             }
         }
         if (CommonManager.getINSTANCE().getItemSupport().hasTag(e.getPlayer().getInventory().getItemInMainHand(), CommandItemsManager.INTERACT_NBT_TAG_PLAYER_INTERACT)) {
+            e.setCancelled(true);
             CommandItemsManager.getINSTANCE().getInteractEvent().onInteract(e.getPlayer(), e);
         }
     }

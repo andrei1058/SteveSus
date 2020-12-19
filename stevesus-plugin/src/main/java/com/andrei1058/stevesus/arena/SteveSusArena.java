@@ -65,6 +65,7 @@ import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
@@ -485,7 +486,6 @@ public class SteveSusArena implements Arena {
             for (Player on : players) {
                 on.sendMessage(LanguageManager.getINSTANCE().getMsg(on, Message.ARENA_JOIN_ANNOUNCE).replace("{player}", player.getDisplayName())
                         .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
-                //todo add pop sound
             }
 
             if (getGameState() == GameState.WAITING) {
@@ -584,7 +584,7 @@ public class SteveSusArena implements Arena {
 
         spectators.add(player);
         ArenaManager.getINSTANCE().setArenaByPlayer(player, this);
-        player.setGameMode(GameMode.ADVENTURE);
+        player.setGameMode(GameMode.SURVIVAL);
 
         SteveSus.newChain().delay(5).sync(() -> {
             player.setAllowFlight(true);
@@ -622,6 +622,9 @@ public class SteveSusArena implements Arena {
         PlayerCoolDown.clearPlayerData(player);
         // clear glowing
         getPlayers().forEach(inGame -> GlowingManager.getInstance().removeGlowing(player, inGame));
+        for (Entity entity : player.getPassengers()){
+            player.removePassenger(entity);
+        }
 
         Team team = getPlayerTeam(player);
         if (team != null) {
@@ -644,7 +647,7 @@ public class SteveSusArena implements Arena {
         // send items
         CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_SPECTATING);
         // change gm
-        player.setGameMode(GameMode.ADVENTURE);
+        player.setGameMode(GameMode.SURVIVAL);
         // give scoreboard
         GameSidebarManager.getInstance().setSidebar(player, SidebarType.SPECTATOR, this, ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA);
 
@@ -671,7 +674,7 @@ public class SteveSusArena implements Arena {
         for (GameListener gameListener : gameListeners) {
             gameListener.onPlayerToSpectator(this, player);
         }
-        //todo
+
         SteveSus.debug("Player " + player.getName() + " was SWITCHED to spectator in game " + getGameId() + "(" + getTemplateWorld() + ").");
         return true;
     }
@@ -697,6 +700,10 @@ public class SteveSusArena implements Arena {
 
         PlayerGameLeaveEvent playerGameLeaveEvent = new PlayerGameLeaveEvent(this, player, false, PreventionManager.getInstance().hasAbandoned(this, player));
         Bukkit.getPluginManager().callEvent(playerGameLeaveEvent);
+
+        for (Entity entity : player.getPassengers()){
+            player.removePassenger(entity);
+        }
 
         players.remove(player);
         ArenaManager.getINSTANCE().setArenaByPlayer(player, null);
@@ -1036,7 +1043,7 @@ public class SteveSusArena implements Arena {
         if (!isFirstPersonSpectate(spectator)) return;
         Player target = (Player) spectator.getSpectatorTarget();
         spectator.setSpectatorTarget(null);
-        spectator.setGameMode(GameMode.ADVENTURE);
+        spectator.setGameMode(GameMode.SURVIVAL);
         spectator.setAllowFlight(true);
         spectator.setFlying(true);
 
@@ -1264,7 +1271,6 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN));
             setMeetingStage(MeetingStage.TALKING);
             MeetingSound.playMusic(this, 38);
-            // todo replace room placeholder in messages
             getPlayers().forEach(player -> {
                 Locale lang = LanguageManager.getINSTANCE().getLocale(player);
                 lang.getMsgList(player, Message.MEETING_START_CHAT_MSG_BODY.toString(), new String[]{"{reporter}", requester.getDisplayName(), "{dead}", deadBody.getDisplayName()}).forEach(string -> player.sendMessage(ChatUtil.centerMessage(string)));
