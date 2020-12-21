@@ -72,6 +72,7 @@ public class LightsSabotage extends SabotageBase {
 
             @Override
             public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
+                if (!isActive()) return;
                 if (newStage == MeetingStage.NO_MEETING){
                     for (Team team : arena.getGameTeams()){
                         if (!team.getIdentifier().endsWith("-ghost")){
