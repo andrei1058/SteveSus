@@ -72,6 +72,10 @@ public interface GameListener {
 
     }
 
+    default void onPlayerToggleFly(Arena arena, Player player, boolean isFlying) {
+
+    }
+
     default void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
 
     }

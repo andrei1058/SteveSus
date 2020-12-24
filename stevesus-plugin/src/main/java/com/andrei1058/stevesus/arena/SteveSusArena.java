@@ -12,6 +12,9 @@ import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageProvider;
+import com.andrei1058.stevesus.api.arena.securitycamera.CamHandler;
+import com.andrei1058.stevesus.api.arena.securitycamera.SecurityCam;
+import com.andrei1058.stevesus.api.arena.securitycamera.SecurityMonitor;
 import com.andrei1058.stevesus.api.arena.task.*;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
@@ -30,6 +33,8 @@ import com.andrei1058.stevesus.arena.meeting.VoteGUIManager;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskPlaying;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskRestarting;
 import com.andrei1058.stevesus.arena.runnable.ArenaTaskStarting;
+import com.andrei1058.stevesus.arena.securitycamera.CameraManager;
+import com.andrei1058.stevesus.arena.securitycamera.SecurityListener;
 import com.andrei1058.stevesus.arena.team.CrewTeam;
 import com.andrei1058.stevesus.arena.team.GhostCrewTeam;
 import com.andrei1058.stevesus.arena.team.GhostImpostorTeam;
@@ -67,6 +72,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -137,6 +143,7 @@ public class SteveSusArena implements Arena {
     private final HashMap<UUID, InventoryBackup> meetingBackups = new HashMap<>();
     private LiveSettings liveSettings = new LiveSettings();
     private SabotageCooldown sabotageCooldown;
+    private CamHandler camHandler;
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -209,6 +216,31 @@ public class SteveSusArena implements Arena {
         initLiveSettings();
 
         spawnMeetingButton(world);
+
+        List<SecurityCam> cams = new ArrayList<>();
+        List<SecurityMonitor> monitors = new ArrayList<>();
+        OrphanLocationProperty importer = new OrphanLocationProperty();
+        for (String string : config.getProperty(ArenaConfig.SECURITY_CAMS)) {
+            String[] data = string.split(";");
+            if (data.length != 2) continue;
+            Location location = importer.convert(data[1], null);
+            if (location != null) {
+                location.setWorld(getWorld());
+                //GameRoom room = getRoom(location);
+                cams.add(new SecurityCam(location, data[0]));
+            }
+        }
+        for (String string : config.getProperty(ArenaConfig.SECURITY_MONITORS)) {
+            Location location = importer.convert(string, null);
+            if (location != null) {
+                location.setWorld(getWorld());
+                //GameRoom room = getRoom(location);
+                monitors.add(new SecurityMonitor(location));
+            }
+        }
+        if (!cams.isEmpty()) {
+            camHandler = new CameraManager(cams, monitors, this);
+        }
 
         switchState(GameState.WAITING);
     }
@@ -616,13 +648,18 @@ public class SteveSusArena implements Arena {
     @Override
     public boolean switchToSpectator(Player player) {
         if (!isPlayer(player)) return false;
+        if (getCamHandler() != null){
+            if (getCamHandler().isOnCam(player, this)){
+                getCamHandler().stopWatching(player, this);
+            }
+        }
         players.remove(player);
         spectators.add(player);
         // clear countdown cache
         PlayerCoolDown.clearPlayerData(player);
         // clear glowing
         getPlayers().forEach(inGame -> GlowingManager.getInstance().removeGlowing(player, inGame));
-        for (Entity entity : player.getPassengers()){
+        for (Entity entity : player.getPassengers()) {
             player.removePassenger(entity);
         }
 
@@ -701,8 +738,14 @@ public class SteveSusArena implements Arena {
         PlayerGameLeaveEvent playerGameLeaveEvent = new PlayerGameLeaveEvent(this, player, false, PreventionManager.getInstance().hasAbandoned(this, player));
         Bukkit.getPluginManager().callEvent(playerGameLeaveEvent);
 
-        for (Entity entity : player.getPassengers()){
+        for (Entity entity : player.getPassengers()) {
             player.removePassenger(entity);
+        }
+
+        if (getCamHandler() != null){
+            if (getCamHandler().isOnCam(player, this)){
+                getCamHandler().stopWatching(player, this);
+            }
         }
 
         players.remove(player);
@@ -774,15 +817,15 @@ public class SteveSusArena implements Arena {
         getGameEndConditions().tickGameEndConditions(this);
 
         //if (getGameState() != GameState.ENDING) {
-            for (Player inArena : getPlayers()) {
-                inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
-                        .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
-            }
+        for (Player inArena : getPlayers()) {
+            inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
+                    .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
+        }
 
-            for (Player inArena : getSpectators()) {
-                inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
-                        .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
-            }
+        for (Player inArena : getSpectators()) {
+            inArena.sendMessage(LanguageManager.getINSTANCE().getMsg(inArena, Message.LEAVE_ANNOUNCE).replace("{player}", player.getDisplayName())
+                    .replace("{on}", String.valueOf(getPlayers().size())).replace("{max}", String.valueOf(getMaxPlayers())));
+        }
         //}
         // enable movement if disabled
         setCantMove(player, false);
@@ -907,7 +950,7 @@ public class SteveSusArena implements Arena {
             // assign colors AFTER teams
             if (getPlayerColorAssigner() != null) {
                 Collections.shuffle(players);
-                for (Player player : players){
+                for (Player player : players) {
                     PlayerColorAssigner.PlayerColor playerColor = getPlayerColorAssigner().assignPlayerColor(player, this, isIgnoreColorLimit());
                     if (playerColor == null) {
                         throw new IllegalStateException("Could not assign a color to: " + player.getName() + "! Player amount was greater than available colors. To avoid this issue change arena's player limit or set " + ArenaConfig.DEFAULT_GAME_OPTION_IGNORE_COLOR_LIMIT.getPath() + " to true.");
@@ -926,7 +969,7 @@ public class SteveSusArena implements Arena {
                 getMeetingButton().refreshLines(this);
                 getMeetingButton().setLastUsage(System.currentTimeMillis());
             }
-            //addActiveSabotage(new OxygenSabotage(this, 60));
+
         } else if (gameState == GameState.ENDING) {
             setMeetingStage(MeetingStage.NO_MEETING);
             for (Player player : getPlayers()) {
@@ -1384,6 +1427,9 @@ public class SteveSusArena implements Arena {
         Team killerTeam = getPlayerTeam(killer);
         if (killerTeam == null) return;
         if (!killerTeam.canKill(victim)) return;
+        if (getCamHandler() != null && getCamHandler().isOnCam(killer, this)){
+            return;
+        }
         Team victimTeam = getPlayerTeam(victim);
         Team destinationTeam = victimTeam == null ? null : getTeamByName(victimTeam.getIdentifier() + "-ghost");
         PlayerKillEvent event = new PlayerKillEvent(this, killer, victim, destinationTeam);
@@ -1392,6 +1438,13 @@ public class SteveSusArena implements Arena {
 
         // interrupt tasks
         interruptTasks(victim);
+
+        // remove from cams
+        if (getCamHandler() != null) {
+            if (getCamHandler().isOnCam(victim, this)) {
+                getCamHandler().stopWatching(victim, this);
+            }
+        }
 
         GameSound.KILL.playAtLocation(victim.getLocation(), getPlayers());
 
@@ -1622,6 +1675,26 @@ public class SteveSusArena implements Arena {
             }
         }
         return result;
+    }
+
+    @Override
+    public @Nullable CamHandler getCamHandler() {
+        return camHandler;
+    }
+
+    @Override
+    public void setCamHandler(@Nullable CamHandler camHandler) {
+        if (getCamHandler() != null) {
+            for (UUID uuid : getCamHandler().getPlayersOnCams()) {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null) {
+                    getCamHandler().stopWatching(player, this);
+                }
+            }
+            unRegisterGameListener(SecurityListener.getInstance());
+            PlayerItemHeldEvent.getHandlerList().unregister(SecurityListener.getInstance());
+        }
+        this.camHandler = camHandler;
     }
 
     public Location getNextWaitingSpawn() {

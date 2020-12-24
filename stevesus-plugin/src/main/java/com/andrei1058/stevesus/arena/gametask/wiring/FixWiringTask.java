@@ -286,6 +286,7 @@ public class FixWiringTask extends GameTask {
             // should prevent called twice
             if (currentlyOpenPanel.contains(player.getUniqueId())) return;
             if (getCurrentStage(player) != getTotalStages(player)) {
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
                 WallPanel panel = playerAssignedPanels.get(player.getUniqueId()).getFirst();
                 if (panel != null && panel.getItemFrame().equals(entity)) {
                     panel.startFixingPanel(player, this);

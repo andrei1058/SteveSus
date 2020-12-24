@@ -251,6 +251,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             if (!isActive()) return;
             Team playerTeam = arena.getPlayerTeam(player);
             if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) return;
+            if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
             for (OxygenMonitor monitor : monitors) {
                 if ((entity.equals(monitor.armorStand) || entity.equals(monitor.getGlowingBox().getMagmaCube())) && !monitor.isFixed()) {
                     SteveSus.newChain().async(() -> {

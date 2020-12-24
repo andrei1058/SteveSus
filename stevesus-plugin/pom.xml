@@ -197,6 +197,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Player NPC -->
+        <dependency>
+            <groupId>com.andrei1058.spigot.versionsupport</groupId>
+            <artifactId>player_npc_version</artifactId>
+            <version>1.5.3-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>

@@ -254,6 +254,7 @@ public class UploadTask extends GameTask {
             // should prevent called twice
             if (currentlyDoing.containsKey(player.getUniqueId())) return;
             if (getCurrentStage(player) != getTotalStages(player)) {
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
                 WallPanel panel = currentPlayerStage.get(player.getUniqueId());
                 if (panel != null && panel.getItemFrame().equals(entity)) {
                     SteveSus.newChain().async(() -> {

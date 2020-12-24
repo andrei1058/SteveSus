@@ -43,6 +43,7 @@ public class StartReactorTask extends GameTask {
                 if (coolDown.hasCoolDown("magmaCube")) return;
                 coolDown.updateCoolDown("magmaCube", 1);
                 if (!arena.isTasksAllowedATM()) return;
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
 
                 Locale lang = LanguageManager.getINSTANCE().getLocale(player);
                 StartPatternGUI gui = new StartPatternGUI(lang, StartReactorTask.this, player);

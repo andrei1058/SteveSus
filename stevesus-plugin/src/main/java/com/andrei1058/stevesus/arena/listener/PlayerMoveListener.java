@@ -72,6 +72,7 @@ public class PlayerMoveListener implements Listener {
     private static void tickGlowingEffect(Player player, Arena arena) {
         Player currentlyGlowing = null;
         Player nearest = null;
+        Player clone = null;
         double distance = arena.getLiveSettings().getKillDistance().getCurrentValue();
         Team playerTeam = arena.getPlayerTeam(player);
 
@@ -80,7 +81,17 @@ public class PlayerMoveListener implements Listener {
                 currentlyGlowing = inGame;
             }
             double currentDistance;
-            if ((currentDistance = inGame.getLocation().distance(player.getLocation())) <= distance) {
+            if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(inGame, arena)){
+                clone = arena.getCamHandler().getClone(inGame.getUniqueId());
+                if (clone == null){
+                    continue;
+                } else {
+                    currentDistance = clone.getLocation().distance(player.getLocation());
+                }
+            } else {
+                currentDistance = inGame.getLocation().distance(player.getLocation());
+            }
+            if (currentDistance <= distance) {
                 if (playerTeam != null && playerTeam.canKill(inGame)) {
                     nearest = inGame;
                     distance = currentDistance;
@@ -88,6 +99,9 @@ public class PlayerMoveListener implements Listener {
                     // maybe nearest can kill him and is not moving, so refresh
                     Team nearestTeam = arena.getPlayerTeam(inGame);
                     if (nearestTeam != null && nearestTeam.canKill(player)) {
+                        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(inGame, arena)){
+                            break;
+                        }
                         Player nearestsTarget = null;
                         for (Player inGame2 : arena.getPlayers()) {
                             if (GlowingManager.isGlowing(inGame2, inGame)) {
@@ -97,7 +111,7 @@ public class PlayerMoveListener implements Listener {
                         }
                         if (nearestsTarget == null) {
                             GlowingManager.setGlowingRed(player, inGame, arena);
-                        } else if (!nearestsTarget.equals(player) && currentDistance < nearestsTarget.getLocation().distance(inGame.getLocation())) {
+                        } else if (!nearestsTarget.equals(player) && (arena.getCamHandler() != null && !arena.getCamHandler().isOnCam(inGame, arena)) && currentDistance < nearestsTarget.getLocation().distance(inGame.getLocation())) {
                             GlowingManager.getInstance().removeGlowing(nearestsTarget, inGame);
                             GlowingManager.setGlowingRed(player, inGame, arena);
                         }
@@ -109,16 +123,24 @@ public class PlayerMoveListener implements Listener {
                     GlowingManager.getInstance().removeGlowing(player, inGame);
                     // todo send glowing on nearest player to inGame
                 }
+                //clone = null;
+            }
+        }
+        if (currentlyGlowing == null && arena.getCamHandler() != null) {
+            for (Player cloned : arena.getCamHandler().getClones()) {
+                if (GlowingManager.isGlowing(cloned, player)) {
+                    currentlyGlowing = cloned;
+                }
             }
         }
         if (currentlyGlowing != null) {
-            if (currentlyGlowing.equals(nearest)) {
+            if (currentlyGlowing.equals(clone == null ? nearest : clone)) {
                 return;
             }
             GlowingManager.getInstance().removeGlowing(currentlyGlowing, player);
         }
         if (nearest != null) {
-            GlowingManager.setGlowingRed(nearest, player, arena);
+            GlowingManager.setGlowingRed(clone == null ? nearest : clone, player, arena);
         }
     }
 }

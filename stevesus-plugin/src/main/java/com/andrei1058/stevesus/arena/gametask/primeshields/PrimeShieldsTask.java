@@ -41,6 +41,7 @@ public class PrimeShieldsTask extends GameTask {
                 if (coolDown.hasCoolDown("magmaCube")) return;
                 coolDown.updateCoolDown("magmaCube", 1);
                 if (!arena.isTasksAllowedATM()) return;
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
 
                 Locale lang = LanguageManager.getINSTANCE().getLocale(player);
                 PrimeShieldsGUI gui = new PrimeShieldsGUI(lang, PrimeShieldsTask.this, player);

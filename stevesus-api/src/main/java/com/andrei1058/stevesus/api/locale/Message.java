@@ -191,7 +191,9 @@ public enum Message {
     TAB_LIST_GENERIC_PREFIX("tab-list-prefix-format-generic", "{display_color} - "),
     TAB_LIST_GENERIC_SUGGIX("tab-list-suffix-format-generic", ""),
     TAB_LIST_GHOST_PREFIX("tab-list-prefix-format-ghost", "&7&oGhost "),
-    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", " {display_color}");
+    TAB_LIST_GHOST_SUFFIX("tab-list-suffix-format-ghost", " {display_color}"),
+    SECURITY_MONITOR_HOLOGRAM_LINE1("security-hologram-line1", "&9&lSecurity Cameras"),
+    SECURITY_MONITOR_HOLOGRAM_LINE2("security-hologram-line2", "&o&l(Click here)");
 
     private final String path;
     private final boolean manual;

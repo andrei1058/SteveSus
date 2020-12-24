@@ -121,6 +121,7 @@ public class SubmitScanTask extends GameTask {
     private boolean startScan(Player player, Arena arena) {
         if (currentScan != null) return false;
         if (!arena.isTasksAllowedATM()) return false;
+        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return false;
         player.teleport(scanCapsuleLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         arena.setCantMove(player, true);
         Team playerTeam = arena.getPlayerTeam(player);

@@ -187,6 +187,7 @@ public class UnlockManifoldsTask extends GameTask {
     private void tryOpenGUI(Player player, Arena arena) {
         if (!arena.isTasksAllowedATM()) return;
         if (hasTask(player)) {
+            if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
             // should prevent called twice
             if (isDoingTask(player)) return;
             if (getCurrentStage(player) != getTotalStages(player)) {

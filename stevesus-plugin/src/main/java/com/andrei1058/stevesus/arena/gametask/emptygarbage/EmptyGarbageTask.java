@@ -175,6 +175,7 @@ public class EmptyGarbageTask extends GameTask {
     private void tryOpenGUI(Player player, Entity entity, Arena arena) {
         if (entity.getType() != EntityType.MAGMA_CUBE) return;
         if (!arena.isTasksAllowedATM()) return;
+        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
         if (hasTask(player)) {
             // should prevent called twice
             if (currentlyOpenPanel.contains(player.getUniqueId())) return;

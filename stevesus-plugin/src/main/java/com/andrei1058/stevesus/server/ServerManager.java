@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.server;
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import com.andrei1058.hologramapi.HologramAPI;
+import com.andrei1058.spigot.versionsupport.PlayerNPCSupport;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.server.ServerType;
@@ -43,6 +44,7 @@ public class ServerManager {
     private boolean debuggingLogs = true;
     private final String serverName;
     private HologramAPI hologramAPI;
+    private PlayerNPCSupport playerNPCSupport;
 
     private ServerManager() {
         if (!SteveSus.getInstance().getDataFolder().exists()) {
@@ -135,6 +137,8 @@ public class ServerManager {
         // Register bungee channel
         SteveSus.getInstance().getServer().getMessenger().registerOutgoingPluginChannel(SteveSus.getInstance(), "BungeeCord");
         Bukkit.getMessenger().registerIncomingPluginChannel(SteveSus.getInstance(), "Return", new PluginChannelListener());
+
+        INSTANCE.playerNPCSupport = PlayerNPCSupport.SupportBuilder.load();
     }
 
     public static void onDisable() {
@@ -183,5 +187,9 @@ public class ServerManager {
 
     public HologramAPI getHologramAPI() {
         return hologramAPI;
+    }
+
+    public PlayerNPCSupport getPlayerNPCSupport() {
+        return playerNPCSupport;
     }
 }

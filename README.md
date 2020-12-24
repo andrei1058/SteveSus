@@ -136,3 +136,10 @@ You really need to call GameSabotageDeactivateEvent when it's done.
 
 ### Suggest anti miniMap plugins
 
+### How to monetize
+- game settings permissions
+- in-game hats
+
+## Alte recomandari
+- decrease player tracking range 
+

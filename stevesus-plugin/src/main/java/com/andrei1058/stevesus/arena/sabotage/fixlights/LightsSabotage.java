@@ -49,6 +49,7 @@ public class LightsSabotage extends SabotageBase {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
                 if (!isActive()) return;
                 if (!entity.equals(glowingBox.getMagmaCube())) return;
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
                 PlayerCoolDown coolDown = PlayerCoolDown.getOrCreatePlayerData(player);
                 if (coolDown.hasCoolDown("magmaCube")) return;
                 coolDown.updateCoolDown("magmaCube", 1);

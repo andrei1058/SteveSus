@@ -50,6 +50,7 @@ public class FuelEnginesTask extends GameTask {
                 if (!hasTask(player)) return;
                 FuelStage stage = getCurrent(player);
                 if (stage == null) return;
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
                 stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena, entity);
             }
 
@@ -57,6 +58,7 @@ public class FuelEnginesTask extends GameTask {
             public void onEntityPunch(Arena arena, Player player, Entity entity) {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
                 if (!hasTask(player)) return;
+                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
                 FuelStage stage = getCurrent(player);
                 if (stage == null) return;
                 stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena, entity);

@@ -3,10 +3,10 @@ package com.andrei1058.stevesus.api.arena;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
-import com.andrei1058.stevesus.api.arena.meeting.TabRevealQueue;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageCooldown;
+import com.andrei1058.stevesus.api.arena.securitycamera.CamHandler;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.team.GameTeamAssigner;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
@@ -227,6 +227,7 @@ public interface Arena extends DisplayableArena {
      * @param gameState new game state.
      * @return true if switched successfully.
      */
+    @SuppressWarnings("UnusedReturnValue")
     boolean switchState(GameState gameState);
 
     /**
@@ -643,4 +644,14 @@ public interface Arena extends DisplayableArena {
      * Get amount of active sabotages.
      */
     int getActiveSabotages();
+
+    /**
+     * Get security camera handler.
+     */
+    @Nullable CamHandler getCamHandler();
+
+    /**
+     * Set security camera handler.
+     */
+    void setCamHandler(@Nullable CamHandler camHandler);
 }

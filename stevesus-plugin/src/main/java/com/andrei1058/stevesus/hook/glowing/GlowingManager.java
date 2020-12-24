@@ -62,7 +62,7 @@ public class GlowingManager implements GlowingHandler {
         }
     }
 
-    public static boolean isGlowing(Entity player,  Player receiver) {
+    public static boolean isGlowing(Entity player, Player receiver) {
         if (player == null) return false;
         if (receiver == null) return false;
         return glowingAPI && GlowAPI.isGlowing(player, receiver);
@@ -75,23 +75,23 @@ public class GlowingManager implements GlowingHandler {
         if (glowingAPI) {
             GlowAPI.Color glowColor = GlowAPI.getGlowColor(player, receiver);
             if (glowColor == null || glowColor == GlowAPI.Color.WHITE) {
-                SteveSus.newChain().delay(1).sync(()-> GlowAPI.setGlowing(player, null, "never", "never", receiver)).execute();
+                SteveSus.newChain().delay(1).sync(() -> GlowAPI.setGlowing(player, null, "never", "never", receiver)).execute();
             }
         }
     }
 
     @Override
     public void setGlowing(@NotNull Entity player, @NotNull Player receiver, GlowColor color) {
-        if (!isGlowing(player, receiver)){
+        if (!isGlowing(player, receiver)) {
             GlowAPI.setGlowing(player, getLegacyColor(color), "never", "never", receiver);
         }
     }
 
-    private GlowAPI.Color getLegacyColor(GlowColor color){
-       try {
-           return GlowAPI.Color.valueOf(color.name().toUpperCase());
-       } catch (Exception ex){
-           return GlowAPI.Color.WHITE;
-       }
+    private GlowAPI.Color getLegacyColor(GlowColor color) {
+        try {
+            return GlowAPI.Color.valueOf(color.name().toUpperCase());
+        } catch (Exception ex) {
+            return GlowAPI.Color.WHITE;
+        }
     }
 }

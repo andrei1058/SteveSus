@@ -89,6 +89,7 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
         if (!isActive()) return;
         if (loc1 == null || loc2 == null) return;
         if (entity.getType() != EntityType.MAGMA_CUBE) return;
+        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
         Team playerTeam = arena.getPlayerTeam(player);
         if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) return;
         if (entity.equals(loc1.getMagmaCube())) {

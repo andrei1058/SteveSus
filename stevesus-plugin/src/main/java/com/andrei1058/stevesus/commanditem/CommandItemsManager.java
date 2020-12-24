@@ -46,6 +46,7 @@ public class CommandItemsManager {
     public static final String CATEGORY_VOTING = "game-voting";
     public static final String CATEGORY_IMPOSTOR = "game-impostor";
     public static final String CATEGORY_IMPOSTOR_GHOST = "game-impostor-ghost";
+    public static final String CATEGORY_ON_CAM = "game-security-cam";
 
     private static final String MATERIAL = ".material";
     private static final String DATA = ".data";
@@ -85,12 +86,25 @@ public class CommandItemsManager {
             if (sabotageBase == null) {
                 if (tag.equals("kill")) {
                     Player nearest = null;
+                    Player clone;
                     double distance = arena.getLiveSettings().getKillDistance().getCurrentValue();
                     Team playerTeam = arena.getPlayerTeam(player);
                     for (Player inGame : arena.getPlayers()) {
                         if (player.equals(inGame)) continue;
+
                         double currentDistance;
-                        if ((currentDistance = player.getLocation().distance(inGame.getLocation())) < distance && playerTeam.canKill(inGame)) {
+                        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(inGame, arena)){
+                            clone = arena.getCamHandler().getClone(inGame.getUniqueId());
+                            if (clone == null){
+                                continue;
+                            } else {
+                                currentDistance = clone.getLocation().distance(player.getLocation());
+                            }
+                        } else {
+                            currentDistance = inGame.getLocation().distance(player.getLocation());
+                        }
+
+                        if (currentDistance < distance && playerTeam.canKill(inGame)) {
                             nearest = inGame;
                             distance = currentDistance;
                         }
@@ -181,6 +195,16 @@ public class CommandItemsManager {
             saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "oxygen", "", "", "", false, ItemUtil.getMaterial("SAPLING", "ACACIA_SAPLING"), 0, 3, "&c&lSabotage Oxygen", Arrays.asList(" ", "&fRight click to", "&fsabotage oxygen."), "sabotage:" + SteveSus.getInstance().getName() + ",oxygen");
             saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "lights", "", "", "", false, ItemUtil.getMaterial("REDSTONE_LAMP_OFF", "REDSTONE_LAMP"), 0, 4, "&c&lSabotage Lights", Arrays.asList(" ", "&fRight click to", "&fsabotage lights."), "sabotage:" + SteveSus.getInstance().getName() + ",lights");
             saveCommandItem(CATEGORY_IMPOSTOR_GHOST, "reactor", "", "", "", false, ItemUtil.getMaterial("END_CRYSTAL", "END_CRYSTAL"), 0, 5, "&c&lReactor Meltdown", Arrays.asList(" ", "&fRight click to", "&fsabotage reactor."), "sabotage:" + SteveSus.getInstance().getName() + ",reactor_meltdown");
+
+
+            saveCommandItem(CATEGORY_ON_CAM, "minus1", "", "", "", true, ItemUtil.getMaterial("WOOL", "ORANGE_WOOL"), 1, 0, "&6Previous", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "minus2", "", "", "", true, ItemUtil.getMaterial("WOOL", "ORANGE_WOOL"), 1, 1, "&6Previous", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "minus3", "", "", "", true, ItemUtil.getMaterial("WOOL", "ORANGE_WOOL"), 1, 2, "&6Previous", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "minus4", "", "", "", true, ItemUtil.getMaterial("WOOL", "ORANGE_WOOL"), 1, 3, "&6Previous", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "plus1", "", "", "", true, ItemUtil.getMaterial("WOOL", "LIME_WOOL"), 5, 5, "&aNext", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "plus2", "", "", "", true, ItemUtil.getMaterial("WOOL", "LIME_WOOL"), 5, 6, "&aNext", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "plus3", "", "", "", true, ItemUtil.getMaterial("WOOL", "LIME_WOOL"), 5, 7, "&aNext", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
+            saveCommandItem(CATEGORY_ON_CAM, "plus4", "", "", "", true, ItemUtil.getMaterial("WOOL", "LIME_WOOL"), 5, 8, "&aNext", Arrays.asList(" ", "&fMove your mouse", "&fwheel."), null);
         }
 
         save();

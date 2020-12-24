@@ -83,6 +83,11 @@ public class ArenaConfig implements SettingsHolder {
     })
     public static final StringListProperty SABOTAGES = new StringListProperty("sabotages", Collections.emptyList());
 
+    @Comment("Security Cams. Syntax: identifier;location")
+    public static final StringListProperty SECURITY_CAMS = new StringListProperty("security.cams", Collections.emptyList());
+    @Comment("Security Monitors. Syntax: location")
+    public static final StringListProperty SECURITY_MONITORS = new StringListProperty("security.monitors", Collections.emptyList());
+
     @Comment("Amount of common tasks by default. -1 for all available.")
     public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_COMMON = new IntegerProperty("live-settings.common-task.default", 1);
     @Comment("Min amount of common tasks.")
@@ -93,7 +98,7 @@ public class ArenaConfig implements SettingsHolder {
     @Comment("Amount of short tasks.")
     public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT = new IntegerProperty("live-settings.short-task.default", 1);
     @Comment("Min amount of short tasks. -1 for all available.")
-    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT_MIN = new IntegerProperty("live-settings.short-task.min", 2);
+    public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT_MIN = new IntegerProperty("live-settings.short-task.min", 1);
     @Comment("Max amount of short tasks. -1 for max available.")
     public static final IntegerProperty DEFAULT_GAME_OPTION_TASKS_SHORT_MAX = new IntegerProperty("live-settings.short-task.max", -1);
 
