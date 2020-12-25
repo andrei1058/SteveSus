@@ -344,9 +344,9 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         // todo add validation checks
         if (config.getProperty(ArenaConfig.WAITING_LOBBY_LOCATIONS).isEmpty()) return false;
         if (config.getProperty(ArenaConfig.SPECTATE_LOCATIONS).isEmpty()) return false;
-        if (config.getProperty(ArenaConfig.MEETING_LOCATIONS).isEmpty()) return false;
-        if (!config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).isPresent()) return false;
-        if (config.getProperty(ArenaConfig.VENTS).isEmpty()) return false;
+        //if (config.getProperty(ArenaConfig.MEETING_LOCATIONS).isEmpty()) return false;
+        //if (!config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).isPresent()) return false;
+        //if (config.getProperty(ArenaConfig.VENTS).isEmpty()) return false;
         return true;
     }
 

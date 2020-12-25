@@ -45,6 +45,8 @@ public class ArenaConfig implements SettingsHolder {
 
     @Comment({" ", "Will spawn players in sequence if you set more than one location."})
     public static final ListProperty<Location> WAITING_LOBBY_LOCATIONS = new ListProperty<>("waiting-lobby.spawn-locations", new OrphanLocationProperty(), new ArrayList<>());
+    @Comment({" ", "Will spawn players in sequence if you set more than one location."})
+    public static final ListProperty<Location> START_LOCATIONS = new ListProperty<>("game-start.spawn-locations", new OrphanLocationProperty(), new ArrayList<>());
 
     @Comment({" ", "Will spawn players in sequence if you set more than one location."})
     public static final ListProperty<Location> SPECTATE_LOCATIONS = new ListProperty<>("spectator-system.spawn-locations", new OrphanLocationProperty(), new ArrayList<>());

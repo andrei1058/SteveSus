@@ -47,6 +47,7 @@ public class AddCommand {
         );
 
         FastSubCommand addWaitingSpawn = new FastSubCommand("waitingSpawn");
+        FastSubCommand addStartSpawn = new FastSubCommand("startSpawn");
         FastSubCommand addMeetingSpawn = new FastSubCommand("meetingSpawn");
         FastSubCommand addSpectatorSpawn = new FastSubCommand("spectatorSpawn");
         FastSubCommand addVent = new FastSubCommand("vent");
@@ -68,10 +69,25 @@ public class AddCommand {
                             config.save();
                             s.sendMessage(ChatColor.GRAY + "Waiting spawn location added!");
                         }))
+                .withSubNode(addStartSpawn
+                        .withPermAdditions((s) -> SetupManager.getINSTANCE().isInSetup(s))
+                        .withDisplayName(s -> "&7" + addStartSpawn.getName() + " ")
+                        .withDescription(s -> "&7[at your location]")
+                        .withDisplayHover((s) -> "&fAdd a start spawn at your current location.\n " +
+                                "\n&eCurrently added: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.START_LOCATIONS, s).size())
+                        .withExecutor((s, args) -> {
+                            Player player = (Player) s;
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            List<Location> waitingLocations = new ArrayList<>(config.getProperty(ArenaConfig.START_LOCATIONS));
+                            waitingLocations.add(player.getLocation());
+                            config.setProperty(ArenaConfig.START_LOCATIONS, waitingLocations);
+                            config.save();
+                            s.sendMessage(ChatColor.GRAY + "Start spawn location added!");
+                        }))
                 .withSubNode(addMeetingSpawn
                         .withPermAdditions((s) -> SetupManager.getINSTANCE().isInSetup(s))
-                        .withDisplayName(s -> "&7" + addMeetingSpawn.getName() + " ")
-                        .withDescription(s -> "&7[at your location]")
+                        .withDisplayName(s -> "&e" + addMeetingSpawn.getName() + " ")
+                        .withDescription(s -> "&e[at your location]")
                         .withDisplayHover((s) -> "&fAdd a meeting spawn at your current location.\n " +
                                 "\n&eCurrently added: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.MEETING_LOCATIONS, s).size())
                         .withExecutor((s, args) -> {
@@ -85,8 +101,8 @@ public class AddCommand {
                         }))
                 .withSubNode(addSpectatorSpawn
                         .withPermAdditions((s) -> SetupManager.getINSTANCE().isInSetup(s))
-                        .withDisplayName(s -> "&e" + addSpectatorSpawn.getName() + " ")
-                        .withDescription(s -> "&e[at your location]")
+                        .withDisplayName(s -> "&7" + addSpectatorSpawn.getName() + " ")
+                        .withDescription(s -> "&7[at your location]")
                         .withDisplayHover((s) -> "&fAdd a spectator spawn at your current location.\n " +
                                 "\n&eCurrently added: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.SPECTATE_LOCATIONS, s).size())
                         .withExecutor((s, args) -> {
@@ -99,8 +115,8 @@ public class AddCommand {
                             s.sendMessage(ChatColor.GRAY + "Spectator spawn location saved!");
                         }))
                 .withSubNode(addVent
-                        .withDisplayName(s -> "&7" + addVent.getName() + " ")
-                        .withDescription(s -> "&7[at your location]")
+                        .withDisplayName(s -> "&e" + addVent.getName() + " ")
+                        .withDescription(s -> "&e[at your location]")
                         .withDisplayHover(s -> "&fAdd a vent at your current location.\n&bThe item in your hand is used as display item.\n&e" + ICommandNode.getClickCommand(addVent) + " [name] [connection1] [conn2] [..]")
                         .withExecutor((sender, args) -> {
                             if (args.length == 0) {
@@ -167,8 +183,8 @@ public class AddCommand {
                 )
 
                 .withSubNode(addTask
-                        .withDisplayName(s -> "&e" + addTask.getName() + " ")
-                        .withDescription(s -> "&e[name]")
+                        .withDisplayName(s -> "&7" + addTask.getName() + " ")
+                        .withDescription(s -> "&7[name]")
                         .withDisplayHover(s -> "&fAdd a task.\n&e" + ICommandNode.getClickCommand(addVent) + " [provider] [task] [localIdentifier]\n \n&fYou can usually add a task multiple times.")
                         .withExecutor((sender, args) -> {
                             if (args.length != 3) {

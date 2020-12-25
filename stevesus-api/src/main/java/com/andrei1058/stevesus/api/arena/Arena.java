@@ -458,12 +458,12 @@ public interface Arena extends DisplayableArena {
      * Get player color assigner.
      */
     @Nullable
-    PlayerColorAssigner<?> getPlayerColorAssigner();
+    PlayerColorAssigner<? extends PlayerColorAssigner.PlayerColor> getPlayerColorAssigner();
 
     /**
      * Change player color assigner.
      */
-    void setPlayerColorAssigner(@Nullable PlayerColorAssigner<?> playerColorAssigner);
+    void setPlayerColorAssigner(@Nullable PlayerColorAssigner<? extends PlayerColorAssigner.PlayerColor> playerColorAssigner);
 
     /**
      * Ignore color limit?

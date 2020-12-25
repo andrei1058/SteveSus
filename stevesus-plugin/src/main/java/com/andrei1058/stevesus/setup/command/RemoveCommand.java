@@ -33,6 +33,7 @@ public class RemoveCommand {
         );
 
         FastSubCommand clearWaitingSpawns = new FastSubCommand("waitingSpawns");
+        FastSubCommand clearStartSpawns = new FastSubCommand("startSpawns");
         FastSubCommand clearMeetingSpawns = new FastSubCommand("meetingSpawns");
         FastSubCommand clearSpectatorSpawns = new FastSubCommand("spectatorSpawns");
         FastSubCommand removeTask = new FastSubCommand("task");
@@ -50,10 +51,22 @@ public class RemoveCommand {
                             config.save();
                             s.sendMessage(ChatColor.GRAY + "Waiting spawn locations removed!");
                         }))
+                .withSubNode(clearStartSpawns
+                        .withPermAdditions((s) -> SetupManager.getINSTANCE().isInSetup(s))
+                        .withDisplayName(s -> "&e" + clearStartSpawns.getName() + " ")
+                        .withDisplayHover((s) -> "&fClear start spawn locations from config.\n " +
+                                "\n&eCurrently set: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.START_LOCATIONS, s).size())
+                        .withExecutor((s, args) -> {
+                            Player player = (Player) s;
+                            SettingsManager config = ArenaManager.getINSTANCE().getTemplate(player.getWorld().getName(), true);
+                            config.setProperty(ArenaConfig.START_LOCATIONS, Collections.emptyList());
+                            config.save();
+                            s.sendMessage(ChatColor.GRAY + "Start spawn locations removed!");
+                        }))
 
                 .withSubNode(clearMeetingSpawns
                         .withPermAdditions((s) -> SetupManager.getINSTANCE().isInSetup(s))
-                        .withDisplayName(s -> "&e" + clearMeetingSpawns.getName() + " ")
+                        .withDisplayName(s -> "&7" + clearMeetingSpawns.getName() + " ")
                         .withDisplayHover((s) -> "&fClear meeting spawn locations from config.\n " +
                                 "\n&eCurrently set: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.MEETING_LOCATIONS, s).size())
                         .withExecutor((s, args) -> {
@@ -66,7 +79,7 @@ public class RemoveCommand {
 
                 .withSubNode(clearSpectatorSpawns
                         .withPermAdditions((s) -> SetupManager.getINSTANCE().isInSetup(s))
-                        .withDisplayName(s -> "&7" + clearSpectatorSpawns.getName() + " ")
+                        .withDisplayName(s -> "&e" + clearSpectatorSpawns.getName() + " ")
                         .withDisplayHover((s) -> "&fClear spectator spawn locations from config.\n " +
                                 "\n&eCurrently set: &b" + ArenaCommands.getCurrentProperty(ArenaConfig.SPECTATE_LOCATIONS, s).size())
                         .withExecutor((s, args) -> {
@@ -78,7 +91,7 @@ public class RemoveCommand {
                         }))
 
                 .withSubNode(removeTask
-                        .withDisplayName(s -> "&e" + removeTask.getName() + " ")
+                        .withDisplayName(s -> "&7" + removeTask.getName() + " ")
                         .withDisplayHover((s) -> "&fRemove a task by the name you gave it when you set it up.")
                         .withExecutor((s, args) -> {
 

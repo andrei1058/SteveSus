@@ -30,7 +30,7 @@ public class AddRoomCommand extends FastSubCommand {
 
     public AddRoomCommand() {
         super("room");
-        withDisplayName(s -> "&7" + getName() + " [name] [displayName]")
+        withDisplayName(s -> "&e" + getName() + " [name] [displayName]")
                 .withClickAction(ClickEvent.Action.SUGGEST_COMMAND)
                 .withDisplayHover(s -> "&eCreate a room with id and display name.")
                 .withExecutor((s, args) -> {

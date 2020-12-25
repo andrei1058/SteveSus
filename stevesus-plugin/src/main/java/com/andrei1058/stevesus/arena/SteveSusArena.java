@@ -103,10 +103,12 @@ public class SteveSusArena implements Arena {
     private final LinkedList<Player> spectators = new LinkedList<>();
 
     private final LinkedList<Location> waitingLocations = new LinkedList<>();
+    private final LinkedList<Location> startLocations = new LinkedList<>();
     private final LinkedList<Location> spectatingLocations = new LinkedList<>();
     private final LinkedList<Location> meetingLocations = new LinkedList<>();
     // used for sequential player spawn
     private int currentSpawnPos = 0;
+    private int currentStartPos = 0;
     private int currentSpectatePos = 0;
     private int currentMeetingPos = 0;
     //
@@ -152,6 +154,7 @@ public class SteveSusArena implements Arena {
         config = ArenaManager.getINSTANCE().getTemplate(templateWorld, false);
 
         waitingLocations.addAll(config.getProperty(ArenaConfig.WAITING_LOBBY_LOCATIONS));
+        startLocations.addAll(config.getProperty(ArenaConfig.START_LOCATIONS));
         spectatingLocations.addAll(config.getProperty(ArenaConfig.SPECTATE_LOCATIONS));
         meetingLocations.addAll(config.getProperty(ArenaConfig.MEETING_LOCATIONS));
         spectatePerm = config.getProperty(ArenaConfig.SPECTATE_PERM);
@@ -194,6 +197,7 @@ public class SteveSusArena implements Arena {
         this.world.setGameRuleValue("announceAdvancements", "false");
 
         waitingLocations.forEach(location -> location.setWorld(this.world));
+        startLocations.forEach(location -> location.setWorld(this.world));
         spectatingLocations.forEach(location -> location.setWorld(this.world));
         meetingLocations.forEach(location -> location.setWorld(this.world));
 
@@ -936,7 +940,7 @@ public class SteveSusArena implements Arena {
             gameStart = Instant.now();
             for (Player player : getPlayers()) {
                 player.getInventory().clear();
-                player.teleport(getNextMeetingSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                player.teleport(getNextStartSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                 meetingsLeft.putIfAbsent(player.getUniqueId(), getLiveSettings().getMeetingsPerPlayer().getCurrentValue());
             }
             gameTask = Bukkit.getScheduler().runTaskTimer(SteveSus.getInstance(), new ArenaTaskPlaying(this), 0L, 20L).getTaskId();
@@ -1702,6 +1706,16 @@ public class SteveSusArena implements Arena {
             return waitingLocations.get(0);
         }
         return waitingLocations.get(++currentSpawnPos >= waitingLocations.size() ? currentSpawnPos = 0 : currentSpawnPos);
+    }
+
+    public Location getNextStartSpawn() {
+        if (startLocations.isEmpty()){
+            return getNextMeetingSpawn();
+        }
+        if (startLocations.size() == 1) {
+            return startLocations.get(0);
+        }
+        return startLocations.get(++currentStartPos >= startLocations.size() ? currentStartPos = 0 : currentStartPos);
     }
 
     public Location getNextSpectatorSpawn() {
