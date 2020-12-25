@@ -1283,6 +1283,18 @@ public class SteveSusArena implements Arena {
             }
             corpse.destroy();
         }
+        // remove from securirty cams
+        if (getCamHandler() != null){
+            List<UUID> players = getCamHandler().getPlayersOnCams();
+            if (!players.isEmpty()) {
+                for (UUID player : players) {
+                    Player onCam = Bukkit.getPlayer(player);
+                    if (onCam != null) {
+                        getCamHandler().stopWatching(onCam, this);
+                    }
+                }
+            }
+        }
         // add voting manager
         setCurrentVoting(new ExclusionVoting());
         // clear glowing
