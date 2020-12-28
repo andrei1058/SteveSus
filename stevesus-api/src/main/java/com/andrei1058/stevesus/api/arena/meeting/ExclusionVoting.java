@@ -121,7 +121,7 @@ public class ExclusionVoting {
         LinkedHashMap<Player, Integer> results = new LinkedHashMap<>();
         int skip = getVotes(null, arena).size();
         int mostVotes = 0;
-        for (Player voter : votes.keySet()) {
+        for (Player voter : arena.getPlayers()) {
             int currentVotes = getVotes(voter, arena).size();
             results.put(voter, currentVotes);
             // used for draw check
