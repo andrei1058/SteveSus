@@ -127,10 +127,11 @@ public class PreventionManager implements PreventionHandler {
 
     protected void loadConditions() {
         getConfig().reload();
-        Arrays.stream(getConfig().getProperty(AbusePreventionConfig.CONDITIONS).trim().split(",")).forEach(condition -> {
+        for (String condition : getConfig().getProperty(AbusePreventionConfig.CONDITIONS).trim().split(",")){
             String[] data = condition.trim().split(":");
-            if (data.length != 2 || !AbandonCondition.IDENTIFIER_REGEX.matches(data[0])) {
+            if (data.length != 2 || !data[0].matches(AbandonCondition.IDENTIFIER_REGEX)) {
                 SteveSus.getInstance().getLogger().warning("Bad abandon condition: " + condition + ".");
+                continue;
             }
             AbandonCondition abandonCondition = registeredAbandonConditions.stream().filter(cond -> cond.getIdentifier().equals(data[0])).findFirst().orElse(null);
             // if there is a registered abandon condition for current string
@@ -143,7 +144,7 @@ public class PreventionManager implements PreventionHandler {
                     SteveSus.getInstance().getLogger().warning("Could not enable abandon condition: " + data[0]);
                 }
             }
-        });
+        }
     }
 
     /**
