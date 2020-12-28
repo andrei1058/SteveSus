@@ -7,6 +7,7 @@ import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
 import com.andrei1058.stevesus.api.arena.sabotage.TimedSabotage;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.arena.meeting.ExclusionGUI;
 import com.andrei1058.stevesus.language.LanguageManager;
 import net.md_5.bungee.api.ChatMessageType;
@@ -61,8 +62,12 @@ public class ArenaTaskPlaying implements Runnable {
                         break;
                 }
             } else {
-                getArena().setCountdown(getArena().getCountdown() - 1);
                 if (getArena().getMeetingStage() == MeetingStage.VOTING){
+                    getArena().setCountdown(getArena().getCountdown() - 1);
+                    if (getArena().getCountdown() <= 5){
+                        GameSound.VOTING_ENDS_TICK.playToPlayers(arena.getPlayers());
+                        GameSound.VOTING_ENDS_TICK.playToPlayers(arena.getSpectators());
+                    }
                     getArena().getWorld().getPlayers().forEach(player -> {
                         if (player.getOpenInventory() != null){
                             if (player.getOpenInventory().getTopInventory().getHolder() != null){
