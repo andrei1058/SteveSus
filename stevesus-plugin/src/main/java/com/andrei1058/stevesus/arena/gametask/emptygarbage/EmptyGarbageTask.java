@@ -7,6 +7,7 @@ import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaManager;
@@ -160,6 +161,8 @@ public class EmptyGarbageTask extends GameTask {
                 player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURREOW, 1, 1);
                 arena.refreshTaskMeter();
                 arena.getGameEndConditions().tickGameEndConditions(arena);
+                PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+                Bukkit.getPluginManager().callEvent(taskDoneEvent);
             } else {
                 // or assign next
                 WallLever panel = assignedLevers.get(player.getUniqueId()).getFirst();

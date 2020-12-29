@@ -2,8 +2,13 @@ package com.andrei1058.stevesus.api.event;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.sabotage.SabotageBase;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GameSabotageDeactivateEvent extends Event {
 
@@ -12,11 +17,13 @@ public class GameSabotageDeactivateEvent extends Event {
     private final Arena arena;
     private final boolean forceDisable;
     private final SabotageBase sabotageBase;
+    private final List<Player> players = new ArrayList<>();
 
-    public GameSabotageDeactivateEvent(Arena arena, SabotageBase sabotageBase, boolean forceDisabled) {
+    public GameSabotageDeactivateEvent(Arena arena, SabotageBase sabotageBase, boolean forceDisabled, Player... fixer) {
         this.arena = arena;
         this.forceDisable = forceDisabled;
         this.sabotageBase = sabotageBase;
+        players.addAll(Arrays.asList(fixer));
     }
 
     public Arena getArena() {
@@ -32,6 +39,13 @@ public class GameSabotageDeactivateEvent extends Event {
      */
     public boolean isForceDisable() {
         return forceDisable;
+    }
+
+    /**
+     * Players who contributed to fix this sabotage.
+     */
+    public List<Player> getPlayers() {
+        return players;
     }
 
     @Override

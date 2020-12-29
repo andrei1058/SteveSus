@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -180,6 +181,8 @@ public class FuelEnginesTask extends GameTask {
             arena.refreshTaskMeter();
             arena.getGameEndConditions().tickGameEndConditions(arena);
             player.closeInventory();
+            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+            Bukkit.getPluginManager().callEvent(taskDoneEvent);
         }
 
         enableIndicator(player);

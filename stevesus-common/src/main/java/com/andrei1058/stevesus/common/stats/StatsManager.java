@@ -62,16 +62,23 @@ public class StatsManager {
                 } else {
                     cache.setLastPlay((Date) entry.getKey().castResult(entry.getValue()));
                 }
-            } else if (entry.getKey().equals(PlayerStatsTable.GAMES_PLAYED)) {
-                cache.setGamesPlayed((Integer) entry.getKey().castResult(entry.getValue()));
             } else if (entry.getKey().equals(PlayerStatsTable.GAMES_ABANDONED)) {
                 cache.setGamesAbandoned((Integer) entry.getKey().castResult(entry.getValue()));
             } else if (entry.getKey().equals(PlayerStatsTable.GAMES_WON)) {
                 cache.setGamesWon((Integer) entry.getKey().castResult(entry.getValue()));
             } else if (entry.getKey().equals(PlayerStatsTable.GAMES_LOST)) {
                 cache.setGamesLost((Integer) entry.getKey().castResult(entry.getValue()));
+            } else if (entry.getKey().equals(PlayerStatsTable.KILLS)) {
+                cache.setKills((int) entry.getKey().castResult(entry.getValue()));
+            } else if (entry.getKey().equals(PlayerStatsTable.SABOTAGES)) {
+                cache.setSabotages((int) entry.getKey().castResult(entry.getValue()));
+            } else if (entry.getKey().equals(PlayerStatsTable.FIXED_SABOTAGES)) {
+                cache.setFixedSabotages((int) entry.getKey().castResult(entry.getValue()));
+            } else if (entry.getKey().equals(PlayerStatsTable.TASKS)) {
+                cache.setTasks((int) entry.getKey().castResult(entry.getValue()));
             }
         }
+        cache.setGamesPlayed(cache.getGamesWon() + cache.getGamesLost());
         //todo other stats for new game
 
         playerStats.put(player, cache);
@@ -144,6 +151,8 @@ public class StatsManager {
         String last_play = cache.getLastPlay() == null ? playerLocale.getMsg(null, CommonMessage.DATE_NONE) : dateFormat.format(cache.getLastPlay());
         return rawString.replace("{first_play}", first_play).replace("{last_play}", last_play).replace("{games_played}", String.valueOf(cache.getGamesPlayed()))
                 .replace("{games_lost}", String.valueOf(cache.getGamesLost())).replace("{games_won}", String.valueOf(cache.getGamesWon()))
-                .replace("{games_abandoned}", String.valueOf(cache.getGamesAbandoned()));
+                .replace("{games_abandoned}", String.valueOf(cache.getGamesAbandoned())).replace("{kills}", String.valueOf(cache.getKills()))
+                .replace("{sabotages}", String.valueOf(cache.getSabotages())).replace("{sabotages_fixed}", String.valueOf(cache.getFixedSabotages()))
+                .replace("{tasks}", String.valueOf(cache.getTasks()));
     }
 }

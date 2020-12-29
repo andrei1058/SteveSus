@@ -160,7 +160,7 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
         active = true;
         //arena.interruptTasks();
         arena.disableTaskIndicators();
-        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this));
+        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this, player));
         for (Player player1 : arena.getPlayers()){
             loc1.startGlowing(player1);
             loc2.startGlowing(player1);

@@ -6,6 +6,7 @@ import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.room.GameRoom;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.gametask.upload.panel.UploadGUI;
@@ -83,6 +84,9 @@ public class UploadTask extends GameTask {
             currentPlayerStage.put(player.getUniqueId(), null);
             arena.refreshTaskMeter();
             arena.getGameEndConditions().tickGameEndConditions(arena);
+
+            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+            Bukkit.getPluginManager().callEvent(taskDoneEvent);
         }
     }
 

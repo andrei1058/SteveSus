@@ -182,7 +182,7 @@ public class PreventionManager implements PreventionHandler {
      * To be used when a player is about to get stats.
      * Check if min match time is reached for the given arena.
      */
-    public boolean canReceiveWin(Arena arena) {
+    public boolean canReceiveStats(Arena arena) {
         return isAntiFarmingEnabled() && Instant.now().isAfter(arena.getStartTime().plusSeconds(getMinPlayTime()));
     }
 

@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.api.arena;
 
+import com.andrei1058.stevesus.api.GameStats;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingStage;
@@ -654,4 +655,15 @@ public interface Arena extends DisplayableArena {
      * Set security camera handler.
      */
     void setCamHandler(@Nullable CamHandler camHandler);
+
+    /**
+     * Get current game stats.
+     */
+    @NotNull
+    GameStats getStats();
+
+    /**
+     * Set game stats.
+     */
+    void setGameStats(@NotNull GameStats gameStats);
 }

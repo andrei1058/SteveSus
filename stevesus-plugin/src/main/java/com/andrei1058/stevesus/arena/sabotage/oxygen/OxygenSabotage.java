@@ -99,7 +99,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         }
         arena.interruptTasks();
         arena.disableTaskIndicators();
-        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this));
+        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this, player));
     }
 
     @Override

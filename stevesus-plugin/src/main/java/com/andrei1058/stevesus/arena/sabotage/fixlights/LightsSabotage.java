@@ -135,7 +135,7 @@ public class LightsSabotage extends SabotageBase {
         active = true;
         arena.interruptTasks();
         arena.disableTaskIndicators();
-        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this));
+        Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this, player));
         for (Player playing : arena.getPlayers()) {
             glowingBox.startGlowing(playing);
         }

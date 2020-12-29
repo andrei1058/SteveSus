@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
 import com.andrei1058.stevesus.api.locale.Locale;
@@ -131,6 +132,8 @@ public class PrimeShieldsTask extends GameTask {
             GameSound.TASK_PROGRESS_DONE.playToPlayer(whoClicked);
             openGUI.remove(whoClicked.getUniqueId());
             glowingBox.stopGlowing(whoClicked);
+            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, whoClicked);
+            Bukkit.getPluginManager().callEvent(taskDoneEvent);
         }
     }
 }

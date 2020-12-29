@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.common.stats.config;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.selector.SelectorManager;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -65,7 +66,7 @@ public class StatsConfig {
                 "    enchanted: false\n" +
                 "    amount: 1");
 
-        yml.addDefault("main." + STATS_GENERIC_PATTERN_PATH, Arrays.asList("#########", "#*-#))))#", "#))######", "#########"));
+        yml.addDefault("main." + STATS_GENERIC_PATTERN_PATH, Arrays.asList("#########", "#*-##)))#", "#))##abc#", "#########", "##defg###","##))))###"));
 
         yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".*." + "commands.as-player", "");
         yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".*." + "commands.as-console", "");
@@ -85,6 +86,19 @@ public class StatsConfig {
         yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".)." + "item.data", 7);
         yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".#." + "item.material", "AIR");
 
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".a." + "item.material", CommonManager.SERVER_VERSION < 13 ? "BANNER" : "WHITE_BANNER");
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".a." + "item.data", 15);
+
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".b." + "item.material", CommonManager.SERVER_VERSION < 13 ? "BANNER" : "LIME_BANNER");
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".b." + "item.data", 10);
+
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".c." + "item.material", CommonManager.SERVER_VERSION < 13 ? "BANNER" : "RED_BANNER");
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".c." + "item.data", 1);
+
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".d." + "item.material", CommonManager.SERVER_VERSION < 13 ? "REDSTONE_TORCH_ON" : "REDSTONE_TORCH");
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".e." + "item.material", "FLINT");
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".f." + "item.material", "SHIELD");
+        yml.addDefault("main." + STATS_GENERIC_REPLACE_PATH + ".g." + "item.material", "PAPER");
         save();
     }
 

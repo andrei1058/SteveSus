@@ -8,12 +8,14 @@ import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
+import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -182,6 +184,8 @@ public class UnlockManifoldsTask extends GameTask {
         arena.getGameEndConditions().tickGameEndConditions(arena);
         getGlowingBox().stopGlowing(player);
         hologram.hide(player);
+        PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+        Bukkit.getPluginManager().callEvent(taskDoneEvent);
     }
 
     private void tryOpenGUI(Player player, Arena arena) {

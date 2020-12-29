@@ -9,6 +9,7 @@ import com.andrei1058.stevesus.api.arena.GameListener;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -182,6 +183,8 @@ public class SubmitScanTask extends GameTask {
             player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURREOW, 1, 1);
             arena.refreshTaskMeter();
             arena.getGameEndConditions().tickGameEndConditions(arena);
+            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+            Bukkit.getPluginManager().callEvent(taskDoneEvent);
         }
         currentScan = null;
         currentScanTask = -1;

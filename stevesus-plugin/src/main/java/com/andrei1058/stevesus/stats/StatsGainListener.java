@@ -2,16 +2,14 @@ package com.andrei1058.stevesus.stats;
 
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
-import com.andrei1058.stevesus.api.event.GameFinishEvent;
-import com.andrei1058.stevesus.api.event.PlayerGameLeaveEvent;
-import com.andrei1058.stevesus.api.event.PlayerToSpectatorEvent;
+import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.stats.PlayerStatsCache;
 import com.andrei1058.stevesus.common.stats.StatsManager;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.prevention.PreventionManager;
-import org.bukkit.Bukkit;
+import com.andrei1058.stevesus.server.common.ServerQuitListener;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,6 +18,10 @@ import java.sql.Date;
 import java.time.Instant;
 
 public class StatsGainListener implements Listener {
+
+    public StatsGainListener() {
+        ServerQuitListener.registerInternalQuit(player -> StatsManager.getINSTANCE().clear(player.getUniqueId()));
+    }
 
     // save stats on player leave
     @EventHandler
@@ -30,14 +32,34 @@ public class StatsGainListener implements Listener {
                 boolean isAbandon = e.isAbandon();
                 if (isAbandon) {
                     stats.saveStats(e.isAbandon());
+                    stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
+                    if (stats.getFirstPlay() == null) {
+                        stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
+                    }
                     return;
                 }
-                if (PreventionManager.getInstance().canReceiveWin(e.getArena())) {
+                if (PreventionManager.getInstance().canReceiveStats(e.getArena())) {
 
-                    //todo has rejoin system?
-                    stats.setGamesPlayed(stats.getGamesPlayed() + 1);
-                    //todo is looser?
+                    // skip if winner because their stats are saved from game end event
+                    if (e.getArena().getStats().getWinners() != null) {
+                        for (Team team : e.getArena().getGameTeams()) {
+                            for (Player member : team.getMembers()) {
+                                if (member.getUniqueId().equals(e.getPlayer().getUniqueId())) {
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    if (stats.getFirstPlay() == null) {
+                        stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
+                    }
+
+                    stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
                     stats.setGamesLost(stats.getGamesLost() + 1);
+
+                    stats.setKills(stats.getKills() + e.getArena().getStats().getKills(e.getPlayer().getUniqueId()));
+                    stats.setSabotages(stats.getSabotages() + e.getArena().getStats().getSabotages(e.getPlayer().getUniqueId()));
+                    stats.setTasks(stats.getSabotages() + e.getArena().getStats().getTasks(e.getPlayer().getUniqueId()));
 
                     stats.saveStats(false);
                 } else {
@@ -53,11 +75,18 @@ public class StatsGainListener implements Listener {
     public void onEliminate(PlayerToSpectatorEvent e) {
         PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(e.getPlayer().getUniqueId());
         if (stats != null) {
-            if (PreventionManager.getInstance().canReceiveWin(e.getArena())) {
-                stats.setGamesPlayed(stats.getGamesPlayed() + 1);
+            if (PreventionManager.getInstance().canReceiveStats(e.getArena())) {
 
-                //todo is looser?
+                if (stats.getFirstPlay() == null) {
+                    stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
+                }
+
+                //is looser?
                 stats.setGamesLost(stats.getGamesLost() + 1);
+
+                stats.setKills(stats.getKills() + e.getArena().getStats().getKills(e.getPlayer().getUniqueId()));
+                stats.setSabotages(stats.getSabotages() + e.getArena().getStats().getSabotages(e.getPlayer().getUniqueId()));
+                stats.setTasks(stats.getSabotages() + e.getArena().getStats().getTasks(e.getPlayer().getUniqueId()));
 
                 stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
                 stats.saveStats(false);
@@ -75,12 +104,17 @@ public class StatsGainListener implements Listener {
                 if (winner != null) {
                     Arena winnerArena = ArenaManager.getINSTANCE().getArenaByPlayer(winner);
                     if (winnerArena != null && winnerArena.equals(e.getArena())) {
-                        if (PreventionManager.getInstance().canReceiveWin(winnerArena)) {
+                        if (PreventionManager.getInstance().canReceiveStats(winnerArena)) {
                             PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(winner.getUniqueId());
                             if (stats != null) {
-                                stats.setGamesPlayed(stats.getGamesPlayed() + 1);
+                                if (stats.getFirstPlay() == null) {
+                                    stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
+                                }
                                 stats.setGamesWon(stats.getGamesWon() + 1);
                                 stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
+                                stats.setKills(stats.getKills() + winnerArena.getStats().getKills(winner.getUniqueId()));
+                                stats.setSabotages(stats.getSabotages() + winnerArena.getStats().getSabotages(winner.getUniqueId()));
+                                stats.setTasks(stats.getSabotages() + winnerArena.getStats().getTasks(winner.getUniqueId()));
                                 stats.saveStats(false);
                             }
                         } else {
@@ -91,5 +125,27 @@ public class StatsGainListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onKill(PlayerKillEvent event){
+        event.getArena().getStats().addKill(event.getKiller().getUniqueId());
+    }
+
+    @EventHandler
+    public void onSabotage(GameSabotageActivateEvent event){
+        event.getArena().getStats().addSabotage(event.getTrigger().getUniqueId());
+    }
+
+    @EventHandler
+    public void onSabotage(GameSabotageDeactivateEvent event){
+        for (Player contributor : event.getPlayers()){
+            event.getArena().getStats().addFixedSabotage(contributor.getUniqueId());
+        }
+    }
+
+    @EventHandler
+    public void onTaskDone(PlayerTaskDoneEvent event){
+        event.getArena().getStats().addTask(event.getPlayer().getUniqueId());
     }
 }

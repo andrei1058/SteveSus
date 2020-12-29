@@ -49,6 +49,14 @@ public class PlaceholderAdditions implements AdditionalParser {
                     return String.valueOf(arena.getLiveSettings().getCommonTasks().getCurrentValue());
                 case "tasks_visual":
                     return String.valueOf(arena.getLiveSettings().isVisualTasksEnabled());
+                case "kills":
+                    return String.valueOf(arena.getStats().getKills(player.getUniqueId()));
+                case "sabotages":
+                    return String.valueOf(arena.getStats().getSabotages(player.getUniqueId()));
+                case "sabotages_fixed":
+                    return String.valueOf(arena.getStats().getFixedSabotages(player.getUniqueId()));
+                case "tasks":
+                    return String.valueOf(arena.getStats().getTasks(player.getUniqueId()));
             }
         }
         return null;

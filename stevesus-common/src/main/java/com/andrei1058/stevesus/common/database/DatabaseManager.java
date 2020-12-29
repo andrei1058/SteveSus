@@ -49,7 +49,7 @@ public class DatabaseManager implements DatabaseService {
 
             if (INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_ENABLED)) {
                 try {
-                    DatabaseManager.getINSTANCE().setDatabaseAdapter(new HikariAdapter(plugin.getName() + "JdbcPool",
+                    if (DatabaseManager.getINSTANCE().setDatabaseAdapter(new HikariAdapter(plugin.getName() + "JdbcPool",
                             INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_POOL_SIZE).orElse(10),
                             INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_MAX_LIFETIME).orElse(1800),
                             INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_HOST),
@@ -59,13 +59,21 @@ public class DatabaseManager implements DatabaseService {
                             INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_PASS),
                             INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_VERIFY_CERTIFICATE).orElse(true),
                             INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_SSL)
-                    ));
+                    ))){
+                        plugin.getLogger().severe("Using MySQL database adapter.");
+                    } else {
+                        plugin.getLogger().info("Fallback on SQLite adapter.");
+                        if (!DatabaseManager.getINSTANCE().setDatabaseAdapter(new SQLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath()))) {
+                            plugin.getLogger().info("Using no database integration.");
+                            DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
+                        }
+                    }
                 } catch (SQLException e) {
                     plugin.getLogger().severe("Cannot connect to database!");
                     e.printStackTrace();
                     plugin.getLogger().info("Fallback on SQLite adapter.");
                     try {
-                        if (DatabaseManager.getINSTANCE().setDatabaseAdapter(new SQLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath()))) {
+                        if (!DatabaseManager.getINSTANCE().setDatabaseAdapter(new SQLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath()))) {
                             DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
                         }
                     } catch (SQLException exception) {

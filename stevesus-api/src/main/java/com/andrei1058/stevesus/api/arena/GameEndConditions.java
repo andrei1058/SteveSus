@@ -98,7 +98,6 @@ public class GameEndConditions {
             StringBuilder stringBuilder = new StringBuilder();
             for (Team team : arena.getGameTeams()) {
                 if (team.isInnocent()) {
-                    winnerTeams.add(team);
                     for (Player member : team.getMembers()) {
                         String displayColor = "";
                         if (arena.getPlayerColorAssigner() != null) {
@@ -110,7 +109,7 @@ public class GameEndConditions {
                         String formattedString = locale.getMsg(null, Message.GAME_END_CREW_WON_NAME_FORMAT).replace("{display_name}", member.getDisplayName())
                                 .replace("{name}", member.getName()).replace("{display_color}", displayColor);
                         if (formattedString.contains("{tasks_done}")) {
-                            formattedString = formattedString.replace("{tasks_done}", String.valueOf(arena.getLoadedGameTasks().stream().filter(task -> task.getCurrentStage(member) == task.getTotalStages(member)).count()));
+                            formattedString = formattedString.replace("{tasks_done}", String.valueOf(arena.getStats().getTasks(member.getUniqueId())));
                         }
                         if (formattedString.contains("{tasks_total}")) {
                             formattedString = formattedString.replace("{tasks_total}", String.valueOf(arena.getLoadedGameTasks().stream().filter(task -> task.hasTask(member)).count()));
@@ -127,6 +126,12 @@ public class GameEndConditions {
             }
             result += locale.getMsg(null, Message.GAME_END_CREW_WON_NAME_DOT);
             winnerNamesPerLanguage.put(locale, result);
+        }
+
+        for (Team team : arena.getGameTeams()){
+            if (team.isInnocent()){
+                winnerTeams.add(team);
+            }
         }
 
         for (Player player : arena.getPlayers()) {
@@ -207,7 +212,8 @@ public class GameEndConditions {
                             }
                         }
                         String formattedString = locale.getMsg(null, Message.GAME_END_IMPOSTORS_WON_NAME_FORMAT).replace("{display_name}", member.getDisplayName())
-                                .replace("{name}", member.getName()).replace("{display_color}", displayColor);
+                                .replace("{name}", member.getName()).replace("{display_color}", displayColor)
+                                .replace("{kills}", String.valueOf(arena.getStats().getKills(member.getUniqueId()))).replace("{sabotages}", String.valueOf(arena.getStats().getSabotages(member.getUniqueId())));
                         stringBuilder.append(formattedString);
                         stringBuilder.append(separator);
                     }

@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.arena;
 import ch.jalu.configme.SettingsManager;
 import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.GameStats;
 import com.andrei1058.stevesus.api.arena.*;
 import com.andrei1058.stevesus.api.arena.meeting.ExclusionVoting;
 import com.andrei1058.stevesus.api.arena.meeting.MeetingButton;
@@ -146,6 +147,7 @@ public class SteveSusArena implements Arena {
     private LiveSettings liveSettings = new LiveSettings();
     private SabotageCooldown sabotageCooldown;
     private CamHandler camHandler;
+    private GameStats gameStats = new GameStats();
 
     public SteveSusArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
@@ -1711,6 +1713,16 @@ public class SteveSusArena implements Arena {
             PlayerItemHeldEvent.getHandlerList().unregister(SecurityListener.getInstance());
         }
         this.camHandler = camHandler;
+    }
+
+    @Override
+    public @NotNull GameStats getStats() {
+        return gameStats;
+    }
+
+    @Override
+    public void setGameStats(@NotNull GameStats gameStats) {
+        this.gameStats = gameStats;
     }
 
     public Location getNextWaitingSpawn() {

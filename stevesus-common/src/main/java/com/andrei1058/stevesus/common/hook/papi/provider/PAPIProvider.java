@@ -148,12 +148,27 @@ public class PAPIProvider extends PlaceholderExpansion {
                 if (statsCache == null){
                     return null;
                 }
-                if (subRequest.startsWith("fist_play")) {
-                    return commonProvider.getCommonLocaleManager().getLocale(playerUUID).formatDate(statsCache.getFirstPlay());
-                } else if (subRequest.startsWith("last_play")){
-                    return commonProvider.getCommonLocaleManager().getLocale(playerUUID).formatDate(statsCache.getLastPlay());
-                } else if (subRequest.startsWith("games_played")){
-                    return String.valueOf(statsCache.getGamesPlayed());
+                switch (subRequest){
+                    case "first_play":
+                        return commonProvider.getCommonLocaleManager().getLocale(playerUUID).formatDate(statsCache.getFirstPlay());
+                    case "last_play":
+                        return commonProvider.getCommonLocaleManager().getLocale(playerUUID).formatDate(statsCache.getLastPlay());
+                    case "games_played":
+                        return String.valueOf(statsCache.getGamesPlayed());
+                    case "games_lost":
+                        return String.valueOf(statsCache.getGamesLost());
+                    case "games_abandoned":
+                        return String.valueOf(statsCache.getGamesAbandoned());
+                    case "games_won":
+                        return String.valueOf(statsCache.getGamesWon());
+                    case "tasks":
+                        return String.valueOf(statsCache.getTasks());
+                    case "sabotages":
+                        return String.valueOf(statsCache.getSabotages());
+                    case "sabotages_fixed":
+                        return String.valueOf(statsCache.getFirstPlay());
+                    case "kills":
+                        return String.valueOf(statsCache.getKills());
                 }
             }
         }

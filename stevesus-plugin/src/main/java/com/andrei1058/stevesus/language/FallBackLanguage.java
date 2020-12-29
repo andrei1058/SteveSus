@@ -40,6 +40,21 @@ public class FallBackLanguage extends Language {
         CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "*"}, Arrays.asList(" ", "&f{first_play}"));
         CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "-"}, "&eLast Game");
         CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "-"}, Arrays.asList(" ", "&f{last_play}"));
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "a"}, "&eGames Abandoned");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "a"}, Arrays.asList(" ", "&f{games_abandoned}"));
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "b"}, "&eGames Won");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "b"}, Arrays.asList(" ", "&f{games_won}"));
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "c"}, "&eGames Lost");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "c"}, Arrays.asList(" ", "&f{games_lost}"));
+
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "d"}, "&eSabotages Activated");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "d"}, Arrays.asList(" ", "&f{sabotages}"));
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "e"}, "&eKills");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "e"}, Arrays.asList(" ", "&f{kills}"));
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "f"}, "&eSabotages Deactivated");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "f"}, Arrays.asList(" ", "&f{sabotages_fixed}"));
+        CommonMessage.STATS_REPLACEMENT_ITEM_NAME_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "g"}, "&eTasks Done");
+        CommonMessage.STATS_REPLACEMENT_ITEM_LORE_PATH.addDefault(yml, new String[]{"{s}", "main", "{r}", "g"}, Arrays.asList(" ", "&f{tasks}"));
 
         lang.save();
 
