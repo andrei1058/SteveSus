@@ -137,7 +137,7 @@ public class ServerManager {
 
         // Register bungee channel
         SteveSus.getInstance().getServer().getMessenger().registerOutgoingPluginChannel(SteveSus.getInstance(), "BungeeCord");
-        Bukkit.getMessenger().registerIncomingPluginChannel(SteveSus.getInstance(), "Return", new PluginChannelListener());
+        //Bukkit.getMessenger().registerIncomingPluginChannel(SteveSus.getInstance(), "Return", new PluginChannelListener());
 
         INSTANCE.playerNPCSupport = PlayerNPCSupport.SupportBuilder.load();
     }
