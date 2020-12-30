@@ -105,7 +105,7 @@ public class ItemUtil {
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         headMeta.setDisplayName(name);
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        byte[] encodedData = Base64.getDecoder().decode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+        byte[] encodedData = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
         profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
         Field profileField;
         try {
