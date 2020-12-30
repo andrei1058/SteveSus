@@ -98,7 +98,7 @@ public class ItemUtil {
      * @param name skull name.
      */
     public static ItemStack createSkullWithSkin(String url, String name) {
-        ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack head = new ItemStack(Material.valueOf(getMaterial("SKULL_ITEM", "PLAYER_HEAD")), 1, (short) 3);
 
         if (url.isEmpty()) return head;
 
