@@ -1,6 +1,7 @@
 package com.andrei1058.stevesus.api.locale;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 public class ChatUtil {
 
     private ChatUtil() {
