@@ -5,6 +5,7 @@ import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.*;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.stats.PlayerStatsCache;
 import com.andrei1058.stevesus.common.stats.StatsManager;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -26,6 +27,7 @@ public class StatsGainListener implements Listener {
     // save stats on player leave
     @EventHandler
     public void onGameQuit(PlayerGameLeaveEvent e) {
+        if (e.getArena().getGameState() == GameState.WAITING || e.getArena().getGameState() == GameState.STARTING) return;
         if (!e.isSpectator()) {
             PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(e.getPlayer().getUniqueId());
             if (stats != null) {
