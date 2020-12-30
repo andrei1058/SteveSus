@@ -62,8 +62,9 @@ public class ArenaTaskPlaying implements Runnable {
                         break;
                 }
             } else {
+                // needs to stay here
+                getArena().setCountdown(getArena().getCountdown() - 1);
                 if (getArena().getMeetingStage() == MeetingStage.VOTING){
-                    getArena().setCountdown(getArena().getCountdown() - 1);
                     if (getArena().getCountdown() <= 5){
                         GameSound.VOTING_ENDS_TICK.playToPlayers(arena.getPlayers());
                         GameSound.VOTING_ENDS_TICK.playToPlayers(arena.getSpectators());
