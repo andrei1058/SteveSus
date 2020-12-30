@@ -18,6 +18,7 @@ public class PlayTimeCondition implements AbandonCondition {
     @Override
     public boolean getOutcome(Player player, Arena arena) {
         if (arena == null) return false;
+        if (arena.getStartTime() == null) return false;
         Instant minTime = arena.getStartTime().plusSeconds(seconds);
         return Instant.now().isBefore(minTime);
     }

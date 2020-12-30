@@ -183,7 +183,8 @@ public class PreventionManager implements PreventionHandler {
      * Check if min match time is reached for the given arena.
      */
     public boolean canReceiveStats(Arena arena) {
-        return isAntiFarmingEnabled() && Instant.now().isAfter(arena.getStartTime().plusSeconds(getMinPlayTime()));
+        if (arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING) return false;
+        return isAntiFarmingEnabled() && arena.getStartTime() != null && Instant.now().isAfter(arena.getStartTime().plusSeconds(getMinPlayTime()));
     }
 
     public SettingsManager getConfig() {

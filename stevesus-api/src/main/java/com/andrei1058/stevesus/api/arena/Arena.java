@@ -103,7 +103,10 @@ public interface Arena extends DisplayableArena {
 
     /**
      * Get time for game began.
+     *
+     * @return NULL if isn't started.
      */
+    @Nullable
     Instant getStartTime();
 
     /**

@@ -33,7 +33,7 @@ public class StatsGainListener implements Listener {
                 if (isAbandon) {
                     stats.saveStats(e.isAbandon());
                     stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
-                    if (stats.getFirstPlay() == null) {
+                    if (stats.getFirstPlay() == null && e.getArena().getStartTime() != null) {
                         stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
                     }
                     return;
@@ -50,7 +50,7 @@ public class StatsGainListener implements Listener {
                             }
                         }
                     }
-                    if (stats.getFirstPlay() == null) {
+                    if (stats.getFirstPlay() == null && e.getArena().getStartTime() != null) {
                         stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
                     }
 
@@ -77,7 +77,7 @@ public class StatsGainListener implements Listener {
         if (stats != null) {
             if (PreventionManager.getInstance().canReceiveStats(e.getArena())) {
 
-                if (stats.getFirstPlay() == null) {
+                if (stats.getFirstPlay() == null && e.getArena().getStartTime() != null) {
                     stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
                 }
 
@@ -107,7 +107,7 @@ public class StatsGainListener implements Listener {
                         if (PreventionManager.getInstance().canReceiveStats(winnerArena)) {
                             PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(winner.getUniqueId());
                             if (stats != null) {
-                                if (stats.getFirstPlay() == null) {
+                                if (stats.getFirstPlay() == null && e.getArena().getStartTime() != null) {
                                     stats.setFirstPlay(new Date(e.getArena().getStartTime().toEpochMilli()));
                                 }
                                 stats.setGamesWon(stats.getGamesWon() + 1);
