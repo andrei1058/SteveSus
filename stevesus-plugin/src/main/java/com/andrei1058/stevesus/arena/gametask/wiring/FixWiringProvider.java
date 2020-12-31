@@ -298,7 +298,7 @@ public class FixWiringProvider extends TaskProvider {
                         event.setCancelled(false);
                     }
                     panelsSet[0]++;
-                    event.getEntity().setMetadata("wiring_wires", new FixedMetadataValue(SteveSus.getInstance(), wiresAmount));
+                    event.getEntity().setMetadata("wiring_wires", new FixedMetadataValue(SteveSus.getInstance(), wiresAmount[0]));
                     event.getEntity().setMetadata("wiring_flag", new FixedMetadataValue(SteveSus.getInstance(), FixWiringTask.PanelFlag.REGULAR.toString()));
                     event.getEntity().setMetadata("wiring_name", new FixedMetadataValue(SteveSus.getInstance(), localName));
 
