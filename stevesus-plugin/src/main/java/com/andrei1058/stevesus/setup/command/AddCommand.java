@@ -44,6 +44,8 @@ public class AddCommand {
                 .withDescription(s -> "&f- Multiple Options.")
                 .withDisplayName(s -> "&7" + root.getName() + " ")
                 .withDisplayHover(s -> "&eSet multiple options")
+                .withHeaderContent("&1|| &3" + CommonManager.getINSTANCE().getPlugin().getName() + "&7 by " + Arrays.toString(CommonManager.getINSTANCE().getPlugin().getDescription().getAuthors().toArray()))
+                .withHeaderHover("&av" + CommonManager.getINSTANCE().getPlugin().getDescription().getVersion())
         );
 
         FastSubCommand addWaitingSpawn = new FastSubCommand("waitingSpawn");

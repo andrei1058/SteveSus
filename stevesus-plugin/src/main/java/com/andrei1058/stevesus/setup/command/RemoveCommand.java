@@ -7,6 +7,7 @@ import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaManager;
+import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.setup.SetupManager;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -14,6 +15,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -30,6 +32,8 @@ public class RemoveCommand {
                 .withDescription(s -> "&f- Remove Options.")
                 .withDisplayName(s -> "&e" + root.getName() + " ")
                 .withDisplayHover(s -> "&eRemove options")
+                .withHeaderContent("&1|| &3" + CommonManager.getINSTANCE().getPlugin().getName() + "&7 by " + Arrays.toString(CommonManager.getINSTANCE().getPlugin().getDescription().getAuthors().toArray()))
+                .withHeaderHover("&av" + CommonManager.getINSTANCE().getPlugin().getDescription().getVersion())
         );
 
         FastSubCommand clearWaitingSpawns = new FastSubCommand("waitingSpawns");

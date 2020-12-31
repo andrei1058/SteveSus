@@ -39,6 +39,8 @@ public class SetCommand {
                 .withDescription(s -> "&f- Single Options.")
                 .withDisplayName(s -> "&e" + root.getName() + " ")
                 .withDisplayHover(s -> "&eSet single options")
+                .withHeaderContent("&1|| &3" + CommonManager.getINSTANCE().getPlugin().getName() + "&7 by " + Arrays.toString(CommonManager.getINSTANCE().getPlugin().getDescription().getAuthors().toArray()))
+                .withHeaderHover("&av" + CommonManager.getINSTANCE().getPlugin().getDescription().getVersion())
         );
 
         FastSubCommand setClonesAvailableAtOnce = new FastSubCommand("clonesAvailableAtOnce");
