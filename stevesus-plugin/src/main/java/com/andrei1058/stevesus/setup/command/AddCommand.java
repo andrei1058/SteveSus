@@ -6,17 +6,13 @@ import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
-import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.prevention.abandon.AbandonCondition;
-import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.andrei1058.stevesus.setup.SetupManager;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -53,7 +49,7 @@ public class AddCommand {
         FastSubCommand addMeetingSpawn = new FastSubCommand("meetingSpawn");
         FastSubCommand addSpectatorSpawn = new FastSubCommand("spectatorSpawn");
         FastSubCommand addVent = new FastSubCommand("vent");
-        FastSubCommand addTask = new FastSubCommand("task");
+        FastSubRootCommand addTask = new FastSubRootCommand("task");
 
         root
                 .withSubNode(addWaitingSpawn
@@ -186,60 +182,16 @@ public class AddCommand {
 
                 .withSubNode(addTask
                         .withDisplayName(s -> "&7" + addTask.getName() + " ")
-                        .withDescription(s -> "&7[name]")
-                        .withDisplayHover(s -> "&fAdd a task.\n&e" + ICommandNode.getClickCommand(addVent) + " [provider] [task] [localIdentifier]\n \n&fYou can usually add a task multiple times.")
-                        .withExecutor((sender, args) -> {
-                            if (args.length != 3) {
-                                sender.sendMessage(" ");
-                                String command = ICommandNode.getClickCommand(addTask);
-                                TextComponent usage = new TextComponent(ChatColor.RED + "Usage: " + ChatColor.GRAY + command);
-                                usage.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
-                                TextComponent provider = new TextComponent(" [provider]");
-                                provider.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[provider] " + ChatColor.GRAY + "is the plugin which provides the task. (Like " + SteveSus.getInstance().getName() + ").")}));
-                                usage.addExtra(provider);
-                                TextComponent task = new TextComponent(" [task]");
-                                task.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[task] " + ChatColor.GRAY + "is the task name from provider.")}));
-                                usage.addExtra(task);
-                                TextComponent localIdentifier = new TextComponent(" [localIdentifier]");
-                                localIdentifier.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[localIdentifier] " + ChatColor.GRAY + "is some name that helps you remember this configuration, because you can set a task multiple times and this name is used eventually later if you want to remove this configuration.")}));
-                                usage.addExtra(localIdentifier);
-                                sender.spigot().sendMessage(usage);
-                                sender.sendMessage(" ");
-                                sender.sendMessage(ChatColor.GRAY + "Available tasks: ");
-                                ArenaManager.getINSTANCE().getRegisteredTasks().forEach(taskHandler -> {
-                                    TextComponent textComponent = new TextComponent(ChatColor.GOLD + "- " + ChatColor.GRAY + taskHandler.getProvider().getName() + " " + ChatColor.YELLOW + taskHandler.getIdentifier());
-                                    textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.WHITE + "Click to use " + ChatColor.translateAlternateColorCodes('&', taskHandler.getDefaultDisplayName()))}));
-                                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command + " " + taskHandler.getProvider().getName() + " " + taskHandler.getIdentifier() + " "));
-                                    sender.spigot().sendMessage(textComponent);
-                                });
-                                return;
-                            }
-
-                            TaskProvider task = ArenaManager.getINSTANCE().getTask(args[0], args[1]);
-                            if (task == null) {
-                                sender.sendMessage(ChatColor.RED + "Invalid provider or task identifier.");
-                                return;
-                            }
-                            Player player = (Player) sender;
-                            SetupSession setupSession = SetupManager.getINSTANCE().getSession(player);
-                            if (!task.canSetup(player, setupSession)) {
-                                player.sendMessage(ChatColor.RED + "You're not allowed to set this task on this map. (This task might allow to be set a single time per template).");
-                                return;
-                            }
-                            if (!args[0].matches(AbandonCondition.IDENTIFIER_REGEX)) {
-                                player.sendMessage(ChatColor.RED + args[2] + ChatColor.GRAY + " cannot be used. Try removing special characters.");
-                                return;
-                            }
-
-                            if (hasTaskWithRememberName(player, args[2])) {
-                                player.sendMessage(ChatColor.RED + args[2] + ChatColor.GRAY + " already exists. Please give it another name (it's used to recognize it if you want to remove it eventually).");
-                                return;
-                            }
-                            player.sendMessage(ChatColor.GRAY + "Disabling commands usage...");
-                            assert setupSession != null;
-                            setupSession.setAllowCommands(false);
-                            task.onSetupRequest(player, setupSession, args[2]);
-                        })
+                        .withDescription(s -> "&7[provider] [name]")
+                        .withDisplayHover(s -> "&fAdd a task.\n" +
+                                "&e" + ICommandNode.getClickCommand(addVent) + " [provider] [task] [localIdentifier]\n " +
+                                "\n&fYou can usually add a task multiple times.\n " +
+                                "\n" + ChatColor.YELLOW + "[provider] " + ChatColor.GRAY + "is the plugin which provides the task. (Like " + SteveSus.getInstance().getName() + ")." +
+                                "\n" + ChatColor.YELLOW + "[task] " + ChatColor.GRAY + "is the task name from provider." +
+                                "\n" + ChatColor.YELLOW + "[localIdentifier] " + ChatColor.GRAY.toString() + "is some name that helps you remember this configuration, " +
+                                "\n" + ChatColor.GRAY.toString() + "because you can set a task multiple times and this name is used eventually later" +
+                                "\n" + ChatColor.GRAY.toString() + "if you want to remove this configuration.")
+                        .withClickAction(ClickEvent.Action.SUGGEST_COMMAND)
                 )
                 //gray
                 .withSubNode(new AddRoomCommand())

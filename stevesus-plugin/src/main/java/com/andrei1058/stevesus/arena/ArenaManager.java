@@ -2,6 +2,8 @@ package com.andrei1058.stevesus.arena;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
+import com.andrei1058.spigot.commandlib.ICommandNode;
+import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
@@ -12,6 +14,7 @@ import com.andrei1058.stevesus.api.arena.team.LegacyPlayerColor;
 import com.andrei1058.stevesus.api.arena.team.PlayerColorAssigner;
 import com.andrei1058.stevesus.api.event.GameInitializedEvent;
 import com.andrei1058.stevesus.api.locale.Message;
+import com.andrei1058.stevesus.api.prevention.abandon.AbandonCondition;
 import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.world.WorldAdapter;
 import com.andrei1058.stevesus.arena.ability.kill.KillListener;
@@ -38,11 +41,16 @@ import com.andrei1058.stevesus.language.LanguageManager;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.server.common.ServerQuitListener;
 import com.andrei1058.stevesus.setup.SetupManager;
+import com.andrei1058.stevesus.setup.command.AddCommand;
 import com.andrei1058.stevesus.sidebar.GameSidebarManager;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -390,11 +398,89 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         return lastSpectatorCount;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public boolean registerGameTask(TaskProvider taskProvider) {
         if (registeredTasks.contains(taskProvider)) return false;
         LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_NAME_PATH_.toString() + taskProvider.getIdentifier(), taskProvider.getDefaultDisplayName());
         LanguageManager.getINSTANCE().getDefaultLocale().setMsg(Message.GAME_TASK_DESCRIPTION_PATH_.toString() + taskProvider.getIdentifier(), taskProvider.getDefaultDescription());
+
+        if (SteveSus.getInstance().getMainCommand() != null) {
+            FastSubRootCommand add = (FastSubRootCommand) SteveSus.getInstance().getMainCommand().getSubCommand("add");
+            if (add != null) {
+                FastSubRootCommand task = (FastSubRootCommand) add.getSubCommand("task");
+                if (task != null) {
+                    FastSubCommand providerCommand = (FastSubCommand) task.getSubCommand(taskProvider.getProvider().getName());
+                    if (providerCommand == null) {
+                        providerCommand = new FastSubCommand(taskProvider.getProvider().getName());
+                        task.withSubNode(providerCommand);
+
+                        FastSubCommand finalProviderCommand = providerCommand;
+                        providerCommand.withTabSuggestions(s -> {
+                            List<String> list = new ArrayList<>();
+                            for (TaskProvider taskProvider1 : ArenaManager.getINSTANCE().getRegisteredTasks()) {
+                                if (taskProvider1.getProvider().getName().equals(taskProvider.getProvider().getName())) {
+                                    list.add(taskProvider1.getIdentifier());
+                                }
+                            }
+                            return list;
+                        });
+                        providerCommand.withExecutor((sender, args) -> {
+                            if (args.length != 2) {
+                                sender.sendMessage(" ");
+                                String command = ICommandNode.getClickCommand(finalProviderCommand);
+                                TextComponent usage = new TextComponent(ChatColor.RED + "Usage: " + ChatColor.GRAY + command);
+                                usage.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
+                                TextComponent taskHolder = new TextComponent(" [task]");
+                                taskHolder.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[task] " + ChatColor.GRAY + "is the task name from provider.")}));
+                                usage.addExtra(taskHolder);
+                                TextComponent localIdentifier = new TextComponent(" [localIdentifier]");
+                                localIdentifier.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.YELLOW + "[localIdentifier] " + ChatColor.GRAY + "is some name that helps you remember this configuration, because you can set a task multiple times and this name is used eventually later if you want to remove this configuration.")}));
+                                usage.addExtra(localIdentifier);
+                                sender.spigot().sendMessage(usage);
+                                sender.sendMessage(" ");
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&1|| &3Tasks provided by &e" + taskProvider.getProvider().getName()));
+
+                                for (TaskProvider taskHandler : ArenaManager.getINSTANCE().getRegisteredTasks()) {
+                                    if (taskHandler.getProvider().getName().equals(taskProvider.getProvider().getName())) {
+                                        TextComponent textComponent = new TextComponent(ChatColor.GOLD + "- " + ChatColor.GRAY + taskHandler.getProvider().getName() + " " + ChatColor.YELLOW + taskHandler.getIdentifier());
+                                        textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent(ChatColor.WHITE + "Click to use " + ChatColor.translateAlternateColorCodes('&', taskHandler.getDefaultDisplayName()))}));
+                                        textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command + taskHandler.getIdentifier() + " "));
+                                        sender.spigot().sendMessage(textComponent);
+                                    }
+                                }
+                                return;
+                            }
+
+                            TaskProvider taskRegisteredProvider = ArenaManager.getINSTANCE().getTask(taskProvider.getProvider().getName(), args[0]);
+                            if (taskRegisteredProvider == null) {
+                                sender.sendMessage(ChatColor.RED + "Invalid provider or task identifier.");
+                                return;
+                            }
+                            Player player = (Player) sender;
+                            SetupSession setupSession = SetupManager.getINSTANCE().getSession(player);
+                            if (!taskRegisteredProvider.canSetup(player, setupSession)) {
+                                player.sendMessage(ChatColor.RED + "You're not allowed to set this task on this map. (This task might allow to be set a single time per template).");
+                                return;
+                            }
+                            if (!args[1].matches(AbandonCondition.IDENTIFIER_REGEX)) {
+                                player.sendMessage(ChatColor.RED + args[1] + ChatColor.GRAY + " cannot be used. Try removing special characters.");
+                                return;
+                            }
+
+                            if (AddCommand.hasTaskWithRememberName(player, args[1])) {
+                                player.sendMessage(ChatColor.RED + args[1] + ChatColor.GRAY + " already exists. Please give it another name (it's used to recognize it if you want to remove it eventually).");
+                                return;
+                            }
+                            player.sendMessage(ChatColor.GRAY + "Disabling commands usage...");
+                            assert setupSession != null;
+                            setupSession.setAllowCommands(false);
+                            taskRegisteredProvider.onSetupRequest(player, setupSession, args[1]);
+                        });
+                    }
+                }
+            }
+        }
         return registeredTasks.add(taskProvider);
     }
 
