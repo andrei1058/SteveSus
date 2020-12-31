@@ -175,7 +175,6 @@ public class OxygenSabotageProvider extends SabotageProvider {
 
     @Override
     public void onSetupSessionClose(SetupSession setupSession) {
-        setupSession.getPlayer().sendMessage("a");
         Object counter = setupSession.getCachedValue(getUniqueIdentifier() + "_lc");
         Object deadLine = setupSession.getCachedValue(getUniqueIdentifier() + "_deadLine");
         if (counter == null && deadLine == null) return;
