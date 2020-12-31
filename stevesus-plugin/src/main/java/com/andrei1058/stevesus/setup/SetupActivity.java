@@ -104,7 +104,10 @@ public class SetupActivity implements SetupSession {
     @Override
     public void onStop() {
         setupTask.cancel();
-        meetingButtonHologram.remove();
+        if (meetingButtonHologram != null) {
+            meetingButtonHologram.hide();
+            meetingButtonHologram.remove();
+        }
         if (player.isOnline()) {
             player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             player.setGameMode(Bukkit.getDefaultGameMode());
@@ -166,6 +169,7 @@ public class SetupActivity implements SetupSession {
         HologramPage page;
         if (meetingButtonHologram != null) {
             meetingButtonHologram.hide();
+            meetingButtonHologram.remove();
         }
         // the first page is created automatically
         Location location = config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).get();
