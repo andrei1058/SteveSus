@@ -184,12 +184,12 @@ public class UploadTaskProvider extends TaskProvider {
                 if (tag.equals("download")) {
                     downloadFrame.add((ItemFrame) event.getEntity());
                     event.getEntity().setMetadata("uploadPanel", new FixedMetadataValue(SteveSus.getInstance(), localName));
-                    ItemStack itemItem = ItemUtil.createItem("CONCRETE_POWDER", (byte) 0, 1, false, null, "&eDOWNLOAD", null);
+                    ItemStack itemItem = ItemUtil.createItem(ItemUtil.getMaterial("CONCRETE_POWDER", "BLACK_CONCRETE_POWDER"), (byte) 0, 1, false, null, "&eDOWNLOAD", null);
                     ((ItemFrame) event.getEntity()).setItem(itemItem);
                     player.sendMessage(ChatColor.GRAY + "DOWNLOAD panel placed. If you want to remove this location just break it.");
                 } else if (tag.equals("upload")) {
                     uploadFrame.add((ItemFrame) event.getEntity());
-                    ItemStack itemItem = ItemUtil.createItem("CONCRETE_POWDER", (byte) 0, 1, false, null, "&eUPLOAD", null);
+                    ItemStack itemItem = ItemUtil.createItem(ItemUtil.getMaterial("CONCRETE_POWDER", "BLACK_CONCRETE_POWDER"), (byte) 0, 1, false, null, "&eUPLOAD", null);
                     ((ItemFrame) event.getEntity()).setItem(itemItem);
                     event.getEntity().setMetadata("uploadPanel", new FixedMetadataValue(SteveSus.getInstance(), localName));
                     player.sendMessage(ChatColor.GRAY + "UPLOAD panel placed. If you want to remove this location just break it.");

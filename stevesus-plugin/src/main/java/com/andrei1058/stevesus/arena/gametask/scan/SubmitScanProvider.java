@@ -109,7 +109,7 @@ public class SubmitScanProvider extends TaskProvider {
         ItemStack setScanLocation = ItemUtil.createItem("GOLDEN_APPLE", (byte) 0, 1, false, Arrays.asList("customTaskItem", "scanLocation"), "&bSet Scan Capsule at this location &6[Right Click]", null);
         player.getInventory().setItem(2, setScanLocation);
 
-        ItemStack plusDuration = ItemUtil.createItem(ItemUtil.getMaterial("CONCRETE", "RED_BLUE_CONCRETE"), (byte) 14, 1, false, Arrays.asList("customTaskItem", "plusDuration"), "&cIncrease Scan duration in seconds &6[Right Click]", null);
+        ItemStack plusDuration = ItemUtil.createItem(ItemUtil.getMaterial("CONCRETE", "RED_CONCRETE"), (byte) 14, 1, false, Arrays.asList("customTaskItem", "plusDuration"), "&cIncrease Scan duration in seconds &6[Right Click]", null);
         ItemStack minusDuration = ItemUtil.createItem(ItemUtil.getMaterial("CONCRETE", "LIGHT_BLUE_CONCRETE"), (byte) 3, 1, false, Arrays.asList("customTaskItem", "minusDuration"), "&9Decrease Scan duration in seconds &6[Right Click]", null);
         player.getInventory().setItem(4, plusDuration);
         player.getInventory().setItem(5, minusDuration);
