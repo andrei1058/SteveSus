@@ -13,7 +13,7 @@ public class InvCloseCmd {
     public static void register(FastRootCommand root) {
         root
                 .withSubNode(new FastSubCommand("closeInv")
-                .withPermAdditions(s -> (s instanceof Player) && ((Player)s).getOpenInventory() != null)
+                .withPermAdditions(s -> (s instanceof Player) && ((Player)s).getOpenInventory() != null && ((Player)s).getOpenInventory().getTopInventory() != null)
                 .withExecutor((s, args) -> ((Player)s).closeInventory()));
 
     }
