@@ -104,6 +104,7 @@ public class SetupActivity implements SetupSession {
     @Override
     public void onStop() {
         setupTask.cancel();
+        meetingButtonHologram.remove();
         if (player.isOnline()) {
             player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             player.setGameMode(Bukkit.getDefaultGameMode());
