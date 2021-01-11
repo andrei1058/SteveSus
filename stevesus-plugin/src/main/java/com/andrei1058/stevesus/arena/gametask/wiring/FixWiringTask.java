@@ -258,10 +258,14 @@ public class FixWiringTask extends GameTask {
                 wallPanels.forEach(panel -> {
                     arena.getPlayers().forEach(player -> {
                         if (!(hasTask(player) && GlowingManager.isGlowing(panel.getItemFrame(), player))) {
-                            panel.getHologram().hide(player);
+                            if (panel.getHologram() != null) {
+                                panel.getHologram().hide(player);
+                            }
                         }
                     });
-                    panel.getHologram().show();
+                    if (panel.getHologram() != null) {
+                        panel.getHologram().show();
+                    }
                 });
             }
         }
@@ -269,7 +273,11 @@ public class FixWiringTask extends GameTask {
         @Override
         public void onPlayerJoin(Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
-                wallPanels.forEach(panel -> panel.getHologram().hide(player));
+                wallPanels.forEach(panel -> {
+                    if (panel.getHologram() != null) {
+                        panel.getHologram().hide(player);
+                    }
+                });
             } else {
                 // hide existing glowing
                 for (WallPanel wallPanel : wallPanels) {
@@ -293,7 +301,7 @@ public class FixWiringTask extends GameTask {
             if (getCurrentStage(player) != getTotalStages(player)) {
                 if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
                 WallPanel panel = playerAssignedPanels.get(player.getUniqueId()).getFirst();
-                if (panel != null && panel.getItemFrame().equals(entity)) {
+                if (panel != null && panel.getItemFrame() != null && panel.getItemFrame().equals(entity)) {
                     panel.startFixingPanel(player, this);
                     currentlyOpenPanel.add(player.getUniqueId());
                 }

@@ -107,12 +107,18 @@ public class UploadTask extends GameTask {
                 panels.forEach(panel -> {
                     arena.getPlayers().forEach(player -> {
                         if (!GlowingManager.isGlowing(panel.getItemFrame(), player)) {
-                            panel.getHologram().hide(player);
+                            if (panel.getHologram() != null) {
+                                panel.getHologram().hide(player);
+                            }
                         } else {
-                            panel.getHologram().show(player);
+                            if (panel.getHologram() != null) {
+                                panel.getHologram().show(player);
+                            }
                         }
                     });
-                    panel.getHologram().show();
+                    if (panel.getHologram() != null) {
+                        panel.getHologram().show();
+                    }
                 });
             }
         }
@@ -120,12 +126,12 @@ public class UploadTask extends GameTask {
         @Override
         public void onPlayerJoin(Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
-                for (WallPanel panel : panels){
+                for (WallPanel panel : panels) {
                     panel.getHologram().hide(player);
                 }
             } else {
                 // hide existing glowing
-                for (WallPanel panel : panels){
+                for (WallPanel panel : panels) {
                     GlowingManager.getInstance().removeGlowing(panel.getItemFrame(), player);
                 }
             }

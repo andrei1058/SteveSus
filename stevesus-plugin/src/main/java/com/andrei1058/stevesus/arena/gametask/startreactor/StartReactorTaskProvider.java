@@ -1,18 +1,32 @@
 package com.andrei1058.stevesus.arena.gametask.startreactor;
 
+import com.andrei1058.hologramapi.Hologram;
+import com.andrei1058.hologramapi.HologramPage;
+import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
+import com.andrei1058.stevesus.api.glow.GlowColor;
+import com.andrei1058.stevesus.api.glow.GlowingBox;
+import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
+import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
+import com.andrei1058.stevesus.api.setup.util.SaveTaskItem;
+import com.andrei1058.stevesus.api.setup.util.SelectTargetBlock;
+import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 public class StartReactorTaskProvider extends TaskProvider {
 
@@ -59,12 +73,72 @@ public class StartReactorTaskProvider extends TaskProvider {
 
     @Override
     public void onSetupRequest(Player player, SetupSession setupSession, String localName) {
+        // create inventory backup to be restored later
+        InventoryBackup inventoryBackup = new InventoryBackup(player);
+        // instructions
+        player.sendMessage(ChatColor.GRAY + "Set the block players will interact with to open the GUI.");
+        // disable commands usage
+        setupSession.setAllowCommands(false);
+        // Block handler
+        SelectTargetBlock selectTargetBlock = new SelectTargetBlock("&d&lSet glowing on target block", "&e&lRemove glowing from set block");
+        selectTargetBlock.giveItems(player);
+        // Save logic
+        SaveTaskItem saveTaskItem = new SaveTaskItem(this, player1 -> {
+            // enable back command usage
+            setupSession.setAllowCommands(true);
+            // restore inventory
+            player1.getInventory().clear();
+            inventoryBackup.restore(player1);
+            // remove current listener to prevent memory leaks
+            SteveSus.newChain().delay(2).sync(() -> setupSession.removeSetupListener("startReactor-" + localName)).execute();
+            // save data
+            if (selectTargetBlock.getSetBlock() == null) {
+                player1.sendMessage(ChatColor.RED + "Block not set! Aborting...");
+            } else {
+                SteveSus.newChain().delay(2).sync(() -> {
+                    OrphanLocationProperty exporter = new OrphanLocationProperty();
+                    JsonObject config = new JsonObject();
+                    config.addProperty("loc", exporter.toExportValue(selectTargetBlock.getSetBlock()).toString());
+                    ArenaManager.getINSTANCE().saveTaskData(getInstance(), setupSession, localName, config.getAsJsonObject());
+                }).execute();
+            }
+            return null;
+        });
+        saveTaskItem.giveItem(player);
 
+        setupSession.addSetupListener("startReactor-" + localName, new SetupListener() {
+            @Override
+            public void onPlayerInteract(SetupSession setupSession, PlayerInteractEvent event) {
+                if (selectTargetBlock.onItemInteract(event.getItem(), event.getPlayer()) || saveTaskItem.onItemInteract(event.getItem(), event.getPlayer())) {
+                    event.setCancelled(true);
+                }
+            }
+        });
     }
 
     @Override
     public void onSetupLoad(SetupSession setupSession, String localName, JsonObject configData) {
+        if (!validateElements(configData, "loc")) return;
+        JsonElement loc = configData.get("loc");
+        if (loc.isJsonNull()) return;
+        Location location = new OrphanLocationProperty().convert(loc.getAsString(), null);
+        if (location == null) return;
+        location.setWorld(setupSession.getPlayer().getWorld());
 
+        SteveSus.newChain().delay(20).sync(() -> {
+            GlowingBox glowingBox = new GlowingBox(location.clone().add(0.5, 0, 0.5), 2, GlowColor.GREEN);
+            glowingBox.startGlowing(setupSession.getPlayer());
+
+            Hologram hologram = new Hologram(location, 2);
+            HologramPage page = hologram.getPage(0);
+            assert page != null;
+            page.setLineContent(0, new LineTextContent(s -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName())));
+            page.setLineContent(1, new LineTextContent(s -> localName));
+
+            // cache objects so they can be removed if player decides to remove this configuration
+            setupSession.cacheValue(getIdentifier() + "-" + localName + "-holo", hologram);
+            setupSession.cacheValue(getIdentifier() + "-" + localName + "-glowing", glowingBox);
+        }).execute();
     }
 
     @Override

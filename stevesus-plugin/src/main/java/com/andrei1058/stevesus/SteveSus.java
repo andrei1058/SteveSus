@@ -5,7 +5,9 @@ import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.versionsupport.ChatSupport;
+import com.andrei1058.spigot.versionsupport.ParticleSupport;
 import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.VersionUtil;
 import com.andrei1058.stevesus.api.glow.GlowingHandler;
 import com.andrei1058.stevesus.api.locale.LocaleManager;
 import com.andrei1058.stevesus.api.prevention.PreventionHandler;
@@ -59,14 +61,14 @@ import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
 import java.io.File;
 
-@Plugin(name = "SteveSus", version = "1.3.7-beta")
+@Plugin(name = "SteveSus", version = "1.3.8-beta")
 @Description(value = "A murder mystery mini-game")
 @Author(value = "andrei1058")
 @Website(value = "www.andrei1058.com")
 @ApiVersion(value = ApiVersion.Target.v1_13)
 @Command(name = "ss")
 @SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI"), @SoftDependency("CorpseReborn"), @SoftDependency("GlowAPI"), @SoftDependency("PacketListenerAPI")})
-public class SteveSus extends JavaPlugin implements SteveSusAPI {
+public class SteveSus extends JavaPlugin implements SteveSusAPI, VersionUtil {
 
     private static SteveSus INSTANCE;
     private static TaskChainFactory taskChainFactory;
@@ -319,6 +321,11 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
         return GlowingManager.getInstance();
     }
 
+    @Override
+    public VersionUtil getVersionUtil() {
+        return this;
+    }
+
     public static SteveSus getInstance() {
         return INSTANCE;
     }
@@ -335,5 +342,10 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI {
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
         return new VoidChunkGenerator();
+    }
+
+    @Override
+    public ParticleSupport getParticleSupport() {
+        return ServerManager.getParticleSupport();
     }
 }

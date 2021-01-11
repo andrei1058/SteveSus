@@ -99,19 +99,25 @@ public class WallPanel {
         Player player1 = Bukkit.getPlayer(player);
         if (player1 == null) return;
         GlowingManager.setGlowingGreen(getItemFrame(), player1);
-        hologram.show(player1);
+        if (hologram != null) {
+            hologram.show(player1);
+        }
     }
 
     public void startGlowing(Player player){
         GlowingManager.setGlowingGreen(getItemFrame(), player);
-        hologram.show(player);
+        if (hologram != null) {
+            hologram.show(player);
+        }
     }
 
     public void stopGlowing(UUID player){
         Player player1 = Bukkit.getPlayer(player);
         if (player1 == null) return;
         GlowingManager.getInstance().removeGlowing(getItemFrame(), player1);
-        hologram.hide(player1);
+        if (hologram != null) {
+            hologram.hide(player1);
+        }
     }
 
     public void increaseAssignments() {
@@ -124,6 +130,8 @@ public class WallPanel {
 
     public void stopGlowing(Player player) {
         GlowingManager.getInstance().removeGlowing(getItemFrame(), player);
-        hologram.hide(player);
+        if (hologram != null) {
+            hologram.hide(player);
+        }
     }
 }

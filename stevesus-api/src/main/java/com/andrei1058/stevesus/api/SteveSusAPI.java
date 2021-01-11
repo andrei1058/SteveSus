@@ -69,6 +69,11 @@ public interface SteveSusAPI extends Plugin {
     GlowingHandler getGlowingHandler();
 
     /**
+     * Get util that supports multiple versions.
+     */
+    VersionUtil getVersionUtil();
+
+    /**
      * Get API instance.
      */
     static SteveSusAPI getInstance() {

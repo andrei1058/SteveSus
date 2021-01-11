@@ -31,6 +31,7 @@ public class EmptyGarbageTask extends GameTask {
     private final LinkedList<WallLever> wallLevers = new LinkedList<>();
     private final LinkedList<UUID> currentlyOpenPanel = new LinkedList<>();
     private final int stages;
+    private final boolean visual;
 
     public EmptyGarbageTask(String localName, Arena arena, List<WallLever> wallLevers, int stages) {
         super(localName);
@@ -48,6 +49,8 @@ public class EmptyGarbageTask extends GameTask {
                 currentlyOpenPanel.remove(player.getUniqueId());
             }
         });
+
+        visual = wallLevers.stream().anyMatch(lever -> lever.getDropLocation() != null);
     }
 
 

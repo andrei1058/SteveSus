@@ -14,27 +14,34 @@ import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.WeakHashMap;
 
 public class FuelStage {
 
-    private final GlowingBox storageGlowing;
-    private final GlowingBox engineGlowing;
+    private GlowingBox storageGlowing;
+    private GlowingBox engineGlowing;
     private Hologram storageHologram;
     private Hologram engineHologram;
     private final WeakHashMap<UUID, Long> nextAllowed = new WeakHashMap<>();
 
-    public FuelStage(Location storage, Location reactor) {
-        storageGlowing = new GlowingBox(storage.add(0.5, 0, 0.5), 2, GlowColor.DARK_AQUA);
-        engineGlowing = new GlowingBox(reactor.add(0.5, 0, 0.5), 2, GlowColor.DARK_AQUA);
+    public FuelStage(@Nullable Location storage, @Nullable Location reactor) {
+        if (storage != null) {
+            storageGlowing = new GlowingBox(storage.add(0.5, 0, 0.5), 2, GlowColor.DARK_AQUA);
+        }
+        if (reactor != null) {
+            engineGlowing = new GlowingBox(reactor.add(0.5, 0, 0.5), 2, GlowColor.DARK_AQUA);
+        }
     }
 
+    @Nullable
     public GlowingBox getStorageGlowing() {
         return storageGlowing;
     }
 
+    @Nullable
     public GlowingBox getEngineGlowing() {
         return engineGlowing;
     }
@@ -48,14 +55,18 @@ public class FuelStage {
     }
 
     public void initHolograms(GameTask task) {
-        storageHologram = new Hologram(getStorageGlowing().getMagmaCube().getLocation().add(0, 0.5, 0), 1);
-        HologramPage page1 = storageHologram.getPage(0);
-        assert page1 != null;
-        page1.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "holo1")));
-        engineHologram = new Hologram(getEngineGlowing().getMagmaCube().getLocation().add(0, 0.5, 0), 1);
-        HologramPage page2 = engineHologram.getPage(0);
-        assert page2 != null;
-        page2.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "holo2")));
+        if (getStorageGlowing() != null) {
+            storageHologram = new Hologram(getStorageGlowing().getMagmaCube().getLocation().add(0, 0.5, 0), 1);
+            HologramPage page1 = storageHologram.getPage(0);
+            assert page1 != null;
+            page1.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "holo1")));
+        }
+        if (getEngineGlowing() != null) {
+            engineHologram = new Hologram(getEngineGlowing().getMagmaCube().getLocation().add(0, 0.5, 0), 1);
+            HologramPage page2 = engineHologram.getPage(0);
+            assert page2 != null;
+            page2.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "holo2")));
+        }
     }
 
     public void onInteract(Player player, boolean halfDone, FuelEnginesTask task, Arena arena, Entity entity) {

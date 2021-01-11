@@ -3,6 +3,7 @@ package com.andrei1058.stevesus.server;
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import com.andrei1058.hologramapi.HologramAPI;
+import com.andrei1058.spigot.versionsupport.ParticleSupport;
 import com.andrei1058.spigot.versionsupport.PlayerNPCSupport;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
@@ -46,6 +47,7 @@ public class ServerManager {
     private final String serverName;
     private HologramAPI hologramAPI;
     private PlayerNPCSupport playerNPCSupport;
+    private static ParticleSupport particleSupport;
 
     private ServerManager() {
         if (!SteveSus.getInstance().getDataFolder().exists()) {
@@ -74,6 +76,8 @@ public class ServerManager {
         } catch (InstantiationException e) {
             e.printStackTrace();
         }
+
+        particleSupport = ParticleSupport.SupportBuilder.load();
 
         // set default player removal adapter
         getINSTANCE().setDisconnectHandler(new InternalDisconnectHandler());
@@ -192,5 +196,9 @@ public class ServerManager {
 
     public PlayerNPCSupport getPlayerNPCSupport() {
         return playerNPCSupport;
+    }
+
+    public static ParticleSupport getParticleSupport() {
+        return particleSupport;
     }
 }

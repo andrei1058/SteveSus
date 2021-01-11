@@ -66,7 +66,6 @@ public class FuelEnginesTask extends GameTask {
 
             }
         });
-
     }
 
     @Override
@@ -147,10 +146,14 @@ public class FuelEnginesTask extends GameTask {
         if (availableStages.size() < rawStage) return;
         FuelStage stage = availableStages.get(rawStage);
         if (halfStage) {
-            stage.getEngineGlowing().startGlowing(player);
+            if (stage.getEngineGlowing() != null) {
+                stage.getEngineGlowing().startGlowing(player);
+            }
             stage.getEngineHologram().show(player);
         } else {
-            stage.getStorageGlowing().startGlowing(player);
+            if (stage.getStorageGlowing() != null) {
+                stage.getStorageGlowing().startGlowing(player);
+            }
             stage.getStorageHologram().show(player);
         }
     }
@@ -162,10 +165,14 @@ public class FuelEnginesTask extends GameTask {
         if (availableStages.size() < rawStage) return;
         FuelStage stage = availableStages.get(rawStage);
         if (halfStage) {
-            stage.getEngineGlowing().stopGlowing(player);
+            if (stage.getEngineGlowing() != null) {
+                stage.getEngineGlowing().stopGlowing(player);
+            }
             stage.getEngineHologram().hide(player);
         } else {
-            stage.getStorageGlowing().stopGlowing(player);
+            if (stage.getStorageGlowing() != null) {
+                stage.getStorageGlowing().stopGlowing(player);
+            }
             stage.getStorageHologram().hide(player);
         }
     }

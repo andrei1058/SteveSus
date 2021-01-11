@@ -72,7 +72,8 @@ public class MeetingButton {
         }
         for (int i = 0; i < 5; i++) {
             Location loc = particleLocations.get(particleLocations.size() == ++currentEntry ? currentEntry = 0 : currentEntry);
-            loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 0, 1, 1, 0, 1);
+            //loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 0, 1, 1, 0, 1);
+            SteveSusAPI.getInstance().getVersionUtil().getParticleSupport().spawnRedstoneParticle(loc.getWorld(), (float) loc.getX(), (float) loc.getY(), (float) loc.getX(), 0, 0, 0, 2, 4);
         }
     }
 
