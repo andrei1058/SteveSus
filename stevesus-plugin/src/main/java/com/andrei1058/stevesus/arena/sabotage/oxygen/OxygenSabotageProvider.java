@@ -51,6 +51,8 @@ public class OxygenSabotageProvider extends SabotageProvider {
 
         // add setup commands
         FastSubRootCommand currentSabotage = new FastSubRootCommand(getUniqueIdentifier());
+        currentSabotage.withHeaderContent("&1|| &3Oxygen Sabotage Commands:");
+        currentSabotage.withDescription(s -> "&e - Oxygen Leak");
         getMyCommand().withSubNode(currentSabotage);
         FastSubCommand addFixLocation = new FastSubCommand("addFixLocation");
         FastSubCommand setDeadLine = new FastSubCommand("setDeadLine");
@@ -178,25 +180,20 @@ public class OxygenSabotageProvider extends SabotageProvider {
         Object counter = setupSession.getCachedValue(getUniqueIdentifier() + "_lc");
         Object deadLine = setupSession.getCachedValue(getUniqueIdentifier() + "_deadLine");
         if (counter == null && deadLine == null) return;
-        setupSession.getPlayer().sendMessage("b");
         JsonObject currentConfig = ArenaManager.getINSTANCE().getSabotageConfiguration(setupSession.getWorldName(), this);
         if (currentConfig == null) {
             currentConfig = new JsonObject();
         }
-        setupSession.getPlayer().sendMessage("c");
         JsonArray locations = new JsonArray();
         if (currentConfig.has("locations")) {
             locations = currentConfig.get("locations").getAsJsonArray();
         }
         // add new locations
         if (counter != null) {
-            setupSession.getPlayer().sendMessage("d");
             OrphanLocationProperty convertor = new OrphanLocationProperty();
             for (int i = 1; i <= (Integer) counter; i++) {
-                setupSession.getPlayer().sendMessage("e");
                 Object cached = setupSession.getCachedValue(getUniqueIdentifier() + "_l_" + i);
                 if (cached != null) {
-                    setupSession.getPlayer().sendMessage("f");
                     locations.add(convertor.toExportValue((Location) cached).toString());
                 }
             }
@@ -205,16 +202,12 @@ public class OxygenSabotageProvider extends SabotageProvider {
             currentConfig.add("locations", locations);
         }
         // add dead line
-        setupSession.getPlayer().sendMessage("g");
         if (deadLine != null) {
-            setupSession.getPlayer().sendMessage("h");
             if (currentConfig.has("deadLine")) {
-                setupSession.getPlayer().sendMessage("l");
                 currentConfig.remove("deadLine");
             }
             currentConfig.addProperty("deadLine", (int) deadLine);
         }
-        setupSession.getPlayer().sendMessage("m");
         SteveSusAPI.getInstance().getArenaHandler().saveSabotageConfiguration(setupSession.getWorldName(), this, currentConfig, true);
     }
 

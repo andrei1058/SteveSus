@@ -547,8 +547,10 @@ public class ArenaManager implements com.andrei1058.stevesus.api.arena.ArenaHand
         if (registeredSabotages.contains(sabotageProvider)) {
             return false;
         }
-        FastSubRootCommand cmd = new FastSubRootCommand(sabotageProvider.getOwner().getName()).withDisplayHover(s -> "Sabotages provided by " + sabotageProvider.getOwner().getName());
-        SetupManager.getINSTANCE().getSetSabotageCommand().withSubNode(cmd);
+        if (SetupManager.getINSTANCE().getSetSabotageCommand().getSubCommand(sabotageProvider.getOwner().getName()) == null) {
+            FastSubRootCommand cmd = new FastSubRootCommand(sabotageProvider.getOwner().getName()).withDisplayHover(s -> "&1|| &3Sabotages provided by " + sabotageProvider.getOwner().getName());
+            SetupManager.getINSTANCE().getSetSabotageCommand().withSubNode(cmd);
+        }
         sabotageProvider.onRegister();
         return registeredSabotages.add(sabotageProvider);
     }

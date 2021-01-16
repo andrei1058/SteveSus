@@ -15,6 +15,7 @@ import com.andrei1058.stevesus.config.ArenaConfig;
 import com.andrei1058.stevesus.server.ServerManager;
 import com.andrei1058.stevesus.setup.SetupActivity;
 import com.andrei1058.stevesus.setup.SetupManager;
+import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -327,8 +328,10 @@ public class SetCommand {
                         })
                 )
                 .withSubNode(setSabotage
-                        .withDisplayName(s -> "&e" + setSabotage.getName() + " [provider] [id]")
+                        .withDisplayName(s -> "&e" + setSabotage.getName())
+                        .withDescription(s -> "&e [provider] [id]")
                         .withDisplayHover(s -> "&fSet a game sabotage")
+                        .withClickAction(ClickEvent.Action.SUGGEST_COMMAND)
                 )
         ;
     }
