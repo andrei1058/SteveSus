@@ -40,8 +40,12 @@ public class FuelEnginesTask extends GameTask {
             @Override
             public void onPlayerJoin(Arena arena, Player player) {
                 for (FuelStage fuelStage : availableStages) {
-                    fuelStage.getEngineHologram().hide(player);
-                    fuelStage.getStorageHologram().hide(player);
+                    if (fuelStage.getEngineHologram() != null) {
+                        fuelStage.getEngineHologram().hide(player);
+                    }
+                    if (fuelStage.getStorageHologram() != null) {
+                        fuelStage.getStorageHologram().hide(player);
+                    }
                 }
             }
 
