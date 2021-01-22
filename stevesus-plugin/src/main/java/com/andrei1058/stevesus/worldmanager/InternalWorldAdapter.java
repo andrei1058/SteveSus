@@ -21,46 +21,14 @@ import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class InternalWorldAdapter implements WorldAdapter {
-    /*
-    private enum VoidGenerator {
-
-        LEGACY_GENERATOR_SETTINGS("1;0;1"),
-        V1_13_GENERATOR_SETTINGS("{\"layers\": [{\"block\": \"air\", \"height\": 1}, {\"block\": \"air\", \"height\": 1}], \"biome\":\"plains\"}"),
-        V1_16_GENERATOR_SETTINGS("{\"biome\":\"minecraft:plains\",\"layers\":[{\"block\":\"minecraft:air\",\"height\":1}],\"structures\":{\"structures\":{}}}");
-
-        private final String generator;
-
-        VoidGenerator(String generator) {
-            this.generator = generator;
-        }
-
-        public String get() {
-            return generator;
-        }
-    }
-    */
 
     private final File backupFolder = new File(SteveSus.getInstance().getDataFolder(), "Worlds");
-    //private static VoidGenerator voidGenerator;
+    private final Queue<LoadQueue> queue = new LinkedList<>();
 
     public InternalWorldAdapter() {
-        // setup void generator
-        //String serverVersion = Bukkit.getServer().getClass().getName().split("\\.")[3];
-        //int version = Integer.parseInt(serverVersion.split("_")[1]);
-        /*if (version >= 13 && version < 16) {
-            voidGenerator = VoidGenerator.V1_13_GENERATOR_SETTINGS;
-        } else if (version >= 16) {
-            voidGenerator = VoidGenerator.V1_16_GENERATOR_SETTINGS;
-        } else {
-            voidGenerator = VoidGenerator.LEGACY_GENERATOR_SETTINGS;
-        }*/
-
         // create backup folder
         if (!backupFolder.exists()) {
             if (!backupFolder.mkdir()) {
@@ -123,6 +91,7 @@ public class InternalWorldAdapter implements WorldAdapter {
                         SteveSus.getInstance().getLogger().severe("Could not create zip cache for " + worldToClone + "!");
                         SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                         chain.abortChain();
+                        nextInQueue();
                     }
                 });
             } else {
@@ -140,20 +109,19 @@ public class InternalWorldAdapter implements WorldAdapter {
                     SteveSus.getInstance().getLogger().severe("Could not unzip cache of  " + worldToClone + "!");
                     SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                     chain.abortChain();
+                    nextInQueue();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 SteveSus.getInstance().getLogger().severe("Could not unzip cache of  " + worldToClone + "!");
                 SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                 chain.abortChain();
+                nextInQueue();
             }
         });
 
         if (Bukkit.getWorld(gameSessionWorld) == null) {
             WorldCreator worldCreator = new WorldCreator(gameSessionWorld);
-            //worldCreator.type(WorldType.FLAT);
-            //worldCreator.generatorSettings(voidGenerator.get());
-            //worldCreator.generateStructures(false);
             worldCreator.generator(new VoidChunkGenerator());
 
             chain.delay(10).sync(() -> {
@@ -164,6 +132,7 @@ public class InternalWorldAdapter implements WorldAdapter {
                     SteveSus.newChain().sync(() -> ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld)).execute();
                     ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
                     chain.abortChain();
+                    nextInQueue();
                 }
             });
         } else {
@@ -171,11 +140,11 @@ public class InternalWorldAdapter implements WorldAdapter {
             arena.init(Bukkit.getWorld(worldToClone));
             ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
             chain.abortChain();
+            nextInQueue();
             return;
         }
 
-        // Arena#init must be called in Bukkit WorldLoadEvent
-        chain.execute();
+        queue(gameSessionWorld, chain);
     }
 
     @Override
@@ -214,19 +183,18 @@ public class InternalWorldAdapter implements WorldAdapter {
                         SteveSus.getInstance().getLogger().severe("Could not unzip cache for " + worldName + "!");
                         SetupManager.getINSTANCE().removeSession(setupSession);
                         chain.abortChain();
+                        nextInQueue();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     SteveSus.getInstance().getLogger().severe("Could not unzip cache for " + worldName + "!");
                     SetupManager.getINSTANCE().removeSession(setupSession);
                     chain.abortChain();
+                    nextInQueue();
                 }
             });
         }
         WorldCreator worldCreator = new WorldCreator(worldName);
-        //worldCreator.type(WorldType.FLAT);
-        //worldCreator.generatorSettings(voidGenerator.get());
-        //worldCreator.generateStructures(false);
         worldCreator.generator(new VoidChunkGenerator());
 
         chain.sync(() -> {
@@ -236,9 +204,10 @@ public class InternalWorldAdapter implements WorldAdapter {
                 SteveSus.getInstance().getLogger().severe("Could not load world: " + worldName);
                 SetupManager.getINSTANCE().removeSession(setupSession);
                 chain.abortChain();
+                nextInQueue();
             }
         });
-        chain.execute();
+        queue(worldName, chain);
     }
 
     @Override
@@ -364,15 +333,6 @@ public class InternalWorldAdapter implements WorldAdapter {
         ZipParameters zipParameters = new ZipParameters();
         zipParameters.setExcludeFileFilter(excludeFileFilter);
         ZipFile zipFile = new ZipFile(zipTemplate);
-        /*for (File f : worldTemplateFolder.listFiles()) {
-            if (f != null) {
-                if (f.isDirectory()) {
-                    zipFile.addFolder(f, zipParameters);
-                } else {
-                    zipFile.addFile(f, zipParameters);
-                }
-            }
-        }*/
         zipFile.addFolder(worldTemplateFolder, zipParameters);
     }
 
@@ -421,5 +381,48 @@ public class InternalWorldAdapter implements WorldAdapter {
             }
         }
         return true;
+    }
+
+    public void nextInQueue() {
+        if (!queue.isEmpty()) {
+            queue.remove();
+        }
+        if (!queue.isEmpty()) {
+            LoadQueue loadQueue = queue.peek();
+            loadQueue.getTaskChain().execute();
+        }
+    }
+
+    public static class LoadQueue {
+
+        private final String expectedWorldName;
+        private final TaskChain<?> taskChain;
+
+        public LoadQueue(String expectedWorldName, TaskChain<?> taskChain) {
+            this.expectedWorldName = expectedWorldName;
+            this.taskChain = taskChain;
+        }
+
+        public String getExpectedWorldName() {
+            return expectedWorldName;
+        }
+
+        public TaskChain<?> getTaskChain() {
+            return taskChain;
+        }
+    }
+
+    public Queue<LoadQueue> getQueue() {
+        return queue;
+    }
+
+    private void queue(String world, TaskChain<?> taskChain) {
+        // de queued on world load
+        queue.add(new LoadQueue(world, taskChain));
+        //chain.execute();
+        if (queue.size() == 1) {
+            LoadQueue loadQueue = queue.peek();
+            loadQueue.getTaskChain().execute();
+        }
     }
 }
