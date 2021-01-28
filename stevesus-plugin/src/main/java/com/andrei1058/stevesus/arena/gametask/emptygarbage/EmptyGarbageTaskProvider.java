@@ -180,7 +180,7 @@ public class EmptyGarbageTaskProvider extends TaskProvider {
                     for (int i = 0; i < emptyGarbage.getSetBlocks().size(); i++) {
                         JsonObject boundle = new JsonObject();
                         boundle.addProperty("location", exporter.toExportValue(emptyGarbage.getSetBlocks().get(i)).toString());
-                        OrderPriority order1 = orders.length > i ? orders[i] : OrderPriority.NONE;
+                        OrderPriority order1 = orders.length > i ? (orders[i] == null ? OrderPriority.NONE : orders[i]) : OrderPriority.NONE;
                         boundle.addProperty("order", order1.toString());
                         Location drop = dropLocation.getSetBlocks().size() > i ? dropLocation.getSetBlocks().get(i) : null;
                         if (drop != null) {
