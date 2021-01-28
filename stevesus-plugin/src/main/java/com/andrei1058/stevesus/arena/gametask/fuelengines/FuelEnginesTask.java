@@ -79,7 +79,7 @@ public class FuelEnginesTask extends GameTask {
 
     @Override
     public void onInterrupt(Player player, Arena arena) {
-        if (hasTask(player)){
+        if (hasTask(player)) {
             player.closeInventory();
         }
     }
@@ -118,9 +118,9 @@ public class FuelEnginesTask extends GameTask {
 
     @Override
     public void enableIndicators() {
-        for (UUID uuid : currentStage.keySet()){
+        for (UUID uuid : currentStage.keySet()) {
             Player p = Bukkit.getPlayer(uuid);
-            if (p != null){
+            if (p != null) {
                 enableIndicator(p);
             }
         }
@@ -128,9 +128,9 @@ public class FuelEnginesTask extends GameTask {
 
     @Override
     public void disableIndicators() {
-        for (UUID uuid : currentStage.keySet()){
+        for (UUID uuid : currentStage.keySet()) {
             Player p = Bukkit.getPlayer(uuid);
-            if (p != null){
+            if (p != null) {
                 disableIndicator(p);
             }
         }
@@ -153,12 +153,16 @@ public class FuelEnginesTask extends GameTask {
             if (stage.getEngineGlowing() != null) {
                 stage.getEngineGlowing().startGlowing(player);
             }
-            stage.getEngineHologram().show(player);
+            if (stage.getEngineHologram() != null) {
+                stage.getEngineHologram().show(player);
+            }
         } else {
             if (stage.getStorageGlowing() != null) {
                 stage.getStorageGlowing().startGlowing(player);
             }
-            stage.getStorageHologram().show(player);
+            if (stage.getStorageHologram() != null) {
+                stage.getStorageHologram().show(player);
+            }
         }
     }
 
@@ -172,23 +176,27 @@ public class FuelEnginesTask extends GameTask {
             if (stage.getEngineGlowing() != null) {
                 stage.getEngineGlowing().stopGlowing(player);
             }
-            stage.getEngineHologram().hide(player);
+            if (stage.getEngineHologram() != null) {
+                stage.getEngineHologram().hide(player);
+            }
         } else {
             if (stage.getStorageGlowing() != null) {
                 stage.getStorageGlowing().stopGlowing(player);
             }
-            stage.getStorageHologram().hide(player);
+            if (stage.getStorageHologram() != null) {
+                stage.getStorageHologram().hide(player);
+            }
         }
     }
 
     public void addProgress(Player player, Arena arena) {
 
         disableIndicator(player);
-        int stage = this.currentStage.getOrDefault(player.getUniqueId(), 0) +1;
+        int stage = this.currentStage.getOrDefault(player.getUniqueId(), 0) + 1;
 
         currentStage.replace(player.getUniqueId(), stage);
 
-        if (stage == availableStages.size() * 2){
+        if (stage == availableStages.size() * 2) {
             arena.refreshTaskMeter();
             arena.getGameEndConditions().tickGameEndConditions(arena);
             player.closeInventory();
@@ -197,7 +205,7 @@ public class FuelEnginesTask extends GameTask {
         }
 
         enableIndicator(player);
-        SteveSus.newChain().delay(15).sync(()-> {
+        SteveSus.newChain().delay(15).sync(() -> {
             GameSound.TASK_PROGRESS_DONE.playToPlayer(player);
             player.closeInventory();
         }).execute();
