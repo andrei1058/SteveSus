@@ -121,6 +121,7 @@ public class LightsSabotage extends SabotageBase {
         }
         for (Player player : arena.getPlayers()){
             player.removePotionEffect(PotionEffectType.BLINDNESS);
+            player.removePotionEffect(PotionEffectType.SLOW);
         }
     }
 
@@ -144,7 +145,8 @@ public class LightsSabotage extends SabotageBase {
                 for (Player member : team.getMembers()){
                     glowingBox.startGlowing(member);
                     if (team.isInnocent()){
-                        member.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 5, false));
+                        member.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 5, false), true);
+                        member.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 0, false), true);
                     }
                 }
             }
