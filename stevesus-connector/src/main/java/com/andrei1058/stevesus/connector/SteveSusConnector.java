@@ -5,7 +5,6 @@ import ch.jalu.configme.SettingsManagerBuilder;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
-import com.andrei1058.spigot.versionsupport.ChatSupport;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.api.CommonProvider;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
@@ -143,7 +142,7 @@ public class SteveSusConnector extends JavaPlugin implements ConnectorAPI {
 
 
         // Initialize Metrics
-        Metrics metrics = new Metrics(this, 9089);
+        Metrics metrics = new Metrics(this, -1);
         metrics.addCustomChart(new Metrics.SimplePie("default_language", () ->
                 ConnectorCommonProvider.getInstance().getCommonLocaleManager().getDefaultLocale().getIsoCode()));
         //todo add more metrics

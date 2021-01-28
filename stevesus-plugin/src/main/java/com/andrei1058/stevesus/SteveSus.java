@@ -176,7 +176,7 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI, VersionUtil {
                 ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.PARTIES_SIZE_LIMIT));
 
         // Initialize Metrics
-        Metrics metrics = new Metrics(this, 9016);
+        Metrics metrics = new Metrics(this, -1);
         metrics.addCustomChart(new Metrics.SimplePie("default_language", () ->
                 LanguageManager.getINSTANCE().getDefaultLocale().getIsoCode()));
         //todo add more metrics
