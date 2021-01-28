@@ -28,8 +28,13 @@ public class NoDatabase implements DatabaseAdapter {
     }
 
     @Override
-    public List<List<ColumnValue<?>>> selectRows(Column<?> column, Table table, Operator<?> operator, int i, int i1) {
+    public List<List<ColumnValue<?>>> selectRows(List<Column<?>> list, Table table, Operator<?> operator) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<List<ColumnValue<?>>> selectRows(List<Column<?>> list, Table table, Operator<?> operator, int i, int i1) {
+        return null;
     }
 
     @Override
@@ -50,6 +55,11 @@ public class NoDatabase implements DatabaseAdapter {
     @Override
     public void set(Table table, HashMap<Column<?>, ColumnValue<?>> hashMap, Operator<?> operator) {
 
+    }
+
+    @Override
+    public <T> T getLastId(Column<T> column) {
+        return null;
     }
 
     @Override
