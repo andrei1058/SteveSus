@@ -147,7 +147,7 @@ public class FuelEnginesTask extends GameTask {
         int currentStage = this.currentStage.getOrDefault(player.getUniqueId(), 0);
         boolean halfStage = currentStage % 2 != 0;
         int rawStage = currentStage / 2;
-        if (availableStages.size() < rawStage) return;
+        if (availableStages.size() <= rawStage) return;
         FuelStage stage = availableStages.get(rawStage);
         if (halfStage) {
             if (stage.getEngineGlowing() != null) {
