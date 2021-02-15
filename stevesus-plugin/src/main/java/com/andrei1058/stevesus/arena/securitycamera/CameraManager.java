@@ -57,7 +57,7 @@ public class CameraManager implements CamHandler {
             player.setAllowFlight(true);
             player.setFlying(true);
             player.getInventory().clear();
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false, false));
             arena.setCantMove(player, true);
             CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_ON_CAM);
         }

@@ -89,7 +89,7 @@ public class VentHandler {
         arena.setCantMove(player, true);
         sendItems(player, vent);
         player.teleport(vent.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
         player.sendTitle(" ", SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.VENT_ENTER_SUBTITLE), 0, 30, 0);
 
         currentlyVenting.put(player.getUniqueId(), inventoryBackup);

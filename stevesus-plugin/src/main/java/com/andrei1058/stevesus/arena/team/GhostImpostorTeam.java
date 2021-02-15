@@ -47,7 +47,7 @@ public class GhostImpostorTeam implements Team {
         if (getArena().getGameState() != GameState.IN_GAME) return false;
         if (getArena().getPlayerTeam(player) != null) return false;
         members.removeIf(member -> member.getUniqueId().equals(player.getUniqueId()));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
         player.getInventory().clear();
         CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_IMPOSTOR_GHOST);
         return members.add(player);

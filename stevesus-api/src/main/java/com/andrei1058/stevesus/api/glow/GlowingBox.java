@@ -31,7 +31,7 @@ public class GlowingBox {
             magmaCube = (MagmaCube) location.getWorld().spawnEntity(location, EntityType.MAGMA_CUBE);
             magmaCube.setSize(boxSize);
             magmaCube.setInvulnerable(true);
-            magmaCube.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false));
+            magmaCube.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
             magmaCube.setAI(false);
             magmaCube.setRemoveWhenFarAway(false);
             magmaCube.setGravity(false);
