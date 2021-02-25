@@ -96,7 +96,8 @@ public class ExclusionVoting {
             }
             return skipped;
         } else {
-            return votes.entrySet().stream().filter(e -> e.getValue() != null && e.getValue().equals(player)).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).keySet();
+            return votes.entrySet().stream().filter(e -> e.getValue() != null && e.getValue().equals(player))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).keySet();
         }
     }
 
@@ -253,9 +254,12 @@ public class ExclusionVoting {
     @Nullable
     public Player getMostVoted(Arena arena) {
         final Player[] mostVoted = {null};
-        final int[] votes = {(int) arena.getPlayers().stream().filter(player -> !hasVoted(player)).count()};
+        final int[] votes = {0};
+
         this.votes.values().stream().distinct().forEach(voted -> {
-            int currentVotes = (int) this.votes.values().stream().filter(current -> voted == null ? current == null : current == null || current.equals(voted)).count();
+            int currentVotes = (int) this.votes.values().stream()
+                    .filter(current -> voted == null ? current == null : current == null || current.equals(voted))
+                    .count();
             if (votes[0] < currentVotes) {
                 mostVoted[0] = voted;
                 votes[0] = currentVotes;
