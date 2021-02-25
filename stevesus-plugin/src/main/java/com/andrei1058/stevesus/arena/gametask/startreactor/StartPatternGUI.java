@@ -119,6 +119,8 @@ public class StartPatternGUI extends BaseGUI {
         @Override
         public void onClick(Player whoClicked, ItemStack currentItem, ClickType click, int slot) {
             if (startPatternGUI.isPlayingPattern) return;
+            // means is done and the inv is going to be closed in a few ticks
+            if (startPatternGUI.nextClick == startPatternGUI.clickPattern.length) return;
 
             if (startPatternGUI.clickPattern[startPatternGUI.nextClick] + 4 == slot) {
                 getInventory().setItem(8 - startPatternGUI.nextClick, inputItem);

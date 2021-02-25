@@ -40,6 +40,7 @@ public class StartReactorTask extends GameTask {
             public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
                 if (!entity.equals(glowingBox.getMagmaCube())) return;
+                if (!hasTask(player)) return;
                 PlayerCoolDown coolDown = PlayerCoolDown.getOrCreatePlayerData(player);
                 if (coolDown.hasCoolDown("magmaCube")) return;
                 coolDown.updateCoolDown("magmaCube", 1);
