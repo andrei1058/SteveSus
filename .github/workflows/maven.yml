@@ -26,3 +26,12 @@ jobs:
         env:
           APIDOCS_PASS: ${{ secrets.APIDOCS_PASS }}
           APIDOCS_USER: ${{ secrets.APIDOCS_USER }}
+      - name: upload linux artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./stevesus-plugin/target/*.jar
+          asset_name: stevesus-plugin.jar
+          asset_content_type: application/jar
