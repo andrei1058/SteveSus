@@ -11,6 +11,11 @@
 
     <artifactId>stevesus-common</artifactId>
 
+    <properties>
+        <maven.compiler.source>1.16</maven.compiler.source>
+        <maven.compiler.target>1.16</maven.compiler.target>
+    </properties>
+
     <repositories>
         <repository>
             <id>placeholder-api</id>

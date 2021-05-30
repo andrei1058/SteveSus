@@ -11,6 +11,10 @@
 
     <artifactId>stevesus-plugin</artifactId>
 
+    <properties>
+        <maven.compiler.source>1.16</maven.compiler.source>
+        <maven.compiler.target>1.16</maven.compiler.target>
+    </properties>
 
     <repositories>
         <!-- Map API any maybe more -->

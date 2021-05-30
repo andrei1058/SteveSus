@@ -11,6 +11,11 @@
 
     <artifactId>stevesus-api</artifactId>
 
+    <properties>
+        <maven.compiler.source>1.16</maven.compiler.source>
+        <maven.compiler.target>1.16</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <!--This adds the Spigot API artifact to the build -->
         <dependency>
