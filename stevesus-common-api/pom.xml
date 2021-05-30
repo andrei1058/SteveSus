@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.andrei1058.spigot.commandlib</groupId>
             <artifactId>CommandLib</artifactId>
-            <version>[1.0-SNAPSHOT,)</version>
+            <version>1.1-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
         <!--Annotations-->
