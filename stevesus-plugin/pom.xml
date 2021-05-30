@@ -222,7 +222,7 @@
         </dependency>
         <dependency>
             <groupId>org.golde.bukkit.corpsereborn</groupId>
-            <artifactId>CorpseAPI</artifactId>
+            <artifactId>corpsereborn-api</artifactId>
             <version>2.16.0</version>
         </dependency>
     </dependencies>
