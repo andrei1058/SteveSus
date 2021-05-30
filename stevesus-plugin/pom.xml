@@ -12,8 +12,8 @@
     <artifactId>stevesus-plugin</artifactId>
 
     <properties>
-        <maven.compiler.source>1.16</maven.compiler.source>
-        <maven.compiler.target>1.16</maven.compiler.target>
+        <maven.compiler.source>14</maven.compiler.source>
+        <maven.compiler.target>14</maven.compiler.target>
     </properties>
 
     <repositories>
