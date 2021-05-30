@@ -4,8 +4,8 @@
     <servers>
         <server>
             <id>ftp-repo</id>
-            <username>${javadocs.username}</username>
-            <password>${javadocs.password}</password>
+            <username>${env.APIDOCS_USER}</username>
+            <password>${env.APIDOCS_PASS}</password>
         </server>
     </servers>
 </settings>
