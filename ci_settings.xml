@@ -1,6 +1,6 @@
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 http://maven.apache.org/xsd/settings-1.2.0.xsd">
     <servers>
         <server>
             <id>ftp-repo</id>
@@ -8,4 +8,20 @@
             <password>${env.APIDOCS_PASS}</password>
         </server>
     </servers>
+    <mirrors>
+        <mirror>
+            <id>andrei1058-snapshots-mirror</id>
+            <name>My snapshots</name>
+            <url>https://repo.andrei1058.com/snapshots</url>
+            <mirrorOf>>andrei1058-snapshots</mirrorOf>
+            <blocked>false</blocked>
+        </mirror>
+        <mirror>
+            <id>andrei1058-releases-mirror</id>
+            <name>My releases</name>
+            <url>https://repo.andrei1058.com/releases</url>
+            <mirrorOf>>andrei1058-releases</mirrorOf>
+            <blocked>false</blocked>
+        </mirror>
+    </mirrors>
 </settings>
