@@ -23,6 +23,11 @@
             <id>inventive-repo</id>
             <url>https://repo.inventivetalent.org/content/groups/public/</url>
         </repository>
+        <!-- Corpse API -->
+        <repository>
+            <id>andrei1058-releases</id>
+            <url>https://repo.andrei1058.com/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -89,7 +94,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>1.8</version>
+            <version>2.2.1</version>
             <scope>compile</scope>
         </dependency>
         <!--TaskChain Bukkit-->
@@ -175,7 +180,7 @@
         <dependency>
             <groupId>com.golde.bukkit.corpsereborn</groupId>
             <artifactId>corpsereborn-api</artifactId>
-            <version>2.14.0</version>
+            <version>2.16.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Glowing API -->
@@ -210,6 +215,11 @@
             <artifactId>particle-version</artifactId>
             <version>[1.5.3-SNAPSHOT,)</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.golde.bukkit.corpsereborn</groupId>
+            <artifactId>CorpseAPI</artifactId>
+            <version>2.16.0</version>
         </dependency>
     </dependencies>
     <build>

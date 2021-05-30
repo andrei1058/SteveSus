@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.golde.bukkit.corpsereborn.CorpseAPI.events.CorpseClickEvent;
 
+
 public class CorpseClickListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)

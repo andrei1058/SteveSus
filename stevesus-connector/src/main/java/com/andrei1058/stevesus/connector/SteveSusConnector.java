@@ -25,6 +25,7 @@ import com.andrei1058.stevesus.connector.listener.AdminJoinListener;
 import com.andrei1058.stevesus.connector.socket.SocketManager;
 import com.andrei1058.stevesus.connector.socket.slave.SlaveSocketListener;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -142,8 +143,8 @@ public class SteveSusConnector extends JavaPlugin implements ConnectorAPI {
 
 
         // Initialize Metrics
-        Metrics metrics = new Metrics(this, -1);
-        metrics.addCustomChart(new Metrics.SimplePie("default_language", () ->
+        Metrics metrics = new Metrics(this, 11536);
+        metrics.addCustomChart(new SimplePie("default_language", () ->
                 ConnectorCommonProvider.getInstance().getCommonLocaleManager().getDefaultLocale().getIsoCode()));
         //todo add more metrics
         //

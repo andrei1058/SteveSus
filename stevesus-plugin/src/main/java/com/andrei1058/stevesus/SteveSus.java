@@ -45,6 +45,7 @@ import com.andrei1058.stevesus.teleporter.TeleporterManager;
 import com.andrei1058.stevesus.worldmanager.WorldManager;
 import com.andrei1058.stevesus.worldmanager.generator.VoidChunkGenerator;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.generator.ChunkGenerator;
@@ -176,8 +177,8 @@ public class SteveSus extends JavaPlugin implements SteveSusAPI, VersionUtil {
                 ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.PARTIES_SIZE_LIMIT));
 
         // Initialize Metrics
-        Metrics metrics = new Metrics(this, -1);
-        metrics.addCustomChart(new Metrics.SimplePie("default_language", () ->
+        Metrics metrics = new Metrics(this, 11535);
+        metrics.addCustomChart(new SimplePie("default_language", () ->
                 LanguageManager.getINSTANCE().getDefaultLocale().getIsoCode()));
         //todo add more metrics
         //
