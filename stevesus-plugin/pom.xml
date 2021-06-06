@@ -210,14 +210,14 @@
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>player_npc_version</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.4-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!-- Particle API -->
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>particle-version</artifactId>
-            <version>[1.5.3-SNAPSHOT,)</version>
+            <version>1.5.4-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

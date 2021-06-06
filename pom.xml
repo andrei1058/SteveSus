@@ -65,8 +65,8 @@
                 <version>3.8.1</version>
                 <configuration>
                     <compilerId>eclipse</compilerId>
-                    <source>14.0</source>
-                    <target>14.0</target>
+                    <source>11.0</source>
+                    <target>11.0</target>
                 </configuration>
                 <dependencies>
                     <dependency>
