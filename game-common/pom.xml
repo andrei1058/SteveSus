@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>SteveSus</artifactId>
-        <groupId>com.andrei1058.stevesus</groupId>
+        <groupId>dev.andrei1058.game</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>stevesus-common</artifactId>
+    <artifactId>game-common</artifactId>
 
     <repositories>
         <repository>
@@ -75,8 +75,8 @@
         </dependency>
         <!-- Common API -->
         <dependency>
-            <groupId>com.andrei1058.stevesus</groupId>
-            <artifactId>stevesus-common-api</artifactId>
+            <groupId>dev.andrei1058.game</groupId>
+            <artifactId>game-common-api</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

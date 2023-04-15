@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>SteveSus</artifactId>
-        <groupId>com.andrei1058.stevesus</groupId>
+        <groupId>dev.andrei1058.game</groupId>
         <version>0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>stevesus-connector</artifactId>
+    <artifactId>game-connector-plugin</artifactId>
 
     <dependencies>
         <!--This adds the Spigot API artifact to the build -->
@@ -82,15 +82,15 @@
         </dependency>
         <!-- Connector API -->
         <dependency>
-            <groupId>com.andrei1058.stevesus</groupId>
-            <artifactId>stevesus-connector-api</artifactId>
+            <groupId>dev.andrei1058.game</groupId>
+            <artifactId>game-connector-api</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <!-- Common parts -->
         <dependency>
-            <groupId>com.andrei1058.stevesus</groupId>
-            <artifactId>stevesus-common</artifactId>
+            <groupId>dev.andrei1058.game</groupId>
+            <artifactId>game-common</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

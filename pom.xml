@@ -4,17 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.andrei1058.stevesus</groupId>
+    <groupId>dev.andrei1058.game</groupId>
     <artifactId>SteveSus</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <modules>
-        <module>stevesus-api</module>
-        <module>stevesus-plugin</module>
-        <module>stevesus-common</module>
-        <module>stevesus-connector</module>
-        <module>stevesus-common-api</module>
-        <module>stevesus-connector-api</module>
+        <module>game-slave-api</module>
+        <module>game-slave-plugin</module>
+        <module>game-common</module>
+        <module>game-connector-plugin</module>
+        <module>game-common-api</module>
+        <module>game-connector-api</module>
     </modules>
 
     <properties>
