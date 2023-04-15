@@ -1,7 +1,7 @@
 package dev.andrei1058.game.api.arena.team;
 
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.ChatUtil;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
@@ -13,12 +13,12 @@ import java.util.Comparator;
 
 public class GameTeamAssigner {
 
-    public void assignTeams(Arena arena) {
+    public void assignTeams(GameArena gameArena) {
         //todo add changes in the future. player chance etc
 
-        for (Player player : arena.getPlayers()) {
+        for (Player player : gameArena.getPlayers()) {
             boolean teamFound = false;
-            ArrayList<Team> teams = new ArrayList<>(arena.getGameTeams());
+            ArrayList<Team> teams = new ArrayList<>(gameArena.getGameTeams());
             teams.sort(Comparator.comparingInt(team -> team.getMembers().size()));
             for (Team team : teams) {
                 if (!teamFound) {
@@ -33,8 +33,8 @@ public class GameTeamAssigner {
             }
         }
 
-        Team crewMates = arena.getTeamByName("crew");
-        Team impostors = arena.getTeamByName("impostor");
+        Team crewMates = gameArena.getTeamByName("crew");
+        Team impostors = gameArena.getTeamByName("impostor");
         if (crewMates != null && impostors != null) {
             for (Player crew : crewMates.getMembers()) {
                 Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(crew);

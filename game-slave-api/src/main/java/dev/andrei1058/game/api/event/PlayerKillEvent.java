@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -13,14 +13,14 @@ public class PlayerKillEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final Player killer;
     private final Player victim;
     private boolean cancelled;
     private Team destinationTeam;
 
-    public PlayerKillEvent(Arena arena, Player killer, Player victim, Team destinationTeam) {
-        this.arena = arena;
+    public PlayerKillEvent(GameArena gameArena, Player killer, Player victim, Team destinationTeam) {
+        this.gameArena = gameArena;
         this.killer = killer;
         this.victim = victim;
         this.destinationTeam = destinationTeam;
@@ -49,8 +49,8 @@ public class PlayerKillEvent extends Event implements Cancellable {
         return victim;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     /**

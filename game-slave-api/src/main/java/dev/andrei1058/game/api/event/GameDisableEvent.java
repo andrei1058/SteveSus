@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -10,17 +10,17 @@ public class GameDisableEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final int gameId;
-    private final Arena arena;
+    private final GameArena gameArena;
 
     /**
      * Triggered when an arena is disabled by command, server shutdown or other.
      *
-     * @param arena  arena.
+     * @param gameArena  arena.
      * @param gameId game id.
      */
-    public GameDisableEvent(int gameId, Arena arena) {
+    public GameDisableEvent(int gameId, GameArena gameArena) {
         this.gameId = gameId;
-        this.arena = arena;
+        this.gameArena = gameArena;
     }
 
     /**
@@ -37,8 +37,8 @@ public class GameDisableEvent extends Event {
      *
      * @return arena.
      */
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

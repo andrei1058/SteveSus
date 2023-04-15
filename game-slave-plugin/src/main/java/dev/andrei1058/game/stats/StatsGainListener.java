@@ -1,6 +1,6 @@
 package dev.andrei1058.game.stats;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.event.*;
 import dev.andrei1058.game.api.locale.Message;
@@ -104,9 +104,9 @@ public class StatsGainListener implements Listener {
         for (Team winnerTeam : e.getWinners()) {
             for (Player winner : winnerTeam.getMembers()) {
                 if (winner != null) {
-                    Arena winnerArena = ArenaManager.getINSTANCE().getArenaByPlayer(winner);
-                    if (winnerArena != null && winnerArena.equals(e.getArena())) {
-                        if (PreventionManager.getInstance().canReceiveStats(winnerArena)) {
+                    GameArena winnerGameArena = ArenaManager.getINSTANCE().getArenaByPlayer(winner);
+                    if (winnerGameArena != null && winnerGameArena.equals(e.getArena())) {
+                        if (PreventionManager.getInstance().canReceiveStats(winnerGameArena)) {
                             PlayerStatsCache stats = StatsManager.getINSTANCE().getPlayerStats(winner.getUniqueId());
                             if (stats != null) {
                                 if (stats.getFirstPlay() == null && e.getArena().getStartTime() != null) {
@@ -114,9 +114,9 @@ public class StatsGainListener implements Listener {
                                 }
                                 stats.setGamesWon(stats.getGamesWon() + 1);
                                 stats.setLastPlay(new Date(Instant.now().toEpochMilli()));
-                                stats.setKills(stats.getKills() + winnerArena.getStats().getKills(winner.getUniqueId()));
-                                stats.setSabotages(stats.getSabotages() + winnerArena.getStats().getSabotages(winner.getUniqueId()));
-                                stats.setTasks(stats.getSabotages() + winnerArena.getStats().getTasks(winner.getUniqueId()));
+                                stats.setKills(stats.getKills() + winnerGameArena.getStats().getKills(winner.getUniqueId()));
+                                stats.setSabotages(stats.getSabotages() + winnerGameArena.getStats().getSabotages(winner.getUniqueId()));
+                                stats.setTasks(stats.getSabotages() + winnerGameArena.getStats().getTasks(winner.getUniqueId()));
                                 stats.saveStats(false);
                             }
                         } else {

@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.arena.task;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.ArenaHandler;
 import dev.andrei1058.game.api.setup.SetupSession;
 import com.google.gson.JsonObject;
@@ -110,13 +110,13 @@ public abstract class TaskProvider {
      * Initialize this task for the given arena.
      * Called when game world is loaded.
      *
-     * @param arena         target arena.
+     * @param gameArena         target arena.
      * @param configuration configuration loaded from config.
      * @param localName
      * @return null if cannot initialize. Otherwise return a new instance that can be used per arena.
      */
     @Nullable
-    public abstract GameTask onGameInit(Arena arena, JsonObject configuration, String localName);
+    public abstract GameTask onGameInit(GameArena gameArena, JsonObject configuration, String localName);
 
 
     ////////////////////////////////

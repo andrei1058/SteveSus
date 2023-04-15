@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.listener;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.PlayerCorpse;
 import dev.andrei1058.game.api.arena.team.Team;
@@ -19,9 +19,9 @@ public class PlayerMoveListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onSpring(PlayerToggleSprintEvent event) {
         if (!event.isSprinting()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
-        if (arena == null) return;
-        if (!arena.getLiveSettings().isSprintAllowed()) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
+        if (gameArena == null) return;
+        if (!gameArena.getLiveSettings().isSprintAllowed()) {
             event.setCancelled(true);
         }
     }
@@ -29,20 +29,20 @@ public class PlayerMoveListener implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (event.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
-        if (arena == null) return;
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
+        if (gameArena == null) return;
         if (event.getFrom().getX() != event.getTo().getX() || event.getFrom().getZ() != event.getTo().getZ() || event.getFrom().getBlockY() != event.getTo().getBlockY()) {
             final Location location = event.getFrom();
             final Player player = event.getPlayer();
-            if (arena.isCantMove(player)) {
+            if (gameArena.isCantMove(player)) {
                 location.setYaw(event.getTo().getYaw());
                 location.setPitch(event.getTo().getPitch());
                 location.setZ(event.getFrom().getBlockZ() + 0.5);
                 location.setX(event.getFrom().getBlockX() + 0.5);
                 player.teleport(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
             } else {
-                Team playerTeam = arena.getPlayerTeam(player);
-                for (PlayerCorpse corpse : arena.getDeadBodies()) {
+                Team playerTeam = gameArena.getPlayerTeam(player);
+                for (PlayerCorpse corpse : gameArena.getDeadBodies()) {
                     if (corpse.getHologram() != null) {
                         if (corpse.isInRange(location)) {
                             if (corpse.getHologram().isHiddenFor(player)) {
@@ -58,31 +58,31 @@ public class PlayerMoveListener implements Listener {
                     }
                 }
 
-                if (arena.getLiveSettings().getKillDistance().getCurrentValue() > 0) {
-                    tickGlowingEffect(player, arena);
+                if (gameArena.getLiveSettings().getKillDistance().getCurrentValue() > 0) {
+                    tickGlowingEffect(player, gameArena);
                 }
 
-                for (GameListener listener : arena.getGameListeners()) {
-                    listener.onPlayerMove(arena, player, location, playerTeam);
+                for (GameListener listener : gameArena.getGameListeners()) {
+                    listener.onPlayerMove(gameArena, player, location, playerTeam);
                 }
             }
         }
     }
 
-    private static void tickGlowingEffect(Player player, Arena arena) {
+    private static void tickGlowingEffect(Player player, GameArena gameArena) {
         Player currentlyGlowing = null;
         Player nearest = null;
         Player clone = null;
-        double distance = arena.getLiveSettings().getKillDistance().getCurrentValue();
-        Team playerTeam = arena.getPlayerTeam(player);
+        double distance = gameArena.getLiveSettings().getKillDistance().getCurrentValue();
+        Team playerTeam = gameArena.getPlayerTeam(player);
 
-        for (Player inGame : arena.getPlayers()) {
+        for (Player inGame : gameArena.getPlayers()) {
             if (GlowingManager.isGlowing(inGame, player)) {
                 currentlyGlowing = inGame;
             }
             double currentDistance;
-            if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(inGame, arena)){
-                clone = arena.getCamHandler().getClone(inGame.getUniqueId());
+            if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(inGame, gameArena)){
+                clone = gameArena.getCamHandler().getClone(inGame.getUniqueId());
                 if (clone == null){
                     continue;
                 } else {
@@ -97,23 +97,23 @@ public class PlayerMoveListener implements Listener {
                     distance = currentDistance;
                 } else {
                     // maybe nearest can kill him and is not moving, so refresh
-                    Team nearestTeam = arena.getPlayerTeam(inGame);
+                    Team nearestTeam = gameArena.getPlayerTeam(inGame);
                     if (nearestTeam != null && nearestTeam.canKill(player)) {
-                        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(inGame, arena)){
+                        if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(inGame, gameArena)){
                             break;
                         }
                         Player nearestsTarget = null;
-                        for (Player inGame2 : arena.getPlayers()) {
+                        for (Player inGame2 : gameArena.getPlayers()) {
                             if (GlowingManager.isGlowing(inGame2, inGame)) {
                                 nearestsTarget = inGame2;
                                 break;
                             }
                         }
                         if (nearestsTarget == null) {
-                            GlowingManager.setGlowingRed(player, inGame, arena);
-                        } else if (!nearestsTarget.equals(player) && (arena.getCamHandler() != null && !arena.getCamHandler().isOnCam(inGame, arena)) && currentDistance < nearestsTarget.getLocation().distance(inGame.getLocation())) {
+                            GlowingManager.setGlowingRed(player, inGame, gameArena);
+                        } else if (!nearestsTarget.equals(player) && (gameArena.getCamHandler() != null && !gameArena.getCamHandler().isOnCam(inGame, gameArena)) && currentDistance < nearestsTarget.getLocation().distance(inGame.getLocation())) {
                             GlowingManager.getInstance().removeGlowing(nearestsTarget, inGame);
-                            GlowingManager.setGlowingRed(player, inGame, arena);
+                            GlowingManager.setGlowingRed(player, inGame, gameArena);
                         }
                     }
                 }
@@ -126,8 +126,8 @@ public class PlayerMoveListener implements Listener {
                 //clone = null;
             }
         }
-        if (currentlyGlowing == null && arena.getCamHandler() != null) {
-            for (Player cloned : arena.getCamHandler().getClones()) {
+        if (currentlyGlowing == null && gameArena.getCamHandler() != null) {
+            for (Player cloned : gameArena.getCamHandler().getClones()) {
                 if (GlowingManager.isGlowing(cloned, player)) {
                     currentlyGlowing = cloned;
                 }
@@ -140,7 +140,7 @@ public class PlayerMoveListener implements Listener {
             GlowingManager.getInstance().removeGlowing(currentlyGlowing, player);
         }
         if (nearest != null) {
-            GlowingManager.setGlowingRed(clone == null ? nearest : clone, player, arena);
+            GlowingManager.setGlowingRed(clone == null ? nearest : clone, player, gameArena);
         }
     }
 }

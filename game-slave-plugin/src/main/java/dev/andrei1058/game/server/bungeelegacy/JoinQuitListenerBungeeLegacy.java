@@ -2,7 +2,7 @@ package dev.andrei1058.game.server.bungeelegacy;
 
 import com.andrei1058.dbi.operator.EqualsOperator;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.common.api.arena.GameState;
@@ -54,17 +54,17 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
             }
         }
 
-        Arena arena = ArenaManager.getINSTANCE().getArenas().get(0);
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenas().get(0);
+        if (gameArena != null) {
 
             // Player logic
-            if (arena.getGameState() == GameState.WAITING || (arena.getGameState() == GameState.STARTING && arena.getCountdown() > 3)) {
+            if (gameArena.getGameState() == GameState.WAITING || (gameArena.getGameState() == GameState.STARTING && gameArena.getCountdown() > 3)) {
                 // If arena is full
-                if (arena.isFull()) {
+                if (gameArena.isFull()) {
                     // Vip join feature
                     if (ArenaManager.getINSTANCE().hasVipJoin(p)) {
                         boolean canJoin = false;
-                        for (Player inGame : arena.getPlayers()) {
+                        for (Player inGame : gameArena.getPlayers()) {
                             if (!ArenaManager.getINSTANCE().hasVipJoin(inGame)) {
                                 canJoin = true;
                                 inGame.kickPlayer(LanguageManager.getINSTANCE().getMsg(inGame, Message.VIP_JOIN_KICKED));
@@ -78,9 +78,9 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
                         e.disallow(PlayerLoginEvent.Result.KICK_OTHER, LanguageManager.getINSTANCE().getMsg(e.getPlayer(), CommonMessage.ARENA_JOIN_DENIED_GAME_FULL));
                     }
                 }
-            } else if (arena.getGameState() == GameState.IN_GAME) {
+            } else if (gameArena.getGameState() == GameState.IN_GAME) {
                 // Spectator logic
-                if (!(!arena.getSpectatePermission().isEmpty() && p.hasPermission(arena.getSpectatePermission()))) {
+                if (!(!gameArena.getSpectatePermission().isEmpty() && p.hasPermission(gameArena.getSpectatePermission()))) {
                     e.disallow(PlayerLoginEvent.Result.KICK_OTHER, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(e.getPlayer(), CommonMessage.ARENA_JOIN_DENIED_SPECTATOR));
                 }
             } else {
@@ -111,15 +111,15 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
                 p.performCommand(CommonCmdManager.getINSTANCE().getMainCmd().getName());
             }
         } else {
-            Arena arena = ArenaManager.getINSTANCE().getArenas().get(0);
+            GameArena gameArena = ArenaManager.getINSTANCE().getArenas().get(0);
             // Add player if the game is in waiting
-            if (arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING) {
-                if (!arena.addPlayer(p, false)) {
+            if (gameArena.getGameState() == GameState.WAITING || gameArena.getGameState() == GameState.STARTING) {
+                if (!gameArena.addPlayer(p, false)) {
                     p.kickPlayer(LanguageManager.getINSTANCE().getMsg(p, CommonMessage.ARENA_JOIN_DENIED_GAME_FULL));
                 }
             } else {
                 // Add spectator
-                if (!arena.addSpectator(p, null)) {
+                if (!gameArena.addSpectator(p, null)) {
                     p.kickPlayer(LanguageManager.getINSTANCE().getMsg(p, CommonMessage.ARENA_JOIN_DENIED_SPECTATOR));
                 }
             }

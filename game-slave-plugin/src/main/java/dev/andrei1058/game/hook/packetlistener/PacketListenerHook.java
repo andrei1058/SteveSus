@@ -1,6 +1,6 @@
 package dev.andrei1058.game.hook.packetlistener;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.common.api.arena.GameState;
 import org.bukkit.Bukkit;
@@ -29,9 +29,9 @@ public class PacketListenerHook {
                 if (sentPacket.isCancelled()) return;
                 if (sentPacket.getPlayer() == null) return;
                 if (sentPacket.getPacketName().equals("PacketPlayOutEntityEquipment")) {
-                    Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(sentPacket.getPlayer());
-                    if (arena == null) return;
-                    if (arena.getGameState() != GameState.IN_GAME) return;
+                    GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(sentPacket.getPlayer());
+                    if (gameArena == null) return;
+                    if (gameArena.getGameState() != GameState.IN_GAME) return;
                     Object slot = sentPacket.getPacketValueSilent("b");
                     if (slot == null) return;
                     String slotString = slot.toString();

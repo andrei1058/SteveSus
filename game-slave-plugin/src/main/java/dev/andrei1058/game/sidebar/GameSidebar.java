@@ -5,7 +5,7 @@ import com.andrei1058.spigot.sidebar.Sidebar;
 import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarLineAnimated;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.room.GameRoom;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.locale.Message;
@@ -35,7 +35,7 @@ public class GameSidebar {
     // player date format
     private SimpleDateFormat dateFormat;
     // player arena. Nullable.
-    private Arena arena;
+    private GameArena gameArena;
     private String taskFormatCache = null;
     private boolean maskData = false;
 
@@ -44,11 +44,11 @@ public class GameSidebar {
      *
      * @param player  target player.
      * @param content sidebar lines.
-     * @param arena   arena if target is in a game.
+     * @param gameArena   arena if target is in a game.
      */
-    protected GameSidebar(@NotNull Player player, @NotNull List<String> content, @Nullable Arena arena, @NotNull SimpleDateFormat dateFormat) {
+    protected GameSidebar(@NotNull Player player, @NotNull List<String> content, @Nullable GameArena gameArena, @NotNull SimpleDateFormat dateFormat) {
         this.player = player;
-        this.arena = arena;
+        this.gameArena = gameArena;
         this.dateFormat = dateFormat;
 
         List<PlaceholderProvider> somePlaceholders = new ArrayList<>();
@@ -165,23 +165,23 @@ public class GameSidebar {
         }
 
         // Register refreshable placeholders
-        if (arena != null) {
-            handle.addPlaceholder(new PlaceholderProvider("{spectating}", () -> String.valueOf(arena.getCurrentSpectators())));
-            if (arena.getGameState() == GameState.STARTING || arena.getGameState() == GameState.ENDING) {
-                handle.addPlaceholder(new PlaceholderProvider("{countdown}", () -> String.valueOf(arena.getCountdown())));
+        if (gameArena != null) {
+            handle.addPlaceholder(new PlaceholderProvider("{spectating}", () -> String.valueOf(gameArena.getCurrentSpectators())));
+            if (gameArena.getGameState() == GameState.STARTING || gameArena.getGameState() == GameState.ENDING) {
+                handle.addPlaceholder(new PlaceholderProvider("{countdown}", () -> String.valueOf(gameArena.getCountdown())));
             }
         }
 
         List<GameTask> playerTasks = null;
-        if (arena != null && arena.getGameState() == GameState.IN_GAME) {
-            playerTasks = arena.getLoadedGameTasks().stream().filter(task -> task.hasTask(player)).collect(Collectors.toList());
+        if (gameArena != null && gameArena.getGameState() == GameState.IN_GAME) {
+            playerTasks = gameArena.getLoadedGameTasks().stream().filter(task -> task.hasTask(player)).collect(Collectors.toList());
         }
 
 
         // Set lines
         for (String line : content) {
             line = ChatColor.translateAlternateColorCodes('&', line);
-            if (arena != null) {
+            if (gameArena != null) {
                 if (line.contains("{task}")) {
                     GameTask currentTask = playerTasks == null ? null : (playerTasks.isEmpty() ? null : playerTasks.remove(0));
                     if (currentTask != null) {
@@ -203,10 +203,10 @@ public class GameSidebar {
                     }
                     continue;
                 }
-                line = line.replace("{template}", arena.getTemplateWorld()).replace("{name}", arena.getDisplayName())
-                        .replace("{status}", arena.getDisplayState(player))
-                        .replace("{max}", String.valueOf(arena.getMaxPlayers())).replace("{spectating}", String.valueOf(arena.getCurrentSpectators()))
-                        .replace("{game_tag}", arena.getTag()).replace("{game_id}", String.valueOf(arena.getGameId()));
+                line = line.replace("{template}", gameArena.getTemplateWorld()).replace("{name}", gameArena.getDisplayName())
+                        .replace("{status}", gameArena.getDisplayState(player))
+                        .replace("{max}", String.valueOf(gameArena.getMaxPlayers())).replace("{spectating}", String.valueOf(gameArena.getCurrentSpectators()))
+                        .replace("{game_tag}", gameArena.getTag()).replace("{game_id}", String.valueOf(gameArena.getGameId()));
             }
             line = line.replace("{player_raw}", player.getName())
                     .replace("{server_name}", ServerManager.getINSTANCE().getServerName())
@@ -234,8 +234,8 @@ public class GameSidebar {
         return maskData;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     public Player getPlayer() {
@@ -260,8 +260,8 @@ public class GameSidebar {
     /**
      * Set arena.
      */
-    public void setArena(Arena arena) {
-        this.arena = arena;
+    public void setArena(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
     /**

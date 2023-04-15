@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.arena.team;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Locale;
 import org.bukkit.entity.Player;
 
@@ -83,7 +83,7 @@ public interface Team {
     /**
      * Get game arena.
      */
-    Arena getArena();
+    GameArena getArena();
 
     /**
      * ASYNC.

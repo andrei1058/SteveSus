@@ -1,7 +1,7 @@
 package dev.andrei1058.game.hook.glowing;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.glow.GlowColor;
 import dev.andrei1058.game.api.glow.GlowingHandler;
 import org.bukkit.Bukkit;
@@ -29,10 +29,10 @@ public class GlowingManager implements GlowingHandler {
         }
     }
 
-    public static void setGlowingRed(@NotNull Entity player, @NotNull Player receiver, Arena arena) {
+    public static void setGlowingRed(@NotNull Entity player, @NotNull Player receiver, GameArena gameArena) {
         if (!isGlowing(player, receiver)) {
             GlowAPI.setGlowing(player, GlowAPI.Color.RED, "never", "never", receiver);
-            for (Player inGame : arena.getPlayers()) {
+            for (Player inGame : gameArena.getPlayers()) {
                 sendRemove(player, inGame);
             }
         }

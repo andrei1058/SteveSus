@@ -1,6 +1,6 @@
 package dev.andrei1058.game.hook.papi;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.common.hook.papi.provider.AdditionalParser;
 import dev.andrei1058.game.language.LanguageManager;
@@ -25,38 +25,38 @@ public class PlaceholderAdditions implements AdditionalParser {
             if (player == null) {
                 return null;
             }
-            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-            if (arena == null) return null;
+            GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+            if (gameArena == null) return null;
             String subRequest = identifier.substring(5);
             switch (subRequest) {
                 case "user_count_current":
-                    return String.valueOf(arena.getCurrentPlayers() + arena.getCurrentSpectators());
+                    return String.valueOf(gameArena.getCurrentPlayers() + gameArena.getCurrentSpectators());
                 case "player_count_current":
-                    return String.valueOf(arena.getCurrentPlayers());
+                    return String.valueOf(gameArena.getCurrentPlayers());
                 case "spectator_count_current":
-                    return String.valueOf(arena.getCurrentSpectators());
+                    return String.valueOf(gameArena.getCurrentSpectators());
                 case "state_current":
-                    return LanguageManager.getINSTANCE().getMsg(player, arena.getGameState().getTranslatePath());
+                    return LanguageManager.getINSTANCE().getMsg(player, gameArena.getGameState().getTranslatePath());
                 case "is_spectator":
-                    return String.valueOf(arena.isSpectator(player));
+                    return String.valueOf(gameArena.isSpectator(player));
                 case "is_player":
-                    return String.valueOf(arena.isPlayer(player));
+                    return String.valueOf(gameArena.isPlayer(player));
                 case "tasks_short":
-                    return String.valueOf(arena.getLiveSettings().getShortTasks().getCurrentValue());
+                    return String.valueOf(gameArena.getLiveSettings().getShortTasks().getCurrentValue());
                 case "tasks_long":
-                    return String.valueOf(arena.getLiveSettings().getLongTasks().getCurrentValue());
+                    return String.valueOf(gameArena.getLiveSettings().getLongTasks().getCurrentValue());
                 case "tasks_common":
-                    return String.valueOf(arena.getLiveSettings().getCommonTasks().getCurrentValue());
+                    return String.valueOf(gameArena.getLiveSettings().getCommonTasks().getCurrentValue());
                 case "tasks_visual":
-                    return String.valueOf(arena.getLiveSettings().isVisualTasksEnabled());
+                    return String.valueOf(gameArena.getLiveSettings().isVisualTasksEnabled());
                 case "kills":
-                    return String.valueOf(arena.getStats().getKills(player.getUniqueId()));
+                    return String.valueOf(gameArena.getStats().getKills(player.getUniqueId()));
                 case "sabotages":
-                    return String.valueOf(arena.getStats().getSabotages(player.getUniqueId()));
+                    return String.valueOf(gameArena.getStats().getSabotages(player.getUniqueId()));
                 case "sabotages_fixed":
-                    return String.valueOf(arena.getStats().getFixedSabotages(player.getUniqueId()));
+                    return String.valueOf(gameArena.getStats().getFixedSabotages(player.getUniqueId()));
                 case "tasks":
-                    return String.valueOf(arena.getStats().getTasks(player.getUniqueId()));
+                    return String.valueOf(gameArena.getStats().getTasks(player.getUniqueId()));
             }
         }
         return null;

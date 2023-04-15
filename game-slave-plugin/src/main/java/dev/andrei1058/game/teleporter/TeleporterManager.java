@@ -1,6 +1,6 @@
 package dev.andrei1058.game.teleporter;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.arena.command.TeleporterCmd;
 import dev.andrei1058.game.common.CommonManager;
@@ -45,10 +45,10 @@ public class TeleporterManager {
      * Open a teleporter GUI to a player.
      *
      * @param player player receiver.
-     * @param arena  player's arena.
+     * @param gameArena  player's arena.
      */
-    public static void openToPlayer(@NotNull Player player, @NotNull Arena arena) {
-        String guiName = ArenaManager.getINSTANCE().getTemplate(arena.getTemplateWorld(), true).getProperty(ArenaConfig.TELEPORTER_LAYOUT);
+    public static void openToPlayer(@NotNull Player player, @NotNull GameArena gameArena) {
+        String guiName = ArenaManager.getINSTANCE().getTemplate(gameArena.getTemplateWorld(), true).getProperty(ArenaConfig.TELEPORTER_LAYOUT);
         if (!getInstance().hasTeleporter(guiName)){
             guiName = "main";
         }
@@ -56,7 +56,7 @@ public class TeleporterManager {
         String finalGuiName = guiName;
         Bukkit.getScheduler().runTaskAsynchronously(CommonManager.getINSTANCE().getPlugin(), () -> {
             List<String> pattern = getInstance().getTeleporterConfig().getList(finalGuiName + "." + StatsConfig.STATS_GENERIC_PATTERN_PATH);
-            TeleporterGUI gui = new TeleporterGUI(finalGuiName, pattern, player, LanguageManager.getINSTANCE().getLocale(player), arena);
+            TeleporterGUI gui = new TeleporterGUI(finalGuiName, pattern, player, LanguageManager.getINSTANCE().getLocale(player), gameArena);
             // open sync
             Bukkit.getScheduler().runTask(CommonManager.getINSTANCE().getPlugin(), () -> gui.open(player));
         });

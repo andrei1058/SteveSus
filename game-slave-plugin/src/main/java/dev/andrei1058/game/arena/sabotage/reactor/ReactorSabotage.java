@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.sabotage.reactor;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.api.arena.sabotage.GenericWarning;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 
 public class ReactorSabotage extends SabotageBase implements TimedSabotage {
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final GenericWarning warning;
     private int deadLineSeconds;
     private boolean active = false;
@@ -38,43 +38,43 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
     private final GlowingBox loc2;
     private final HashMap<Player, ReactorGUI> openGUIs = new HashMap<>();
 
-    public ReactorSabotage(Arena arena, int deadLineSeconds, Location loc1, Location loc2) {
-        this.arena = arena;
+    public ReactorSabotage(GameArena gameArena, int deadLineSeconds, Location loc1, Location loc2) {
+        this.gameArena = gameArena;
         this.deadLineSeconds = deadLineSeconds;
         this.loc1 = new GlowingBox(loc1.add(0.5,0,0.5), 2, GlowColor.RED);
         this.loc2 = new GlowingBox(loc2.add(0.5,0,0.5), 2, GlowColor.RED);
-        this.warning = new GenericWarning(arena, deadLineSeconds, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, ReactorSabotageProvider.NAME_PATH));
+        this.warning = new GenericWarning(gameArena, deadLineSeconds, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, ReactorSabotageProvider.NAME_PATH));
 
-        arena.registerGameListener(new GameListener() {
+        gameArena.registerGameListener(new GameListener() {
             @Override
-            public void onPlayerLeave(Arena arena, Player player, boolean spectator) {
+            public void onPlayerLeave(GameArena gameArena, Player player, boolean spectator) {
                 warning.removePlayer(player);
             }
 
             @Override
-            public void onPlayerToSpectator(Arena arena, Player player) {
+            public void onPlayerToSpectator(GameArena gameArena, Player player) {
                 warning.removePlayer(player);
             }
 
             @Override
-            public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
+            public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
                 tryOpen(player, entity);
             }
 
             @Override
-            public void onEntityPunch(Arena arena, Player player, Entity entity) {
+            public void onEntityPunch(GameArena gameArena, Player player, Entity entity) {
                 tryOpen(player, entity);
             }
 
             @Override
-            public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
+            public void onMeetingStageChange(GameArena gameArena, MeetingStage oldStage, MeetingStage newStage) {
                 if (oldStage == MeetingStage.NO_MEETING) {
                     deactivate(true);
                 }
             }
 
             @Override
-            public void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+            public void onInventoryClose(GameArena gameArena, Player player, Inventory inventory) {
                 if (openGUIs.containsKey(player)) {
                     ReactorGUI gui = openGUIs.remove(player);
                     if (gui != null && gui.getTaskId() != -1) {
@@ -89,8 +89,8 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
         if (!isActive()) return;
         if (loc1 == null || loc2 == null) return;
         if (entity.getType() != EntityType.MAGMA_CUBE) return;
-        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
-        Team playerTeam = arena.getPlayerTeam(player);
+        if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
+        Team playerTeam = gameArena.getPlayerTeam(player);
         if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) return;
         if (entity.equals(loc1.getMagmaCube())) {
             Locale lang = LanguageManager.getINSTANCE().getLocale(player);
@@ -159,9 +159,9 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
         warning.sendBar();
         active = true;
         //arena.interruptTasks();
-        arena.disableTaskIndicators();
+        gameArena.disableTaskIndicators();
         Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this, player));
-        for (Player player1 : arena.getPlayers()){
+        for (Player player1 : gameArena.getPlayers()){
             loc1.startGlowing(player1);
             loc2.startGlowing(player1);
         }
@@ -171,7 +171,7 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
         active = false;
         warning.restore();
         this.deadLineSeconds = warning.getOriginalSeconds();
-        arena.tryEnableTaskIndicators();
+        gameArena.tryEnableTaskIndicators();
         Bukkit.getPluginManager().callEvent(new GameSabotageDeactivateEvent(getArena(), this, forced));
         if (!forced) {
             // title
@@ -191,8 +191,8 @@ public class ReactorSabotage extends SabotageBase implements TimedSabotage {
         }
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

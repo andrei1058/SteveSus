@@ -1,6 +1,6 @@
 package dev.andrei1058.game.commanditem;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.event.GameStateChangeEvent;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -60,12 +60,12 @@ public class CommandItemListener implements Listener {
             }
         }
 
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
-        if (arena == null) return;
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        if (gameArena == null) return;
         final Player player = e.getPlayer();
         boolean hasItemInHand = e.getItem() != null && e.getItem().getType() != Material.AIR;
-        for (GameListener gameListener : arena.getGameListeners()){
-            gameListener.onPlayerInteract(arena, player, e, hasItemInHand);
+        for (GameListener gameListener : gameArena.getGameListeners()){
+            gameListener.onPlayerInteract(gameArena, player, e, hasItemInHand);
         }
     }
 

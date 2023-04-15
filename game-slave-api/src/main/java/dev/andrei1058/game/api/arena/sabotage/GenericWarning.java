@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.arena.sabotage;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.server.GameSound;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -13,10 +13,10 @@ public class GenericWarning {
     private final int originalSeconds;
     private final BossBar bossBar;
     private boolean warningRefresh = true;
-    private final Arena arena;
+    private final GameArena gameArena;
 
-    public GenericWarning(Arena arena, int deadLineSeconds, String title){
-        this.arena = arena;
+    public GenericWarning(GameArena gameArena, int deadLineSeconds, String title){
+        this.gameArena = gameArena;
         this.originalSeconds = deadLineSeconds;
         bossBar = Bukkit.createBossBar(title, BarColor.RED, BarStyle.SEGMENTED_20);
         bossBar.setProgress(1);
@@ -25,18 +25,18 @@ public class GenericWarning {
     public void refreshWarning(int currentTime) {
         if (currentTime == 0){
             bossBar.removeAll();
-            arena.getWorld().getWorldBorder().setWarningDistance(0);
+            gameArena.getWorld().getWorldBorder().setWarningDistance(0);
         }
         bossBar.setProgress((double) currentTime / originalSeconds);
         if (warningRefresh) {
-            arena.getWorld().getWorldBorder().setWarningDistance(Integer.MAX_VALUE);
+            gameArena.getWorld().getWorldBorder().setWarningDistance(Integer.MAX_VALUE);
             warningRefresh = false;
         } else {
-            arena.getWorld().getWorldBorder().setWarningDistance(0);
+            gameArena.getWorld().getWorldBorder().setWarningDistance(0);
             warningRefresh = true;
         }
-        GameSound.SABOTAGE_COUNT_DOWN.playToPlayers(arena.getPlayers());
-        GameSound.SABOTAGE_COUNT_DOWN.playToPlayers(arena.getSpectators());
+        GameSound.SABOTAGE_COUNT_DOWN.playToPlayers(gameArena.getPlayers());
+        GameSound.SABOTAGE_COUNT_DOWN.playToPlayers(gameArena.getSpectators());
     }
 
     public void removePlayer(Player player){
@@ -48,14 +48,14 @@ public class GenericWarning {
     }
 
     public void sendBar(){
-        arena.getPlayers().forEach(bossBar::addPlayer);
+        gameArena.getPlayers().forEach(bossBar::addPlayer);
     }
 
     public void restore(){
         bossBar.setProgress(1);
         warningRefresh = true;
         bossBar.removeAll();
-        arena.getWorld().getWorldBorder().setWarningDistance(0);
+        gameArena.getWorld().getWorldBorder().setWarningDistance(0);
     }
 
     public void setBarName(String newName){

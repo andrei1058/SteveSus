@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.arena.securitycamera;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,22 +15,22 @@ public interface CamHandler {
      * Start watching a security camera.
      */
     @SuppressWarnings("UnusedReturnValue")
-    boolean startWatching(Player player, Arena arena, SecurityCam cam);
+    boolean startWatching(Player player, GameArena gameArena, SecurityCam cam);
 
     /**
      * Stop watching a security camera.
      */
-    void stopWatching(Player player, Arena arena);
+    void stopWatching(Player player, GameArena gameArena);
 
     /**
      * Check if the given player is on the given cam.
      */
-    boolean isOnCam(Player player, Arena arena, SecurityCam cam);
+    boolean isOnCam(Player player, GameArena gameArena, SecurityCam cam);
 
     /**
      * Check if the given player is on a cam.
      */
-    boolean isOnCam(Player player, Arena arena);
+    boolean isOnCam(Player player, GameArena gameArena);
 
     /**
      * Get security on cam.
@@ -64,7 +64,7 @@ public interface CamHandler {
 
     @Nullable Player getClone(UUID player);
 
-    void nextCam(Player player, Arena arena);
+    void nextCam(Player player, GameArena gameArena);
 
-    void previousCam(Player player, Arena arena);
+    void previousCam(Player player, GameArena gameArena);
 }

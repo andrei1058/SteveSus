@@ -1,7 +1,7 @@
 package dev.andrei1058.game.setup.listeners;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.setup.SetupSession;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.setup.SetupManager;
@@ -32,16 +32,16 @@ public class WorldLoadListener implements Listener {
         }
 
         // handle enable queue
-        Arena arena = ArenaManager.getINSTANCE().getFromEnableQueue(worldName);
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getFromEnableQueue(worldName);
+        if (gameArena != null) {
             ArenaManager.getINSTANCE().removeFromEnableQueue(worldName);
             e.getWorld().getEntities().forEach(entity -> {
                 if (entity instanceof Creature) {
                     entity.remove();
                 }
             });
-            arena.init(e.getWorld());
-            ArenaManager.getINSTANCE().addArena(arena);
+            gameArena.init(e.getWorld());
+            ArenaManager.getINSTANCE().addArena(gameArena);
         }
     }
 }

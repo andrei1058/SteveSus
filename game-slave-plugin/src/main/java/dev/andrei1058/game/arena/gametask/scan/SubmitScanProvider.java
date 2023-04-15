@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
 import dev.andrei1058.game.api.server.GameSound;
@@ -299,7 +299,7 @@ public class SubmitScanProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable SubmitScanTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable SubmitScanTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (!LanguageManager.getINSTANCE().getDefaultLocale().hasPath(MSG_CANNOT_SCAN)) {
             LanguageManager.getINSTANCE().getDefaultLocale().setMsg(MSG_CANNOT_SCAN, "&cCapsule already in use!");
         }
@@ -318,8 +318,8 @@ public class SubmitScanProvider extends TaskProvider {
             if (capsule == null) return null;
             Location location = new OrphanLocationProperty().convert(capsule.getAsString(), null);
             if (location == null) return null;
-            location.setWorld(arena.getWorld());
-            return new SubmitScanTask(radius.getAsDouble(), scanDuration.getAsInt(), location, arena, localName);
+            location.setWorld(gameArena.getWorld());
+            return new SubmitScanTask(radius.getAsDouble(), scanDuration.getAsInt(), location, gameArena, localName);
         } catch (Exception ignored) {
         }
         return null;

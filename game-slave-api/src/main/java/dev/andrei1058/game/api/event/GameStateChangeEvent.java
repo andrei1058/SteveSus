@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.common.api.arena.GameState;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -10,18 +10,18 @@ public class GameStateChangeEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final GameState oldState;
     private final GameState newState;
 
-    public GameStateChangeEvent(Arena arena, GameState oldState, GameState newState){
-        this.arena = arena;
+    public GameStateChangeEvent(GameArena gameArena, GameState oldState, GameState newState){
+        this.gameArena = gameArena;
         this.oldState = oldState;
         this.newState = newState;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     public GameState getNewState() {

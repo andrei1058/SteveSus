@@ -1,6 +1,6 @@
 package dev.andrei1058.game.teleporter;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -31,7 +31,7 @@ public class TeleporterGUI extends BaseGUI {
     private static final String NBT_TELEPORTER_TARGET_UUID = "autt-1058-a";
 
 
-    public TeleporterGUI(String guiName, List<String> pattern, Player player, Locale lang, Arena arena) {
+    public TeleporterGUI(String guiName, List<String> pattern, Player player, Locale lang, GameArena gameArena) {
         super(pattern, lang, new TeleporterSelectorHolder(), (lang.hasPath(Message.TELEPORTER_GUI_NAME + "-" + guiName) ?
                 lang.getMsg(player,Message.TELEPORTER_GUI_NAME + "-" + guiName) : lang.getMsg(player, Message.TELEPORTER_GUI_NAME))
                 .replace("{spectator}", player.getDisplayName()).replace("{spectator_raw}", player.getName()));
@@ -49,20 +49,20 @@ public class TeleporterGUI extends BaseGUI {
             if (yml.getBoolean(path + "." + replacementString + ".teleporter")) {
                 final int[] currentPlayer = {-1};
                 List<Integer> slots = this.getReplacementSlots(replacementString.charAt(0));
-                slots.forEach(slot -> this.getInventory().setItem(slot, getItemStack(yml, path, arena, replacementString, ++currentPlayer[0], player, guiName)));
+                slots.forEach(slot -> this.getInventory().setItem(slot, getItemStack(yml, path, gameArena, replacementString, ++currentPlayer[0], player, guiName)));
             } else {
-                withReplacement(replacementString.charAt(0), new StaticSlot(getItemStack(yml, path, arena, replacementString, 0, player, guiName)));
+                withReplacement(replacementString.charAt(0), new StaticSlot(getItemStack(yml, path, gameArena, replacementString, 0, player, guiName)));
             }
         }
     }
 
-    private ItemStack getItemStack(YamlConfiguration yml, String path, Arena arena, String replacementString, int currentPlayer, Player player, String guiName) {
+    private ItemStack getItemStack(YamlConfiguration yml, String path, GameArena gameArena, String replacementString, int currentPlayer, Player player, String guiName) {
         Player targetPlayer = null;
 
         // if current item should point to a player
         if (yml.getBoolean(path + "." + replacementString + ".teleporter")) {
-            if (arena.getPlayers().size() > currentPlayer) {
-                targetPlayer = arena.getPlayers().get(currentPlayer);
+            if (gameArena.getPlayers().size() > currentPlayer) {
+                targetPlayer = gameArena.getPlayers().get(currentPlayer);
             } else {
                 return new ItemStack(Material.AIR);
             }
@@ -182,8 +182,8 @@ public class TeleporterGUI extends BaseGUI {
             }
             tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, NBT_TELEPORTER_TARGET_UUID);
             if (tag != null && !tag.isEmpty()) {
-                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-                if (arena != null) {
+                GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+                if (gameArena != null) {
                     player.closeInventory();
                     UUID targetUUID;
                     try {
@@ -195,9 +195,9 @@ public class TeleporterGUI extends BaseGUI {
                     if (target == null) {
                         return;
                     }
-                    Arena targetArena = ArenaManager.getINSTANCE().getArenaByPlayer(target);
+                    GameArena targetGameArena = ArenaManager.getINSTANCE().getArenaByPlayer(target);
                     // in case player stayed with open GUI a long time and target left
-                    if (targetArena == null || !targetArena.equals(arena)) {
+                    if (targetGameArena == null || !targetGameArena.equals(gameArena)) {
                         return;
                     }
 

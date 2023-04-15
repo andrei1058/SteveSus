@@ -6,7 +6,7 @@ import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.ArenaHandler;
 import dev.andrei1058.game.api.arena.GameEndConditions;
 import dev.andrei1058.game.api.arena.sabotage.SabotageProvider;
@@ -63,10 +63,10 @@ import java.util.*;
 public class ArenaManager implements ArenaHandler {
 
     private static ArenaManager INSTANCE;
-    private static final LinkedList<Arena> arenas = new LinkedList<>();
-    private static final HashMap<String, Arena> enableQueue = new HashMap<>();
-    private static final HashMap<UUID, Arena> arenaByPlayer = new HashMap<>();
-    private static final HashMap<String, Arena> arenaByWorldName = new HashMap<>();
+    private static final LinkedList<GameArena> GAME_ARENAS = new LinkedList<>();
+    private static final HashMap<String, GameArena> enableQueue = new HashMap<>();
+    private static final HashMap<UUID, GameArena> arenaByPlayer = new HashMap<>();
+    private static final HashMap<String, GameArena> arenaByWorldName = new HashMap<>();
     private static final Random randomInstance = new Random();
     private static final LinkedList<TaskProvider> registeredTasks = new LinkedList<>();
     private static final LinkedList<SabotageProvider> registeredSabotages = new LinkedList<>();
@@ -117,7 +117,7 @@ public class ArenaManager implements ArenaHandler {
         // register internal quit listener
         ServerQuitListener.registerInternalQuit((p) -> {
             // Remove from arena
-            Arena a = getINSTANCE().getArenaByPlayer(p);
+            GameArena a = getINSTANCE().getArenaByPlayer(p);
             if (a != null) {
                 if (a.isPlayer(p)) {
                     a.removePlayer(p, true);
@@ -138,11 +138,11 @@ public class ArenaManager implements ArenaHandler {
                             SettingsManager template = INSTANCE.getTemplate(templateName, false);
                             int availableAtOnce = template.getProperty(ArenaConfig.CLONES_AVAILABLE_AT_ONCE);
                             if (template.getProperty(ArenaConfig.LOAD_AT_START_UP)) {
-                                SteveSusArena arena = new SteveSusArena(templateName, INSTANCE.getNextGameId());
+                                SteveSusGameArena arena = new SteveSusGameArena(templateName, INSTANCE.getNextGameId());
                                 INSTANCE.addToEnableQueue(arena);
                                 if (availableAtOnce > 1) {
                                     for (int i = 1; i < availableAtOnce; i++) {
-                                        SteveSusArena clonedArena = new SteveSusArena(templateName, INSTANCE.getNextGameId());
+                                        SteveSusGameArena clonedArena = new SteveSusGameArena(templateName, INSTANCE.getNextGameId());
                                         INSTANCE.addToEnableQueue(clonedArena);
                                     }
                                 }
@@ -197,8 +197,8 @@ public class ArenaManager implements ArenaHandler {
     }
 
     @Override
-    public @Nullable Arena getArenaById(int id) {
-        return arenas.stream().filter(arena -> arena.getGameId() == id).findFirst().orElse(null);
+    public @Nullable GameArena getArenaById(int id) {
+        return GAME_ARENAS.stream().filter(arena -> arena.getGameId() == id).findFirst().orElse(null);
     }
 
     @Override
@@ -220,31 +220,31 @@ public class ArenaManager implements ArenaHandler {
         }
 
         // add to enable queue
-        Arena arena = new SteveSusArena(worldName, getNextGameId());
-        addToEnableQueue(arena);
+        GameArena gameArena = new SteveSusGameArena(worldName, getNextGameId());
+        addToEnableQueue(gameArena);
     }
 
     @Override
-    public boolean addArena(Arena arena) {
-        if (getArenaById(arena.getGameId()) != null) return false;
-        if (arenas.contains(arena)) return false;
-        SteveSus.debug("Adding arena with id " + arena.getGameId() + " from template: " + arena.getTemplateWorld() + " to the arenas list.");
-        Bukkit.getPluginManager().callEvent(new GameInitializedEvent(arena, arena.getTemplateWorld(), arena.getWorld().getName()));
-        arenaByWorldName.put(arena.getWorld().getName(), arena);
+    public boolean addArena(GameArena gameArena) {
+        if (getArenaById(gameArena.getGameId()) != null) return false;
+        if (GAME_ARENAS.contains(gameArena)) return false;
+        SteveSus.debug("Adding arena with id " + gameArena.getGameId() + " from template: " + gameArena.getTemplateWorld() + " to the arenas list.");
+        Bukkit.getPluginManager().callEvent(new GameInitializedEvent(gameArena, gameArena.getTemplateWorld(), gameArena.getWorld().getName()));
+        arenaByWorldName.put(gameArena.getWorld().getName(), gameArena);
         // register listeners
-        arena.registerGameListener(VentListener.getInstance());
-        arena.registerGameListener(new KillListener());
-        return arenas.add(arena);
+        gameArena.registerGameListener(VentListener.getInstance());
+        gameArena.registerGameListener(new KillListener());
+        return GAME_ARENAS.add(gameArena);
     }
 
     @Override
-    public boolean addToEnableQueue(Arena arena) {
-        String gameWorld = arena.getTemplateWorld() + WORLD_NAME_SEPARATOR + arena.getGameId();
+    public boolean addToEnableQueue(GameArena gameArena) {
+        String gameWorld = gameArena.getTemplateWorld() + WORLD_NAME_SEPARATOR + gameArena.getGameId();
         if (enableQueue.containsKey(gameWorld)) return false;
-        SteveSus.debug("Adding to enable queue arena with id " + arena.getGameId() + " from template: " + arena.getTemplateWorld());
-        enableQueue.put(gameWorld, arena);
+        SteveSus.debug("Adding to enable queue arena with id " + gameArena.getGameId() + " from template: " + gameArena.getTemplateWorld());
+        enableQueue.put(gameWorld, gameArena);
         // a bit of delay to prevent issues when instantiating multiple arenas of the same type
-        SteveSus.newChain().delay(5 + randomInstance.nextInt(5)).sync(() -> WorldManager.getINSTANCE().getWorldAdapter().onArenaEnableQueue(arena.getTemplateWorld(), arena)).execute();
+        SteveSus.newChain().delay(5 + randomInstance.nextInt(5)).sync(() -> WorldManager.getINSTANCE().getWorldAdapter().onArenaEnableQueue(gameArena.getTemplateWorld(), gameArena)).execute();
         return true;
     }
 
@@ -255,17 +255,17 @@ public class ArenaManager implements ArenaHandler {
     }
 
     @Override
-    public Arena getFromEnableQueue(String gameWorld) {
+    public GameArena getFromEnableQueue(String gameWorld) {
         return enableQueue.get(gameWorld);
     }
 
     @Override
-    public void removeArena(Arena arena) {
-        if (arena.getWorld() != null) {
-            arenaByWorldName.remove(arena.getWorld().getName());
+    public void removeArena(GameArena gameArena) {
+        if (gameArena.getWorld() != null) {
+            arenaByWorldName.remove(gameArena.getWorld().getName());
         }
-        if (arenas.remove(arena)) {
-            SteveSus.debug("Removed arena with id " + arena.getGameId() + " from template: " + arena.getTemplateWorld() + " to the arenas list.");
+        if (GAME_ARENAS.remove(gameArena)) {
+            SteveSus.debug("Removed arena with id " + gameArena.getGameId() + " from template: " + gameArena.getTemplateWorld() + " to the arenas list.");
         }
     }
 
@@ -306,40 +306,40 @@ public class ArenaManager implements ArenaHandler {
 
     @Override
     public boolean isSpectating(Player player) {
-        Arena arena = getArenaByPlayer(player);
-        return arena != null && arena.isSpectator(player);
+        GameArena gameArena = getArenaByPlayer(player);
+        return gameArena != null && gameArena.isSpectator(player);
     }
 
     @Override
-    public List<Arena> getArenas() {
-        return Collections.unmodifiableList(arenas);
+    public List<GameArena> getArenas() {
+        return Collections.unmodifiableList(GAME_ARENAS);
     }
 
     @Override
-    public List<Arena> getEnableQueue() {
+    public List<GameArena> getEnableQueue() {
         return new ArrayList<>(enableQueue.values());
     }
 
     @Override
-    public @Nullable Arena getArenaByPlayer(Player player) {
+    public @Nullable GameArena getArenaByPlayer(Player player) {
         return arenaByPlayer.get(player.getUniqueId());
     }
 
     @Override
-    public @Nullable Arena getArenaByWorld(@NotNull String worldName) {
+    public @Nullable GameArena getArenaByWorld(@NotNull String worldName) {
         return arenaByWorldName.get(worldName);
     }
 
     @Override
-    public void setArenaByPlayer(Player player, @Nullable Arena arena) {
-        if (arena == null) {
+    public void setArenaByPlayer(Player player, @Nullable GameArena gameArena) {
+        if (gameArena == null) {
             arenaByPlayer.remove(player.getUniqueId());
             return;
         }
         if (arenaByPlayer.containsKey(player.getUniqueId())) {
-            arenaByPlayer.replace(player.getUniqueId(), arena);
+            arenaByPlayer.replace(player.getUniqueId(), gameArena);
         } else {
-            arenaByPlayer.put(player.getUniqueId(), arena);
+            arenaByPlayer.put(player.getUniqueId(), gameArena);
         }
     }
 
@@ -360,13 +360,13 @@ public class ArenaManager implements ArenaHandler {
     }
 
     @Override
-    public void disableArena(Arena arena) {
-        INSTANCE.removeArena(arena);
-        arena.disable();
-        WorldManager.getINSTANCE().getWorldAdapter().onArenaDisable(arena);
-        arenas.remove(arena);
-        if (arena.getWorld() != null) {
-            arenaByWorldName.remove(arena.getWorld().getName());
+    public void disableArena(GameArena gameArena) {
+        INSTANCE.removeArena(gameArena);
+        gameArena.disable();
+        WorldManager.getINSTANCE().getWorldAdapter().onArenaDisable(gameArena);
+        GAME_ARENAS.remove(gameArena);
+        if (gameArena.getWorld() != null) {
+            arenaByWorldName.remove(gameArena.getWorld().getName());
         }
     }
 
@@ -381,7 +381,7 @@ public class ArenaManager implements ArenaHandler {
             return lastPlayerCount;
         }
         lastPlayerCount = 0;
-        arenas.forEach(arena -> lastPlayerCount += arena.getPlayers().size());
+        GAME_ARENAS.forEach(arena -> lastPlayerCount += arena.getPlayers().size());
         // 50 should be a server tick
         lastPlayerCountRequest = System.currentTimeMillis() + 50;
         return lastPlayerCount;
@@ -393,7 +393,7 @@ public class ArenaManager implements ArenaHandler {
             return lastSpectatorCount;
         }
         lastSpectatorCount = 0;
-        arenas.forEach(arena -> lastSpectatorCount += arena.getPlayers().size());
+        GAME_ARENAS.forEach(arena -> lastSpectatorCount += arena.getPlayers().size());
         // 50 should be a server tick
         lastSpectatorCountRequest = System.currentTimeMillis() + 50;
         return lastSpectatorCount;

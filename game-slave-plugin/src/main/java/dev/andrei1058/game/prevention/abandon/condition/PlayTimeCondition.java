@@ -1,6 +1,6 @@
 package dev.andrei1058.game.prevention.abandon.condition;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.prevention.abandon.AbandonCondition;
 import org.bukkit.entity.Player;
 
@@ -16,10 +16,10 @@ public class PlayTimeCondition implements AbandonCondition {
     }
 
     @Override
-    public boolean getOutcome(Player player, Arena arena) {
-        if (arena == null) return false;
-        if (arena.getStartTime() == null) return false;
-        Instant minTime = arena.getStartTime().plusSeconds(seconds);
+    public boolean getOutcome(Player player, GameArena gameArena) {
+        if (gameArena == null) return false;
+        if (gameArena.getStartTime() == null) return false;
+        Instant minTime = gameArena.getStartTime().plusSeconds(seconds);
         return Instant.now().isBefore(minTime);
     }
 

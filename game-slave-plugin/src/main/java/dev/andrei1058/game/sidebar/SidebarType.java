@@ -1,6 +1,6 @@
 package dev.andrei1058.game.sidebar;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.language.LanguageManager;
@@ -28,18 +28,18 @@ public enum SidebarType {
     /**
      * Get scoreboard content for current type.
      *
-     * @param arena arena if it is in-game scoreboard.
+     * @param gameArena arena if it is in-game scoreboard.
      */
     @Nullable
-    public List<String> getContent(@NotNull Locale language, @Nullable Arena arena) {
+    public List<String> getContent(@NotNull Locale language, @Nullable GameArena gameArena) {
         List<String> content = null;
-        if (arena == null) {
+        if (gameArena == null) {
             content = language.getRawList(contentPath.toString());
         } else {
-            if (language.hasPath(contentPath.toString() + "-" + arena.getTemplateWorld())) {
-                content = language.getRawList(contentPath.toString() + "-" + arena.getTemplateWorld());
-            } else if (!language.equals(LanguageManager.getINSTANCE().getDefaultLocale()) && LanguageManager.getINSTANCE().getDefaultLocale().hasPath(contentPath.toString() + "-" + arena.getTemplateWorld())) {
-                content = LanguageManager.getINSTANCE().getDefaultLocale().getRawList(contentPath.toString() + "-" + arena.getTemplateWorld());
+            if (language.hasPath(contentPath.toString() + "-" + gameArena.getTemplateWorld())) {
+                content = language.getRawList(contentPath.toString() + "-" + gameArena.getTemplateWorld());
+            } else if (!language.equals(LanguageManager.getINSTANCE().getDefaultLocale()) && LanguageManager.getINSTANCE().getDefaultLocale().hasPath(contentPath.toString() + "-" + gameArena.getTemplateWorld())) {
+                content = LanguageManager.getINSTANCE().getDefaultLocale().getRawList(contentPath.toString() + "-" + gameArena.getTemplateWorld());
             } else if (language.hasPath(contentPath.toString())) {
                 content = language.getRawList(contentPath.toString());
             }

@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.listener;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.meeting.MeetingButton;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -17,19 +17,19 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onDamageFromEntity(EntityDamageByEntityEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
+        if (gameArena != null) {
             e.setCancelled(true);
             if (!(e.getDamager() instanceof Player)) return;
 
-            if (arena.getMeetingButton() != null) {
+            if (gameArena.getMeetingButton() != null) {
                 if (e.getEntity().hasMetadata(MeetingButton.MEETING_BUTTON_META_DATA_KEY)) {
-                    arena.getMeetingButton().onClick((Player) e.getDamager(), arena);
+                    gameArena.getMeetingButton().onClick((Player) e.getDamager(), gameArena);
                 }
             }
 
-            for (GameListener gameListener : arena.getGameListeners()) {
-                gameListener.onPlayerInteractEntity(arena, (Player) e.getDamager(), e.getEntity());
+            for (GameListener gameListener : gameArena.getGameListeners()) {
+                gameListener.onPlayerInteractEntity(gameArena, (Player) e.getDamager(), e.getEntity());
             }
         }
     }
@@ -37,8 +37,8 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onDamageFromBlock(EntityDamageByBlockEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
+        if (gameArena != null) {
             e.setCancelled(true);
         }
     }
@@ -46,8 +46,8 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
+        if (gameArena != null) {
             e.setCancelled(true);
         }
     }
@@ -55,8 +55,8 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onHunger(FoodLevelChangeEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
+        if (gameArena != null) {
             e.setCancelled(true);
         }
     }

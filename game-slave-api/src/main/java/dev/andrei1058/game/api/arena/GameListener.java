@@ -21,7 +21,7 @@ public interface GameListener {
     /**
      * Player join listener.
      */
-    default void onPlayerJoin(Arena arena, Player player) {
+    default void onPlayerJoin(GameArena gameArena, Player player) {
 
     }
 
@@ -31,7 +31,7 @@ public interface GameListener {
      *
      * @param spectator true if is spectator.
      */
-    default void onPlayerLeave(Arena arena, Player player, boolean spectator) {
+    default void onPlayerLeave(GameArena gameArena, Player player, boolean spectator) {
 
     }
 
@@ -39,21 +39,21 @@ public interface GameListener {
      * Player moved to spectators.
      * Remove your custom boss bar etc.
      */
-    default void onPlayerToSpectator(Arena arena, Player player) {
+    default void onPlayerToSpectator(GameArena gameArena, Player player) {
 
     }
 
     /**
      * On entity interact.
      */
-    default void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
+    default void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
 
     }
 
     /**
      * On player interact.
      */
-    default void onPlayerInteract(Arena arena, Player player, PlayerInteractEvent event, boolean hasItemInHand) {
+    default void onPlayerInteract(GameArena gameArena, Player player, PlayerInteractEvent event, boolean hasItemInHand) {
         //todo
     }
 
@@ -61,52 +61,52 @@ public interface GameListener {
      * On punch.
      * (pvp is not allowed btw)
      */
-    default void onEntityPunch(Arena arena, Player player, Entity entity) {
+    default void onEntityPunch(GameArena gameArena, Player player, Entity entity) {
 
     }
 
-    default void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
+    default void onGameStateChange(GameArena gameArena, GameState oldState, GameState newState) {
     }
 
-    default void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
-
-    }
-
-    default void onPlayerToggleFly(Arena arena, Player player, boolean isFlying) {
+    default void onPlayerToggleSneakEvent(GameArena gameArena, Player player, boolean isSneaking) {
 
     }
 
-    default void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
+    default void onPlayerToggleFly(GameArena gameArena, Player player, boolean isFlying) {
+
+    }
+
+    default void onMeetingStageChange(GameArena gameArena, MeetingStage oldStage, MeetingStage newStage) {
 
     }
 
     /**
-     * This won't be triggered if {@link Arena#isCantMove(Player)}.
+     * This won't be triggered if {@link GameArena#isCantMove(Player)}.
      */
-    default void onPlayerMove(Arena arena, Player player, Location from, @Nullable Team playerTeam) {
+    default void onPlayerMove(GameArena gameArena, Player player, Location from, @Nullable Team playerTeam) {
 
     }
 
-    default void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+    default void onInventoryClose(GameArena gameArena, Player player, Inventory inventory) {
 
     }
 
-    default void onPlayerVent(Arena arena, Player player, Vent vent) {
+    default void onPlayerVent(GameArena gameArena, Player player, Vent vent) {
 
     }
 
-    default void onPlayerUnVent(Arena arena, Player player, Vent vent) {
+    default void onPlayerUnVent(GameArena gameArena, Player player, Vent vent) {
 
     }
 
-    default void onPlayerSwitchVent(Arena arena, Player player, Vent vent) {
+    default void onPlayerSwitchVent(GameArena gameArena, Player player, Vent vent) {
 
     }
 
     /**
      * Not triggered if bukkit event got cancelled.
      */
-    default void onPlayerKill(Arena arena, Player killer, Player victim, Team destinationTeam, PlayerCorpse corpse) {
+    default void onPlayerKill(GameArena gameArena, Player killer, Player victim, Team destinationTeam, PlayerCorpse corpse) {
 
     }
 }

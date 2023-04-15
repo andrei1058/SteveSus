@@ -3,7 +3,7 @@ package dev.andrei1058.game.sidebar;
 import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarManager;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.PlayerColorAssigner;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
@@ -65,16 +65,16 @@ public class GameSidebarManager {
      *
      * @param player target player.
      * @param type   scoreboard type.
-     * @param arena  arena. If in a game.
+     * @param gameArena  arena. If in a game.
      * @param delay  if scoreboard should be given with a bit of delay.
      */
-    public void setSidebar(@NotNull Player player, @NotNull SidebarType type, @Nullable Arena arena, boolean delay) {
+    public void setSidebar(@NotNull Player player, @NotNull SidebarType type, @Nullable GameArena gameArena, boolean delay) {
         // give lobby sb only in multi arena mode
         if (type == SidebarType.MULTI_ARENA_LOBBY) {
             if (ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA) {
                 return;
             }
-            arena = null;
+            gameArena = null;
         }
         // if player is offline return
         if (!player.isOnline()) {
@@ -84,7 +84,7 @@ public class GameSidebarManager {
         // player language
         Locale playerLocale = LanguageManager.getINSTANCE().getLocale(player);
         // scoreboard lines
-        List<String> content = type.getContent(playerLocale, arena);
+        List<String> content = type.getContent(playerLocale, gameArena);
         // previous sidebar
         GameSidebar previousSidebar = getPlayerSidebar(player.getUniqueId());
 
@@ -100,20 +100,20 @@ public class GameSidebarManager {
         if (previousSidebar == null) {
             if (delay) {
                 // give with 5 ticks of delay
-                @Nullable Arena finalArena = arena;
+                @Nullable GameArena finalGameArena = gameArena;
                 SteveSus.newChain().delay(20).sync(() -> {
-                    GameSidebar sidebar = new GameSidebar(player, content, finalArena, playerLocale.getTimeZonedDateFormat());
+                    GameSidebar sidebar = new GameSidebar(player, content, finalGameArena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
-                    if (finalArena != null && finalArena.getGameState() != GameState.IN_GAME) {
+                    if (finalGameArena != null && finalGameArena.getGameState() != GameState.IN_GAME) {
                         sidebar.getHandle().playerListClear();
                     }
                 }).execute();
             } else {
                 // give normally
-                GameSidebar sidebar = new GameSidebar(player, content, arena, playerLocale.getTimeZonedDateFormat());
+                GameSidebar sidebar = new GameSidebar(player, content, gameArena, playerLocale.getTimeZonedDateFormat());
                 sidebarByPlayer.put(player.getUniqueId(), sidebar);
-                if (arena != null && arena.getGameState() == GameState.IN_GAME) {
-                    for (Player inGame : arena.getPlayers()) {
+                if (gameArena != null && gameArena.getGameState() == GameState.IN_GAME) {
+                    for (Player inGame : gameArena.getPlayers()) {
                         sidebar.hidePlayerName(inGame);
                     }
                 } else {
@@ -122,10 +122,10 @@ public class GameSidebarManager {
             }
         } else {
             // if already owns a sidebar
-            previousSidebar.setArena(arena);
+            previousSidebar.setArena(gameArena);
             previousSidebar.setLines(content);
-            if (arena != null && arena.getGameState() == GameState.IN_GAME) {
-                for (Player inGame : arena.getPlayers()) {
+            if (gameArena != null && gameArena.getGameState() == GameState.IN_GAME) {
+                for (Player inGame : gameArena.getPlayers()) {
                     previousSidebar.hidePlayerName(inGame);
                 }
             } else {
@@ -134,12 +134,12 @@ public class GameSidebarManager {
         }
     }
 
-    public static void hidePlayerNames(Arena arena) {
-        if (arena.getGameState() != GameState.IN_GAME) return;
+    public static void hidePlayerNames(GameArena gameArena) {
+        if (gameArena.getGameState() != GameState.IN_GAME) return;
         SteveSus.newChain().delay(20).sync(() -> {
-            for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
-                for (Player player : arena.getPlayers()) {
-                    PlayerColorAssigner<?> color = arena.getPlayerColorAssigner();
+            for (GameSidebar sidebar : getInstance().getSidebars(gameArena)) {
+                for (Player player : gameArena.getPlayers()) {
+                    PlayerColorAssigner<?> color = gameArena.getPlayerColorAssigner();
 
                     String displayColor;
                     if (color == null) {
@@ -176,9 +176,9 @@ public class GameSidebarManager {
         }).execute();
     }
 
-    public static void spoilGhostInTab(Player ghost, Arena arena) {
-        if (arena.getGameState() != GameState.IN_GAME) return;
-        PlayerColorAssigner<?> color = arena.getPlayerColorAssigner();
+    public static void spoilGhostInTab(Player ghost, GameArena gameArena) {
+        if (gameArena.getGameState() != GameState.IN_GAME) return;
+        PlayerColorAssigner<?> color = gameArena.getPlayerColorAssigner();
 
         String displayColor;
         if (color == null) {
@@ -191,7 +191,7 @@ public class GameSidebarManager {
                 displayColor = playerColor.getDisplayColor(ghost);
             }
         }
-        for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
+        for (GameSidebar sidebar : getInstance().getSidebars(gameArena)) {
             final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_PREFIX).replace("{display_color}", displayColor);
             final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_SUFFIX).replace("{display_color}", displayColor);
             sidebar.getHandle().playerListCreate(ghost,
@@ -265,8 +265,8 @@ public class GameSidebarManager {
         return instance;
     }
 
-    public Set<GameSidebar> getSidebars(Arena arena) {
-        return sidebarByPlayer.values().stream().filter(sb -> sb.getArena() != null && sb.getArena().equals(arena)).collect(Collectors.toSet());
+    public Set<GameSidebar> getSidebars(GameArena gameArena) {
+        return sidebarByPlayer.values().stream().filter(sb -> sb.getArena() != null && sb.getArena().equals(gameArena)).collect(Collectors.toSet());
     }
 
     public void hidePlayerName(Player receiver, Player player) {

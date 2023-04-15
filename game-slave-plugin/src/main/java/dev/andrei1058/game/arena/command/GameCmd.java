@@ -5,7 +5,7 @@ import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.common.api.server.CommonPermission;
 import dev.andrei1058.game.language.LanguageManager;
@@ -58,24 +58,24 @@ public class GameCmd {
                         } catch (Exception ignored) {
                         }
                     }
-                    List<Arena> arenas = new ArrayList<>(ArenaManager.getINSTANCE().getEnableQueue());
-                    arenas.addAll(ArenaManager.getINSTANCE().getArenas());
+                    List<GameArena> gameArenas = new ArrayList<>(ArenaManager.getINSTANCE().getEnableQueue());
+                    gameArenas.addAll(ArenaManager.getINSTANCE().getArenas());
 
-                    if (arenas.isEmpty()) {
+                    if (gameArenas.isEmpty()) {
                         sender.sendMessage(ChatColor.RED + "No arenas to display.");
                         return;
                     }
 
                     int start = (page - 1) * ARENAS_PER_PAGE;
-                    if (start >= arenas.size()) {
+                    if (start >= gameArenas.size()) {
                         page = 1;
                         start = 0;
                     }
-                    int limit = Math.min(arenas.size(), start + ARENAS_PER_PAGE);
+                    int limit = Math.min(gameArenas.size(), start + ARENAS_PER_PAGE);
 
-                    sender.sendMessage(color(" \n&1|| &3" + SteveSus.getInstance().getName() + "&7 Instantiated games (" + page + "/" + (arenas.size() / ARENAS_PER_PAGE) + "): \n "));
+                    sender.sendMessage(color(" \n&1|| &3" + SteveSus.getInstance().getName() + "&7 Instantiated games (" + page + "/" + (gameArenas.size() / ARENAS_PER_PAGE) + "): \n "));
 
-                    arenas.subList(start, limit).forEach(arena -> {
+                    gameArenas.subList(start, limit).forEach(arena -> {
                         String gameState = LanguageManager.getINSTANCE().getMsg(sender, arena.getGameState().getTranslatePath());
                         TextComponent component = new TextComponent(
                                 color(
@@ -99,7 +99,7 @@ public class GameCmd {
 
                     sender.sendMessage(" ");
 
-                    if (arenas.size() > ARENAS_PER_PAGE * page) {
+                    if (gameArenas.size() > ARENAS_PER_PAGE * page) {
                         TextComponent msg = tc(ChatColor.GRAY + "Type or click " + ChatColor.GREEN + ICommandNode.getClickCommand(list) + " " + page + 1 + ChatColor.GRAY + " for next page.");
                         msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, ICommandNode.getClickCommand(list) + " " + page + 1));
                         sender.spigot().sendMessage(msg);

@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.gametask.upload;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.room.GameRoom;
 import dev.andrei1058.game.api.arena.task.GameTask;
@@ -35,17 +35,17 @@ public class UploadTask extends GameTask {
     private final HashMap<UUID, Integer> currentlyDoing = new HashMap<>();
     private final LinkedList<WallPanel> panels = new LinkedList<>();
 
-    public UploadTask(Arena arena, int downloadTime, int uploadTime, LinkedList<Location> downloadFrame, LinkedList<Location> uploadFrame, String localName) {
+    public UploadTask(GameArena gameArena, int downloadTime, int uploadTime, LinkedList<Location> downloadFrame, LinkedList<Location> uploadFrame, String localName) {
         super(localName);
         this.downloadTime = downloadTime;
         this.uploadTime = uploadTime;
 
-        downloadFrame.forEach(loc -> panels.add(new WallPanel(arena, loc, WallPanel.PanelType.DOWNLOAD)));
-        uploadFrame.forEach(loc -> panels.add(new WallPanel(arena, loc, WallPanel.PanelType.UPLOAD)));
-        arena.registerGameListener(new UploadTaskListener());
+        downloadFrame.forEach(loc -> panels.add(new WallPanel(gameArena, loc, WallPanel.PanelType.DOWNLOAD)));
+        uploadFrame.forEach(loc -> panels.add(new WallPanel(gameArena, loc, WallPanel.PanelType.UPLOAD)));
+        gameArena.registerGameListener(new UploadTaskListener());
     }
 
-    public void markPanelFinished(Player player, Arena arena) {
+    public void markPanelFinished(Player player, GameArena gameArena) {
         if (!hasTask(player)) return;
         WallPanel panel = currentPlayerStage.get(player.getUniqueId());
         if (panel == null) {
@@ -59,11 +59,11 @@ public class UploadTask extends GameTask {
         if (panel.getPanelType() == WallPanel.PanelType.DOWNLOAD) {
             List<WallPanel> nextPanel = panels.stream().filter(next -> next.getPanelType() == WallPanel.PanelType.UPLOAD).collect(Collectors.toList());
             if (nextPanel.isEmpty()) {
-                SteveSus.getInstance().getLogger().warning("Cannot assign upload at UploadTask on " + arena.getTemplateWorld() + "(" + arena.getGameId() + ") because there are no upload panels assigned.");
+                SteveSus.getInstance().getLogger().warning("Cannot assign upload at UploadTask on " + gameArena.getTemplateWorld() + "(" + gameArena.getGameId() + ") because there are no upload panels assigned.");
                 currentPlayerStage.remove(player.getUniqueId());
                 currentPlayerStage.put(player.getUniqueId(), null);
-                arena.refreshTaskMeter();
-                arena.getGameEndConditions().tickGameEndConditions(arena);
+                gameArena.refreshTaskMeter();
+                gameArena.getGameEndConditions().tickGameEndConditions(gameArena);
                 return;
             }
             Collections.shuffle(nextPanel);
@@ -73,7 +73,7 @@ public class UploadTask extends GameTask {
             newPanel.getHologram().show(player);
             GlowingManager.setGlowingBlue(newPanel.getItemFrame(), player);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
-            GameRoom room = arena.getRoom(newPanel.getItemFrame().getLocation());
+            GameRoom room = gameArena.getRoom(newPanel.getItemFrame().getLocation());
             Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
             player.sendMessage(playerLang.getMsg(player, UploadTaskProvider.UPLOAD_ROOM_MSG).replace("{room}", (room == null ? playerLang.getMsg(null, Message.GAME_ROOM_NO_NAME) : room.getDisplayName(playerLang))));
 
@@ -82,30 +82,30 @@ public class UploadTask extends GameTask {
             player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURREOW, 1, 1);
             currentPlayerStage.remove(player.getUniqueId());
             currentPlayerStage.put(player.getUniqueId(), null);
-            arena.refreshTaskMeter();
-            arena.getGameEndConditions().tickGameEndConditions(arena);
+            gameArena.refreshTaskMeter();
+            gameArena.getGameEndConditions().tickGameEndConditions(gameArena);
 
-            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(gameArena, this, player);
             Bukkit.getPluginManager().callEvent(taskDoneEvent);
         }
     }
 
     private class UploadTaskListener implements GameListener {
         @Override
-        public void onEntityPunch(Arena arena, Player player, Entity entity) {
-            tryOpenGUI(player, entity, arena);
+        public void onEntityPunch(GameArena gameArena, Player player, Entity entity) {
+            tryOpenGUI(player, entity, gameArena);
         }
 
         @Override
-        public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
-            tryOpenGUI(player, entity, arena);
+        public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
+            tryOpenGUI(player, entity, gameArena);
         }
 
         @Override
-        public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
+        public void onGameStateChange(GameArena gameArena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
                 panels.forEach(panel -> {
-                    arena.getPlayers().forEach(player -> {
+                    gameArena.getPlayers().forEach(player -> {
                         if (!GlowingManager.isGlowing(panel.getItemFrame(), player)) {
                             if (panel.getHologram() != null) {
                                 panel.getHologram().hide(player);
@@ -124,8 +124,8 @@ public class UploadTask extends GameTask {
         }
 
         @Override
-        public void onPlayerJoin(Arena arena, Player player) {
-            if (arena.getGameState() == GameState.IN_GAME) {
+        public void onPlayerJoin(GameArena gameArena, Player player) {
+            if (gameArena.getGameState() == GameState.IN_GAME) {
                 for (WallPanel panel : panels) {
                     panel.getHologram().hide(player);
                 }
@@ -138,7 +138,7 @@ public class UploadTask extends GameTask {
         }
 
         @Override
-        public void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+        public void onInventoryClose(GameArena gameArena, Player player, Inventory inventory) {
             if (currentlyDoing.containsKey(player.getUniqueId())) {
                 int taskId = currentlyDoing.remove(player.getUniqueId());
                 Bukkit.getScheduler().cancelTask(taskId);
@@ -152,7 +152,7 @@ public class UploadTask extends GameTask {
     }
 
     @Override
-    public void onInterrupt(Player player, Arena arena) {
+    public void onInterrupt(Player player, GameArena gameArena) {
 
     }
 
@@ -188,11 +188,11 @@ public class UploadTask extends GameTask {
     }
 
     @Override
-    public void assignToPlayer(Player player, Arena arena) {
+    public void assignToPlayer(Player player, GameArena gameArena) {
         if (!hasTask(player)) {
             List<WallPanel> downloads = panels.stream().filter(panel -> panel.getPanelType() == WallPanel.PanelType.DOWNLOAD).collect(Collectors.toList());
             if (downloads.isEmpty()) {
-                SteveSus.getInstance().getLogger().warning("Cannot assign task UploadTask on " + arena.getTemplateWorld() + "(" + arena.getGameId() + ") because there are no download panels assigned.");
+                SteveSus.getInstance().getLogger().warning("Cannot assign task UploadTask on " + gameArena.getTemplateWorld() + "(" + gameArena.getGameId() + ") because there are no download panels assigned.");
                 return;
             }
             Collections.shuffle(downloads);
@@ -258,18 +258,18 @@ public class UploadTask extends GameTask {
         return panels;
     }
 
-    private void tryOpenGUI(Player player, Entity entity, Arena arena) {
-        if (!arena.isTasksAllowedATM()) return;
+    private void tryOpenGUI(Player player, Entity entity, GameArena gameArena) {
+        if (!gameArena.isTasksAllowedATM()) return;
         if (hasTask(player)) {
             // should prevent called twice
             if (currentlyDoing.containsKey(player.getUniqueId())) return;
             if (getCurrentStage(player) != getTotalStages(player)) {
-                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
+                if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
                 WallPanel panel = currentPlayerStage.get(player.getUniqueId());
                 if (panel != null && panel.getItemFrame().equals(entity)) {
                     SteveSus.newChain().async(() -> {
                         Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
-                        UploadGUI gui = new UploadGUI(playerLang, panel.getPanelType(), this, panel.getPanelType() == WallPanel.PanelType.DOWNLOAD ? getDownloadTime() : getUploadTime(), player, arena);
+                        UploadGUI gui = new UploadGUI(playerLang, panel.getPanelType(), this, panel.getPanelType() == WallPanel.PanelType.DOWNLOAD ? getDownloadTime() : getUploadTime(), player, gameArena);
                         SteveSus.newChain().sync(() -> {
                             gui.open(player);
                             currentlyDoing.put(player.getUniqueId(), gui.getTaskId());

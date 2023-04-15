@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.gametask.fuelengines;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.api.server.GameSound;
 import dev.andrei1058.game.common.api.gui.BaseGUI;
@@ -25,10 +25,10 @@ public class StorageGUI extends BaseGUI {
     private final ItemStack button;
 
     private final FuelEnginesTask task;
-    private final Arena arena;
+    private final GameArena gameArena;
     private long nextAllowed = 0;
 
-    public StorageGUI(CommonLocale lang, FuelEnginesTask task, Arena arena) {
+    public StorageGUI(CommonLocale lang, FuelEnginesTask task, GameArena gameArena) {
         super(pattern, lang, new StorageHolder(), lang.getMsg(null, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "gui-name1"));
         item1 = ItemUtil.createItem(ItemUtil.getMaterial("STAINED_GLASS_PANE", "LIME_STAINED_GLASS_PANE"), (byte) 5, 1, false, null, lang.getMsg(null, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "-fuel"), null);
         item2 = ItemUtil.createItem(ItemUtil.getMaterial("STAINED_GLASS_PANE", "GREEN_STAINED_GLASS"), (byte) 13, 1, false, null, lang.getMsg(null, Message.GAME_TASK_PATH_.toString() + task.getHandler().getIdentifier() + "-" + task.getLocalName() + "-fuel"), null);
@@ -37,7 +37,7 @@ public class StorageGUI extends BaseGUI {
             gray = ItemUtil.createItem(ItemUtil.getMaterial("STAINED_GLASS_PANE", "GRAY_STAINED_GLASS_PANE"), (byte) 7, 1, false, null, ChatColor.GRAY + "#", null);
         }
         this.task = task;
-        this.arena = arena;
+        this.gameArena = gameArena;
         withReplacement('#', lang1 -> gray);
         withReplacement('1', lang1 -> button);
     }
@@ -104,7 +104,7 @@ public class StorageGUI extends BaseGUI {
                 }
                 storageGUI.stage++;
                 if (storageGUI.stage == 8) {
-                    storageGUI.task.addProgress(whoClicked, storageGUI.arena);
+                    storageGUI.task.addProgress(whoClicked, storageGUI.gameArena);
                 }
                 GameSound.TASK_PROGRESS_PLUS.playToPlayer(whoClicked);
             }

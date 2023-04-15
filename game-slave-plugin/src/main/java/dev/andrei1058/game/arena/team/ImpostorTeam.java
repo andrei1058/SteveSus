@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.team;
 
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.ChatUtil;
 import dev.andrei1058.game.api.locale.Locale;
@@ -19,10 +19,10 @@ public class ImpostorTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
     private boolean canVote = true;
-    private final Arena arena;
+    private final GameArena gameArena;
 
-    public ImpostorTeam(Arena arena) {
-        this.arena = arena;
+    public ImpostorTeam(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
     @Override
@@ -37,19 +37,19 @@ public class ImpostorTeam implements Team {
 
     @Override
     public boolean canKill(Player player) {
-        Team team = arena.getPlayerTeam(player);
+        Team team = gameArena.getPlayerTeam(player);
         return !isMember(player) && team != null && team.isInnocent() && !team.getIdentifier().endsWith("-ghost");
     }
 
     @Override
     public boolean addPlayer(Player player, boolean gameStartAssign) {
         if (!gameStartAssign) return false;
-        if (arena.getPlayers().size() >= 10) {
-            if (arena.getLiveSettings().getImpostors().getCurrentValue() == getMembers().size()) {
+        if (gameArena.getPlayers().size() >= 10) {
+            if (gameArena.getLiveSettings().getImpostors().getCurrentValue() == getMembers().size()) {
                 return false;
             }
         } else {
-            if (arena.getLiveSettings().getImpostors().getMinValue() == getMembers().size()){
+            if (gameArena.getLiveSettings().getImpostors().getMinValue() == getMembers().size()){
                 return false;
             }
         }
@@ -114,8 +114,8 @@ public class ImpostorTeam implements Team {
     }
 
     @Override
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

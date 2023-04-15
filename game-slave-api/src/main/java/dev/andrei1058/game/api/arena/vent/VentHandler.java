@@ -1,7 +1,7 @@
 package dev.andrei1058.game.api.arena.vent;
 
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.room.GameRoom;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Locale;
@@ -30,12 +30,12 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class VentHandler {
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final LinkedList<Vent> vents = new LinkedList<>();
     private final HashMap<UUID, InventoryBackup> currentlyVenting = new HashMap<>();
 
-    public VentHandler(Arena arena, LinkedList<Vent> vents) {
-        this.arena = arena;
+    public VentHandler(GameArena gameArena, LinkedList<Vent> vents) {
+        this.gameArena = gameArena;
         this.vents.addAll(vents);
     }
 
@@ -56,11 +56,11 @@ public class VentHandler {
      */
     @SuppressWarnings("UnusedReturnValue")
     public Vent startVenting(@NotNull Player player, Plugin plugin) {
-        if (arena.getGameState() != GameState.IN_GAME) return null;
+        if (gameArena.getGameState() != GameState.IN_GAME) return null;
         if (isVenting(player)) return null;
         Vent vent = getVent(player.getLocation().getBlock());
         if (vent == null) return null;
-        Team team = arena.getPlayerTeam(player);
+        Team team = gameArena.getPlayerTeam(player);
         if (team == null) return null;
         if (team.isInnocent()) return null;
 
@@ -86,15 +86,15 @@ public class VentHandler {
         }
 
         InventoryBackup inventoryBackup = new InventoryBackup(player);
-        arena.setCantMove(player, true);
+        gameArena.setCantMove(player, true);
         sendItems(player, vent);
         player.teleport(vent.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
         player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
         player.sendTitle(" ", SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.VENT_ENTER_SUBTITLE), 0, 30, 0);
 
         currentlyVenting.put(player.getUniqueId(), inventoryBackup);
-        if (arena.getSabotageCooldown() != null){
-            arena.getSabotageCooldown().tryPause();
+        if (gameArena.getSabotageCooldown() != null){
+            gameArena.getSabotageCooldown().tryPause();
         }
         //todo re-apply kill cooldown
         return vent;
@@ -107,7 +107,7 @@ public class VentHandler {
             ItemStack item = vent.getDisplayItem().clone();
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                GameRoom room = arena.getRoom(vent.getBlock().getLocation());
+                GameRoom room = gameArena.getRoom(vent.getBlock().getLocation());
                 meta.setDisplayName(room == null ? lang.getMsg(null, Message.GAME_ROOM_NO_NAME) : room.getDisplayName(lang));
                 item.setItemMeta(meta);
             }
@@ -150,11 +150,11 @@ public class VentHandler {
         // todo send impostor items
         player.getInventory().clear();
         player.removePotionEffect(PotionEffectType.INVISIBILITY);
-        arena.setCantMove(player, false);
+        gameArena.setCantMove(player, false);
         currentlyVenting.remove(player.getUniqueId()).restore(player);
-        if (arena.getSabotageCooldown() != null){
-            arena.getSabotageCooldown().tryUnPause();
-            arena.getSabotageCooldown().updateCooldownOnItems(player, player.getInventory());
+        if (gameArena.getSabotageCooldown() != null){
+            gameArena.getSabotageCooldown().tryUnPause();
+            gameArena.getSabotageCooldown().updateCooldownOnItems(player, player.getInventory());
         }
         return vent;
     }
@@ -188,9 +188,9 @@ public class VentHandler {
                 inventoryBackup.restore(player);
             }
         }
-        if (arena.getSabotageCooldown() != null){
-            arena.getSabotageCooldown().tryUnPause();
-            arena.getSabotageCooldown().updateCooldownOnItems(player, player.getInventory());
+        if (gameArena.getSabotageCooldown() != null){
+            gameArena.getSabotageCooldown().tryUnPause();
+            gameArena.getSabotageCooldown().updateCooldownOnItems(player, player.getInventory());
         }
     }
 

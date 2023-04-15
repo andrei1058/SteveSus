@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.gametask.upload.panel;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.gametask.upload.UploadTask;
 import dev.andrei1058.game.arena.gametask.upload.UploadTaskProvider;
 import dev.andrei1058.game.common.api.gui.BaseGUI;
@@ -32,7 +32,7 @@ public class UploadGUI extends BaseGUI {
     private final double[] currentPercentile = new double[]{0};
     private final int[] nextGreenSlot = new int[]{0};
 
-    public UploadGUI(CommonLocale lang, WallPanel.PanelType type, UploadTask parentTask, double taskTime, Player player, Arena arena) {
+    public UploadGUI(CommonLocale lang, WallPanel.PanelType type, UploadTask parentTask, double taskTime, Player player, GameArena gameArena) {
         super(pattern, lang, new UploadHolder(), lang.getMsg(null, type == WallPanel.PanelType.DOWNLOAD ? UploadTaskProvider.DOWNLOAD_PANEL_NAME : UploadTaskProvider.UPLOAD_PANEL_NAME));
         this.initialTime = taskTime;
         this.currentTime[0] = 0;
@@ -57,7 +57,7 @@ public class UploadGUI extends BaseGUI {
             refresh();
             if (currentTime[0] >= initialTime) {
                 //todo done
-                parentTask.markPanelFinished(player, arena);
+                parentTask.markPanelFinished(player, gameArena);
                 Bukkit.getScheduler().cancelTask(taskId);
                 SteveSus.newChain().delay(10).sync(player::closeInventory).execute();
             }

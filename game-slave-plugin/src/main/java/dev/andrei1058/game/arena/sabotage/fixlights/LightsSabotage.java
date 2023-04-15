@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.sabotage.fixlights;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.api.arena.sabotage.GenericWarning;
@@ -31,29 +31,29 @@ import java.util.UUID;
 public class LightsSabotage extends SabotageBase {
 
     private boolean active = false;
-    private final Arena arena;
+    private final GameArena gameArena;
     private final GenericWarning warning;
     private final GlowingBox glowingBox;
     private final LinkedList<UUID> openGUI = new LinkedList<>();
     private FixLightsGUI gui;
 
-    public LightsSabotage(Arena arena, Location location) {
-        this.arena = arena;
-        this.warning = new GenericWarning(arena, 1, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, LightsSabotageProvider.NAME_PATH));
+    public LightsSabotage(GameArena gameArena, Location location) {
+        this.gameArena = gameArena;
+        this.warning = new GenericWarning(gameArena, 1, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, LightsSabotageProvider.NAME_PATH));
         this.glowingBox = new GlowingBox(location.add(0.5, 0, 0.5), 2, GlowColor.RED);
 
 
-        arena.registerGameListener(new GameListener() {
+        gameArena.registerGameListener(new GameListener() {
             @Override
-            public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
+            public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
                 if (!isActive()) return;
                 if (!entity.equals(glowingBox.getMagmaCube())) return;
-                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
+                if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
                 PlayerCoolDown coolDown = PlayerCoolDown.getOrCreatePlayerData(player);
                 if (coolDown.hasCoolDown("magmaCube")) return;
                 coolDown.updateCoolDown("magmaCube", 1);
-                Team team = arena.getPlayerTeam(player);
+                Team team = gameArena.getPlayerTeam(player);
                 if (team != null && team.getIdentifier().endsWith("-ghost")){
                     return;
                 }
@@ -67,15 +67,15 @@ public class LightsSabotage extends SabotageBase {
             }
 
             @Override
-            public void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+            public void onInventoryClose(GameArena gameArena, Player player, Inventory inventory) {
                 openGUI.remove(player.getUniqueId());
             }
 
             @Override
-            public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
+            public void onMeetingStageChange(GameArena gameArena, MeetingStage oldStage, MeetingStage newStage) {
                 if (!isActive()) return;
                 if (newStage == MeetingStage.NO_MEETING){
-                    for (Team team : arena.getGameTeams()){
+                    for (Team team : gameArena.getGameTeams()){
                         if (!team.getIdentifier().endsWith("-ghost")){
                             for (Player member : team.getMembers()){
                                 glowingBox.startGlowing(member);
@@ -86,14 +86,14 @@ public class LightsSabotage extends SabotageBase {
                         }
                     }
                 } else {
-                    for (Player inGame : arena.getPlayers()){
+                    for (Player inGame : gameArena.getPlayers()){
                         inGame.removePotionEffect(PotionEffectType.BLINDNESS);
                     }
                 }
             }
 
             @Override
-            public void onPlayerLeave(Arena arena, Player player, boolean spectator) {
+            public void onPlayerLeave(GameArena gameArena, Player player, boolean spectator) {
                 warning.removePlayer(player);
             }
         });
@@ -108,9 +108,9 @@ public class LightsSabotage extends SabotageBase {
         active = false;
         warning.restore();
         getArena().getPlayers().forEach(player -> player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, LightsSabotageProvider.FIXED_SUBTITLE), 0, 40, 0));
-        arena.tryEnableTaskIndicators();
+        gameArena.tryEnableTaskIndicators();
         Bukkit.getPluginManager().callEvent(new GameSabotageDeactivateEvent(getArena(), this, false));
-        for (Player playing : arena.getPlayers()) {
+        for (Player playing : gameArena.getPlayers()) {
             glowingBox.stopGlowing(playing);
         }
         for (UUID uuid : getOpenGUI()){
@@ -119,14 +119,14 @@ public class LightsSabotage extends SabotageBase {
                 player.closeInventory();
             }
         }
-        for (Player player : arena.getPlayers()){
+        for (Player player : gameArena.getPlayers()){
             player.removePotionEffect(PotionEffectType.BLINDNESS);
             player.removePotionEffect(PotionEffectType.SLOW);
         }
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override
@@ -134,13 +134,13 @@ public class LightsSabotage extends SabotageBase {
         warning.setBarName(LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, LightsSabotageProvider.NAME_PATH));
         warning.sendBar();
         active = true;
-        arena.interruptTasks();
-        arena.disableTaskIndicators();
+        gameArena.interruptTasks();
+        gameArena.disableTaskIndicators();
         Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this, player));
-        for (Player playing : arena.getPlayers()) {
+        for (Player playing : gameArena.getPlayers()) {
             glowingBox.startGlowing(playing);
         }
-        for (Team team : arena.getGameTeams()){
+        for (Team team : gameArena.getGameTeams()){
             if (!team.getIdentifier().endsWith("-ghost")){
                 for (Player member : team.getMembers()){
                     glowingBox.startGlowing(member);

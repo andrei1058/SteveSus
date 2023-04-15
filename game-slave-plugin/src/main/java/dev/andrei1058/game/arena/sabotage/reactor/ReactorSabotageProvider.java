@@ -5,7 +5,7 @@ import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import dev.andrei1058.game.SteveSus;
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.sabotage.SabotageBase;
 import dev.andrei1058.game.api.arena.sabotage.SabotageProvider;
 import dev.andrei1058.game.api.glow.GlowColor;
@@ -152,18 +152,18 @@ public class ReactorSabotageProvider extends SabotageProvider {
     }
 
     @Override
-    public @Nullable SabotageBase onArenaInit(Arena arena, JsonObject configuration) {
-        if (arena.hasLoadedSabotage(getUniqueIdentifier())) return null;
+    public @Nullable SabotageBase onArenaInit(GameArena gameArena, JsonObject configuration) {
+        if (gameArena.hasLoadedSabotage(getUniqueIdentifier())) return null;
         if (!(configuration.has("loc1") && configuration.has("loc2") && configuration.has("deadLine"))) return null;
         OrphanLocationProperty importer = new OrphanLocationProperty();
         Location loc1 = importer.convert(configuration.get("loc1").getAsString(), null);
         if (loc1 == null) return null;
-        loc1.setWorld(arena.getWorld());
+        loc1.setWorld(gameArena.getWorld());
         Location loc2 = importer.convert(configuration.get("loc2").getAsString(), null);
         if (loc2 == null) return null;
-        loc2.setWorld(arena.getWorld());
+        loc2.setWorld(gameArena.getWorld());
         int deadLine = configuration.get("deadLine").getAsInt();
-        return new ReactorSabotage(arena, deadLine, loc1, loc2);
+        return new ReactorSabotage(gameArena, deadLine, loc1, loc2);
     }
 
     @Override

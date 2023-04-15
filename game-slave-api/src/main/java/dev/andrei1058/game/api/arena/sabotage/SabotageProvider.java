@@ -3,7 +3,7 @@ package dev.andrei1058.game.api.arena.sabotage;
 import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.setup.SetupSession;
 import com.google.gson.JsonObject;
 import dev.andrei1058.game.api.locale.Message;
@@ -34,13 +34,13 @@ public abstract class SabotageProvider {
     /**
      * Return sabotage instance if triggered by impostor inventory item.
      * This will automatically add the object to the active sabotages list.
-     * If you want to trigger your sabotage manually do not forget to use {@link Arena#addSabotage(SabotageBase)} to start ticking your sabotage.
+     * If you want to trigger your sabotage manually do not forget to use {@link GameArena#addSabotage(SabotageBase)} to start ticking your sabotage.
      *
-     * @param arena         arena.
+     * @param gameArena         arena.
      * @param configuration configuration.
      * @return null if something went wrong or if you do not want to allow this type of trigger.
      */
-    public abstract @Nullable SabotageBase onArenaInit(Arena arena, JsonObject configuration);
+    public abstract @Nullable SabotageBase onArenaInit(GameArena gameArena, JsonObject configuration);
 
 
     @SuppressWarnings("UnstableApiUsage")

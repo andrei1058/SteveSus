@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
@@ -150,13 +150,13 @@ public class PrimeShieldsTaskProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable GameTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (!validateElements(configuration, "loc")) return null;
         JsonElement loc = configuration.get("loc");
         if (loc.isJsonNull()) return null;
         Location location = new OrphanLocationProperty().convert(loc.getAsString(), null);
         if (location == null) return null;
-        location.setWorld(arena.getWorld());
-        return new PrimeShieldsTask(localName, location, arena);
+        location.setWorld(gameArena.getWorld());
+        return new PrimeShieldsTask(localName, location, gameArena);
     }
 }

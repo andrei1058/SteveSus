@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.gametask.fuelengines;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
@@ -23,7 +23,7 @@ public class FuelEnginesTask extends GameTask {
     // currentStage%2==0 means stage is done, else he did only the storage part
     private final HashMap<UUID, Integer> currentStage = new HashMap<>();
 
-    public FuelEnginesTask(String localName, LinkedList<FuelStage> availableStages, Arena arena) {
+    public FuelEnginesTask(String localName, LinkedList<FuelStage> availableStages, GameArena gameArena) {
         super(localName);
         this.availableStages = availableStages;
         // hologram lang path
@@ -36,9 +36,9 @@ public class FuelEnginesTask extends GameTask {
             fuelStage.initHolograms(this);
         }
 
-        arena.registerGameListener(new GameListener() {
+        gameArena.registerGameListener(new GameListener() {
             @Override
-            public void onPlayerJoin(Arena arena, Player player) {
+            public void onPlayerJoin(GameArena gameArena, Player player) {
                 for (FuelStage fuelStage : availableStages) {
                     if (fuelStage.getEngineHologram() != null) {
                         fuelStage.getEngineHologram().hide(player);
@@ -50,23 +50,23 @@ public class FuelEnginesTask extends GameTask {
             }
 
             @Override
-            public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
+            public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
                 if (!hasTask(player)) return;
                 FuelStage stage = getCurrent(player);
                 if (stage == null) return;
-                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
-                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena, entity);
+                if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
+                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, gameArena, entity);
             }
 
             @Override
-            public void onEntityPunch(Arena arena, Player player, Entity entity) {
+            public void onEntityPunch(GameArena gameArena, Player player, Entity entity) {
                 if (entity.getType() != EntityType.MAGMA_CUBE) return;
                 if (!hasTask(player)) return;
-                if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
+                if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
                 FuelStage stage = getCurrent(player);
                 if (stage == null) return;
-                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, arena, entity);
+                stage.onInteract(player, getCurrentStage(player) % 2 != 0, FuelEnginesTask.this, gameArena, entity);
 
             }
         });
@@ -78,7 +78,7 @@ public class FuelEnginesTask extends GameTask {
     }
 
     @Override
-    public void onInterrupt(Player player, Arena arena) {
+    public void onInterrupt(Player player, GameArena gameArena) {
         if (hasTask(player)) {
             player.closeInventory();
         }
@@ -95,7 +95,7 @@ public class FuelEnginesTask extends GameTask {
     }
 
     @Override
-    public void assignToPlayer(Player player, Arena arena) {
+    public void assignToPlayer(Player player, GameArena gameArena) {
         if (hasTask(player)) return;
         currentStage.put(player.getUniqueId(), 0);
         enableIndicator(player);
@@ -189,7 +189,7 @@ public class FuelEnginesTask extends GameTask {
         }
     }
 
-    public void addProgress(Player player, Arena arena) {
+    public void addProgress(Player player, GameArena gameArena) {
 
         disableIndicator(player);
         int stage = this.currentStage.getOrDefault(player.getUniqueId(), 0) + 1;
@@ -197,10 +197,10 @@ public class FuelEnginesTask extends GameTask {
         currentStage.replace(player.getUniqueId(), stage);
 
         if (stage == availableStages.size() * 2) {
-            arena.refreshTaskMeter();
-            arena.getGameEndConditions().tickGameEndConditions(arena);
+            gameArena.refreshTaskMeter();
+            gameArena.getGameEndConditions().tickGameEndConditions(gameArena);
             player.closeInventory();
-            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+            PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(gameArena, this, player);
             Bukkit.getPluginManager().callEvent(taskDoneEvent);
         }
 

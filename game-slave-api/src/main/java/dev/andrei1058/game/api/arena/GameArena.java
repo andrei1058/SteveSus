@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
-public interface Arena extends DisplayableArena {
+public interface GameArena extends DisplayableArena {
 
     /**
      * Used to assign a world to the arena.

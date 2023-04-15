@@ -3,7 +3,7 @@ package dev.andrei1058.game.prevention;
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.prevention.PreventionHandler;
 import dev.andrei1058.game.api.prevention.abandon.AbandonCondition;
 import dev.andrei1058.game.api.prevention.abandon.TriggerType;
@@ -157,23 +157,23 @@ public class PreventionManager implements PreventionHandler {
     /**
      * Check if the given player has abandoned the game.
      */
-    public boolean triggerAbandon(Arena arena, Player player) {
-        return inUseAbandonConditions.stream().allMatch(condition -> condition.getOutcome(player, arena));
+    public boolean triggerAbandon(GameArena gameArena, Player player) {
+        return inUseAbandonConditions.stream().allMatch(condition -> condition.getOutcome(player, gameArena));
     }
 
     /**
      * Check if a player abandoned a match.
      * Can be used once because it clears player data after querying.
      */
-    public boolean hasAbandoned(@Nullable Arena arena, Player player) {
+    public boolean hasAbandoned(@Nullable GameArena gameArena, Player player) {
         if (triggerType == TriggerType.COMMAND) {
             if (abandoned.containsKey(player.getUniqueId())) {
                 boolean abandoned = PreventionManager.instance.abandoned.get(player.getUniqueId()) > System.currentTimeMillis();
                 PreventionManager.instance.abandoned.remove(player.getUniqueId());
                 return abandoned;
             }
-        } else if (triggerType == TriggerType.ARENA_LEAVE && arena != null && arena.getGameState() == GameState.IN_GAME) {
-            return triggerAbandon(arena, player);
+        } else if (triggerType == TriggerType.ARENA_LEAVE && gameArena != null && gameArena.getGameState() == GameState.IN_GAME) {
+            return triggerAbandon(gameArena, player);
         }
         return false;
     }
@@ -182,9 +182,9 @@ public class PreventionManager implements PreventionHandler {
      * To be used when a player is about to get stats.
      * Check if min match time is reached for the given arena.
      */
-    public boolean canReceiveStats(Arena arena) {
-        if (arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING) return false;
-        return isAntiFarmingEnabled() && arena.getStartTime() != null && Instant.now().isAfter(arena.getStartTime().plusSeconds(getMinPlayTime()));
+    public boolean canReceiveStats(GameArena gameArena) {
+        if (gameArena.getGameState() == GameState.WAITING || gameArena.getGameState() == GameState.STARTING) return false;
+        return isAntiFarmingEnabled() && gameArena.getStartTime() != null && Instant.now().isAfter(gameArena.getStartTime().plusSeconds(getMinPlayTime()));
     }
 
     public SettingsManager getConfig() {

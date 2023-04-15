@@ -1,7 +1,7 @@
 package dev.andrei1058.game.api.arena.team;
 
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -36,8 +36,8 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
      * @param ignoreColorInUse true if you want to assign this color even if tis already assigned to someone else.
      * @return always true if you ignored color in use, otherwise will return false if the color it's been already chosen.
      */
-    public boolean setPlayerColor(@NotNull Player player, @Nullable T playerColor, @NotNull Arena playerArena, boolean ignoreColorInUse) {
-        return setPlayerColor(player.getUniqueId(), playerColor, playerArena, ignoreColorInUse);
+    public boolean setPlayerColor(@NotNull Player player, @Nullable T playerColor, @NotNull GameArena playerGameArena, boolean ignoreColorInUse) {
+        return setPlayerColor(player.getUniqueId(), playerColor, playerGameArena, ignoreColorInUse);
     }
 
     /**
@@ -45,10 +45,10 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
      * @param ignoreColorInUse true if you want to assign this color even if tis already assigned to someone else.
      * @return always true if you ignored color in use, otherwise will return false if the color it's been already chosen.
      */
-    public boolean setPlayerColor(@Nullable UUID player, @Nullable T playerColor, @NotNull Arena playerArena, boolean ignoreColorInUse) {
+    public boolean setPlayerColor(@Nullable UUID player, @Nullable T playerColor, @NotNull GameArena playerGameArena, boolean ignoreColorInUse) {
         if (playerColor == null) {
             this.playerColor.remove(player);
-        } else if (!ignoreColorInUse && isColorInUse(playerColor, playerArena)) {
+        } else if (!ignoreColorInUse && isColorInUse(playerColor, playerGameArena)) {
             return false;
         }
         this.playerColor.put(player, playerColor);
@@ -58,8 +58,8 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
     /**
      * This doesn't mean you can't use it twice, but will tell you if it is in use.
      */
-    public boolean isColorInUse(@NotNull T playerColor, @NotNull Arena arena) {
-        return arena.getPlayers().stream().anyMatch(player -> {
+    public boolean isColorInUse(@NotNull T playerColor, @NotNull GameArena gameArena) {
+        return gameArena.getPlayers().stream().anyMatch(player -> {
             T color = getPlayerColor(player);
             return color != null && color.equals(playerColor);
         });
@@ -67,16 +67,16 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
 
     /**
      * IMPORTANT: Colors are assigned after team assignment.
-     * No need to use {@link #setPlayerColor(UUID, PlayerColor, Arena, boolean)} after this.
+     * No need to use {@link #setPlayerColor(UUID, PlayerColor, GameArena, boolean)} after this.
      *
      * @param ignoreAllInUse true if you want to assign a random color even if it's already in use, when no free options left.
      * @return null if no colors left to assign. Ignoring colors in use will never return a null.
      */
-    public @Nullable T assignPlayerColor(@NotNull Player player, @NotNull Arena playerArena, boolean ignoreAllInUse) {
+    public @Nullable T assignPlayerColor(@NotNull Player player, @NotNull GameArena playerGameArena, boolean ignoreAllInUse) {
         if (getAvailableColorOptions().isEmpty()) {
             throw new IllegalStateException("No colors available");
         }
-        boolean allColorsInUse = getAvailableColorOptions().stream().allMatch(color -> isColorInUse(color, playerArena));
+        boolean allColorsInUse = getAvailableColorOptions().stream().allMatch(color -> isColorInUse(color, playerGameArena));
         if (allColorsInUse && !ignoreAllInUse) {
             return null;
         }
@@ -87,9 +87,9 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
             final List<T> color = new ArrayList<>();
             T colorTemp = getAvailableColorOptions().get(0);
             color.add(getAvailableColorOptions().get(0));
-            int[] usages = {getUsages(colorTemp, playerArena)};
+            int[] usages = {getUsages(colorTemp, playerGameArena)};
             getAvailableColorOptions().forEach(availableColor -> {
-                int currentUsages = getUsages(availableColor, playerArena);
+                int currentUsages = getUsages(availableColor, playerGameArena);
                 if (currentUsages < usages[0]) {
                     color.clear();
                     color.add(availableColor);
@@ -99,10 +99,10 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
             colorResult = color.get(0);
         } else {
             // get first available or null
-            colorResult = getAvailableColorOptions().stream().filter(currentColor -> !isColorInUse(currentColor, playerArena)).findFirst().orElse(null);
+            colorResult = getAvailableColorOptions().stream().filter(currentColor -> !isColorInUse(currentColor, playerGameArena)).findFirst().orElse(null);
         }
         if (colorResult != null) {
-            setPlayerColor(player, colorResult, playerArena, true);
+            setPlayerColor(player, colorResult, playerGameArena, true);
         }
         return colorResult;
     }
@@ -141,7 +141,7 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
      * Usually used at restarts etc.
      */
     @SuppressWarnings("unused")
-    public void clearArenaData(Arena arena) {
+    public void clearArenaData(GameArena gameArena) {
     }
 
     /**
@@ -158,8 +158,8 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
     /**
      * Get how many times a color is used in the given arena.
      */
-    public int getUsages(T color, Arena arena) {
-        return (int) arena.getPlayers().stream().filter(inGame -> {
+    public int getUsages(T color, GameArena gameArena) {
+        return (int) gameArena.getPlayers().stream().filter(inGame -> {
             T currentColor = getPlayerColor(inGame);
             if (currentColor == null) {
                 return false;
@@ -172,14 +172,14 @@ public class PlayerColorAssigner<T extends PlayerColorAssigner.PlayerColor> {
         /**
          * Apply color and costume etc to the given player.
          */
-        void apply(Player player, Arena arena);
+        void apply(Player player, GameArena gameArena);
 
         /**
          * Get player head.
          * Used to display player head in voting GUI, eventually in a color selector menu and maybe somewhere else.
          * Do not add name and lore because it will be handled elsewhere.
          */
-        @NotNull ItemStack getPlayerHead(Player player, Arena arena);
+        @NotNull ItemStack getPlayerHead(Player player, GameArena gameArena);
 
         /**
          * Color identifier.

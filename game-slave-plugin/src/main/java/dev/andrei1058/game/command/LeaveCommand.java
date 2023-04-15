@@ -2,7 +2,7 @@ package dev.andrei1058.game.command;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.api.server.ServerType;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -26,16 +26,16 @@ public class LeaveCommand extends FastRootCommand {
     public void execute(@NotNull CommandSender s, @NotNull String[] args, @NotNull String st) {
         Player p = (Player) s;
         if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
-            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
-            if (arena == null) {
+            GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
+            if (gameArena == null) {
                 // move to hub server
                 ServerManager.getINSTANCE().getDisconnectHandler().performDisconnect(p);
             } else {
                 // if in game move to lobby world
-                if (arena.isPlayer(p)) {
-                    arena.removePlayer(p, false);
+                if (gameArena.isPlayer(p)) {
+                    gameArena.removePlayer(p, false);
                 } else {
-                    arena.removeSpectator(p, false);
+                    gameArena.removeSpectator(p, false);
                 }
             }
         } else {
@@ -55,16 +55,16 @@ public class LeaveCommand extends FastRootCommand {
                         .withExecutor((s, args)->{
                             Player p = (Player) s;
                             if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA) {
-                                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
-                                if (arena == null) {
+                                GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
+                                if (gameArena == null) {
                                     // move to hub server
                                     ServerManager.getINSTANCE().getDisconnectHandler().performDisconnect(p);
                                 } else {
                                     // if in game move to lobby world
-                                    if (arena.isPlayer(p)) {
-                                        arena.removePlayer(p, false);
+                                    if (gameArena.isPlayer(p)) {
+                                        gameArena.removePlayer(p, false);
                                     } else {
-                                        arena.removeSpectator(p, false);
+                                        gameArena.removeSpectator(p, false);
                                     }
                                 }
                             } else {

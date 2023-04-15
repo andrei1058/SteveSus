@@ -27,20 +27,20 @@ public class GameEndConditions {
      * This method will handle everything. Sending messages etc.
      * Works with IN_GAME status only.
      */
-    public void tickGameEndConditions(Arena arena) {
-        if (arena.getGameState() != GameState.IN_GAME) return;
+    public void tickGameEndConditions(GameArena gameArena) {
+        if (gameArena.getGameState() != GameState.IN_GAME) return;
 
         // if no players left
-        if (arena.getPlayers().isEmpty()) {
-            arena.switchState(GameState.ENDING);
+        if (gameArena.getPlayers().isEmpty()) {
+            gameArena.switchState(GameState.ENDING);
 
-            Bukkit.getPluginManager().callEvent(new GameFinishEvent(arena, new LinkedList<>()));
-            if (arena.getWorld().getPlayers().isEmpty()) {
-                arena.setCountdown(3);
+            Bukkit.getPluginManager().callEvent(new GameFinishEvent(gameArena, new LinkedList<>()));
+            if (gameArena.getWorld().getPlayers().isEmpty()) {
+                gameArena.setCountdown(3);
             }
         } else {
-            Team impostors = arena.getTeamByName("impostor");
-            Team crew = arena.getTeamByName("crew");
+            Team impostors = gameArena.getTeamByName("impostor");
+            Team crew = gameArena.getTeamByName("crew");
             if (impostors == null) {
                 throw new IllegalStateException("Could not find impostor team! If you are using custom teams make sure to register your own game end conditions.");
             }
@@ -50,44 +50,44 @@ public class GameEndConditions {
 
             if (impostors.getMembers().isEmpty()) {
                 // crew won
-                crewWins(arena, Message.WIN_REASON_IMPOSTORS_EXCLUDED.toString());
+                crewWins(gameArena, Message.WIN_REASON_IMPOSTORS_EXCLUDED.toString());
             } else if (crew.getMembers().isEmpty()) {
                 // impostors won
-                impostorsWin(arena, Message.DEFEAT_REASON_NO_MORE_INNOCENTS.toString());
+                impostorsWin(gameArena, Message.DEFEAT_REASON_NO_MORE_INNOCENTS.toString());
             } else if (impostors.getMembers().size() == crew.getMembers().size()) {
                 // impostors won
-                impostorsWin(arena, Message.DEFEAT_REASON_ALL_KILLED.toString());
+                impostorsWin(gameArena, Message.DEFEAT_REASON_ALL_KILLED.toString());
             } else {
                 // check tasks
                 int assignedTasks = 0;
                 int finishedTasks = 0;
-                for (GameTask task : arena.getLoadedGameTasks()) {
+                for (GameTask task : gameArena.getLoadedGameTasks()) {
                     assignedTasks += task.getAssignedPlayers().size();
                     finishedTasks += task.getAssignedPlayers().stream().filter(player -> task.getCurrentStage(player) == task.getTotalStages(player)).count();
                 }
                 if (assignedTasks == finishedTasks) {
                     // crew wins
-                    crewWins(arena, Message.WIN_REASON_TASKS_COMPLETED.toString());
+                    crewWins(gameArena, Message.WIN_REASON_TASKS_COMPLETED.toString());
                 }
             }
         }
     }
 
-    private static void crewWins(Arena arena, String reasonPath) {
-        arena.switchState(GameState.ENDING);
+    private static void crewWins(GameArena gameArena, String reasonPath) {
+        gameArena.switchState(GameState.ENDING);
         // this list is passed to the game end/ win event
         LinkedList<Team> winnerTeams = new LinkedList<>();
 
         // build winners list string per language
         HashMap<Locale, String> winnerNamesPerLanguage = new HashMap<>();
         List<Locale> filteredLanguages = new LinkedList<>();
-        for (Player player : arena.getPlayers()) {
+        for (Player player : gameArena.getPlayers()) {
             Locale playerLang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             if (!filteredLanguages.contains(playerLang)) {
                 filteredLanguages.add(playerLang);
             }
         }
-        for (Player player : arena.getSpectators()) {
+        for (Player player : gameArena.getSpectators()) {
             Locale playerLang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             if (!filteredLanguages.contains(playerLang)) {
                 filteredLanguages.add(playerLang);
@@ -96,12 +96,12 @@ public class GameEndConditions {
         for (Locale locale : filteredLanguages) {
             String separator = locale.getMsg(null, Message.GAME_END_CREW_WON_NAME_SEPARATOR);
             StringBuilder stringBuilder = new StringBuilder();
-            for (Team team : arena.getGameTeams()) {
+            for (Team team : gameArena.getGameTeams()) {
                 if (team.isInnocent()) {
                     for (Player member : team.getMembers()) {
                         String displayColor = "";
-                        if (arena.getPlayerColorAssigner() != null) {
-                            PlayerColorAssigner.PlayerColor playerColor = arena.getPlayerColorAssigner().getPlayerColor(member);
+                        if (gameArena.getPlayerColorAssigner() != null) {
+                            PlayerColorAssigner.PlayerColor playerColor = gameArena.getPlayerColorAssigner().getPlayerColor(member);
                             if (playerColor != null) {
                                 displayColor = playerColor.getDisplayColor(member);
                             }
@@ -109,10 +109,10 @@ public class GameEndConditions {
                         String formattedString = locale.getMsg(null, Message.GAME_END_CREW_WON_NAME_FORMAT).replace("{display_name}", member.getDisplayName())
                                 .replace("{name}", member.getName()).replace("{display_color}", displayColor);
                         if (formattedString.contains("{tasks_done}")) {
-                            formattedString = formattedString.replace("{tasks_done}", String.valueOf(arena.getStats().getTasks(member.getUniqueId())));
+                            formattedString = formattedString.replace("{tasks_done}", String.valueOf(gameArena.getStats().getTasks(member.getUniqueId())));
                         }
                         if (formattedString.contains("{tasks_total}")) {
-                            formattedString = formattedString.replace("{tasks_total}", String.valueOf(arena.getLoadedGameTasks().stream().filter(task -> task.hasTask(member)).count()));
+                            formattedString = formattedString.replace("{tasks_total}", String.valueOf(gameArena.getLoadedGameTasks().stream().filter(task -> task.hasTask(member)).count()));
                         }
                         stringBuilder.append(formattedString);
                         stringBuilder.append(separator);
@@ -128,13 +128,13 @@ public class GameEndConditions {
             winnerNamesPerLanguage.put(locale, result);
         }
 
-        for (Team team : arena.getGameTeams()){
+        for (Team team : gameArena.getGameTeams()){
             if (team.isInnocent()){
                 winnerTeams.add(team);
             }
         }
 
-        for (Player player : arena.getPlayers()) {
+        for (Player player : gameArena.getPlayers()) {
             Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             for (String string : lang.getMsgList(player, Message.GAME_END_CREW_WON_CHAT)) {
                 if (string.contains("{reason}")) {
@@ -152,7 +152,7 @@ public class GameEndConditions {
             }
             player.sendTitle(lang.getMsg(player, Message.GAME_END_CREW_WON_TITLE), lang.getMsg(player, Message.GAME_END_CREW_WON_SUBTITLE), 10, 60, 10);
         }
-        for (Player player : arena.getSpectators()) {
+        for (Player player : gameArena.getSpectators()) {
             Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             for (String string : lang.getMsgList(player, Message.GAME_END_CREW_WON_CHAT)) {
                 if (string.contains("{reason}")) {
@@ -170,14 +170,14 @@ public class GameEndConditions {
             }
             player.sendTitle(lang.getMsg(player, Message.GAME_END_CREW_WON_TITLE), lang.getMsg(player, Message.GAME_END_CREW_WON_SUBTITLE), 10, 60, 10);
         }
-        GameSound.INNOCENTS_WIN.playToPlayers(arena.getPlayers());
-        GameSound.INNOCENTS_WIN.playToPlayers(arena.getSpectators());
-        GameFinishEvent event = new GameFinishEvent(arena, winnerTeams);
+        GameSound.INNOCENTS_WIN.playToPlayers(gameArena.getPlayers());
+        GameSound.INNOCENTS_WIN.playToPlayers(gameArena.getSpectators());
+        GameFinishEvent event = new GameFinishEvent(gameArena, winnerTeams);
         Bukkit.getPluginManager().callEvent(event);
     }
 
-    public static void impostorsWin(Arena arena, @Nullable String reasonPath) {
-        arena.switchState(GameState.ENDING);
+    public static void impostorsWin(GameArena gameArena, @Nullable String reasonPath) {
+        gameArena.switchState(GameState.ENDING);
 
         // this list is passed to the game end/ win event
         LinkedList<Team> winnerTeams = new LinkedList<>();
@@ -185,13 +185,13 @@ public class GameEndConditions {
         // build winners list string per language
         HashMap<Locale, String> winnerNamesPerLanguage = new HashMap<>();
         List<Locale> filteredLanguages = new LinkedList<>();
-        for (Player player : arena.getPlayers()) {
+        for (Player player : gameArena.getPlayers()) {
             Locale playerLang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             if (!filteredLanguages.contains(playerLang)) {
                 filteredLanguages.add(playerLang);
             }
         }
-        for (Player player : arena.getSpectators()) {
+        for (Player player : gameArena.getSpectators()) {
             Locale playerLang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             if (!filteredLanguages.contains(playerLang)) {
                 filteredLanguages.add(playerLang);
@@ -200,20 +200,20 @@ public class GameEndConditions {
         for (Locale locale : filteredLanguages) {
             String separator = locale.getMsg(null, Message.GAME_END_IMPOSTORS_WON_NAME_SEPARATOR);
             StringBuilder stringBuilder = new StringBuilder();
-            for (Team team : arena.getGameTeams()) {
+            for (Team team : gameArena.getGameTeams()) {
                 if (!team.isInnocent()) {
                     winnerTeams.add(team);
                     for (Player member : team.getMembers()) {
                         String displayColor = "";
-                        if (arena.getPlayerColorAssigner() != null) {
-                            PlayerColorAssigner.PlayerColor playerColor = arena.getPlayerColorAssigner().getPlayerColor(member);
+                        if (gameArena.getPlayerColorAssigner() != null) {
+                            PlayerColorAssigner.PlayerColor playerColor = gameArena.getPlayerColorAssigner().getPlayerColor(member);
                             if (playerColor != null) {
                                 displayColor = playerColor.getDisplayColor(member);
                             }
                         }
                         String formattedString = locale.getMsg(null, Message.GAME_END_IMPOSTORS_WON_NAME_FORMAT).replace("{display_name}", member.getDisplayName())
                                 .replace("{name}", member.getName()).replace("{display_color}", displayColor)
-                                .replace("{kills}", String.valueOf(arena.getStats().getKills(member.getUniqueId()))).replace("{sabotages}", String.valueOf(arena.getStats().getSabotages(member.getUniqueId())));
+                                .replace("{kills}", String.valueOf(gameArena.getStats().getKills(member.getUniqueId()))).replace("{sabotages}", String.valueOf(gameArena.getStats().getSabotages(member.getUniqueId())));
                         stringBuilder.append(formattedString);
                         stringBuilder.append(separator);
                     }
@@ -228,7 +228,7 @@ public class GameEndConditions {
             winnerNamesPerLanguage.put(locale, result);
         }
 
-        for (Player player : arena.getPlayers()) {
+        for (Player player : gameArena.getPlayers()) {
             Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             for (String string : lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT)) {
                 if (string.contains("{reason}")) {
@@ -246,7 +246,7 @@ public class GameEndConditions {
             }
             player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
         }
-        for (Player player : arena.getSpectators()) {
+        for (Player player : gameArena.getSpectators()) {
             Locale lang = SteveSusAPI.getInstance().getLocaleHandler().getLocale(player);
             for (String string : lang.getMsgList(player, Message.GAME_END_IMPOSTORS_WON_CHAT)) {
                 if (string.contains("{reason}")) {
@@ -264,9 +264,9 @@ public class GameEndConditions {
             }
             player.sendTitle(lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_TITLE), lang.getMsg(player, Message.GAME_END_IMPOSTORS_WON_SUBTITLE), 10, 60, 10);
         }
-        GameSound.IMPOSTORS_WIN.playToPlayers(arena.getPlayers());
-        GameSound.IMPOSTORS_WIN.playToPlayers(arena.getSpectators());
-        GameFinishEvent event = new GameFinishEvent(arena, winnerTeams);
+        GameSound.IMPOSTORS_WIN.playToPlayers(gameArena.getPlayers());
+        GameSound.IMPOSTORS_WIN.playToPlayers(gameArena.getSpectators());
+        GameFinishEvent event = new GameFinishEvent(gameArena, winnerTeams);
         Bukkit.getPluginManager().callEvent(event);
     }
 }

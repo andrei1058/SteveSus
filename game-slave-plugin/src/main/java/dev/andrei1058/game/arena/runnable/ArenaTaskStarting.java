@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.runnable;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.api.server.GameSound;
@@ -13,14 +13,14 @@ import org.bukkit.entity.Player;
 
 public class ArenaTaskStarting implements Runnable {
 
-    private final Arena arena;
+    private final GameArena gameArena;
 
-    public ArenaTaskStarting(Arena arena) {
-        this.arena = arena;
+    public ArenaTaskStarting(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ArenaTaskStarting implements Runnable {
         int currentSecond;
         getArena().setCountdown(currentSecond = getArena().getCountdown() - 1);
         if (currentSecond == 0) {
-            arena.getPlayers().forEach(HumanEntity::closeInventory);
+            gameArena.getPlayers().forEach(HumanEntity::closeInventory);
             getArena().switchState(GameState.IN_GAME);
             return;
         } else if (currentSecond == 2) {

@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.gametask.upload;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
@@ -235,7 +235,7 @@ public class UploadTaskProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable GameTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (!validateElements(configuration, "downloadTime", "uploadTime", "downloadPanels", "uploadPanels"))
             return null;
         int downloadTime = configuration.get("downloadTime").getAsInt();
@@ -248,19 +248,19 @@ public class UploadTaskProvider extends TaskProvider {
         downloadFrames.forEach(element -> {
             Location loc = converter.convert(element.getAsString(), null);
             if (loc != null) {
-                loc.setWorld(arena.getWorld());
+                loc.setWorld(gameArena.getWorld());
                 downloadLocations.add(loc);
             }
         });
         uploadFrames.forEach(element -> {
             Location loc = converter.convert(element.getAsString(), null);
             if (loc != null) {
-                loc.setWorld(arena.getWorld());
+                loc.setWorld(gameArena.getWorld());
                 uploadLocations.add(loc);
             }
         });
 
-        return new UploadTask(arena, downloadTime, uploadTime, downloadLocations, uploadLocations, localName);
+        return new UploadTask(gameArena, downloadTime, uploadTime, downloadLocations, uploadLocations, localName);
     }
 
     private static void registerItemFrameProtector(SetupSession setupSession, String localTaskName) {

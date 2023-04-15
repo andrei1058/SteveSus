@@ -2,7 +2,7 @@ package dev.andrei1058.game.arena.gametask.emptygarbage;
 
 import co.aikar.taskchain.TaskChain;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.room.GameRoom;
 import dev.andrei1058.game.api.arena.task.GameTask;
@@ -33,19 +33,19 @@ public class EmptyGarbageTask extends GameTask {
     private final int stages;
     private final boolean visual;
 
-    public EmptyGarbageTask(String localName, Arena arena, List<WallLever> wallLevers, int stages) {
+    public EmptyGarbageTask(String localName, GameArena gameArena, List<WallLever> wallLevers, int stages) {
         super(localName);
         this.wallLevers.addAll(wallLevers);
         this.stages = stages;
 
-        arena.registerGameListener(new GameListener() {
+        gameArena.registerGameListener(new GameListener() {
             @Override
-            public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
-                tryOpenGUI(player, entity, arena);
+            public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
+                tryOpenGUI(player, entity, gameArena);
             }
 
             @Override
-            public void onInventoryClose(Arena arena, Player player, Inventory inventory) {
+            public void onInventoryClose(GameArena gameArena, Player player, Inventory inventory) {
                 currentlyOpenPanel.remove(player.getUniqueId());
             }
         });
@@ -60,7 +60,7 @@ public class EmptyGarbageTask extends GameTask {
     }
 
     @Override
-    public void onInterrupt(Player player, Arena arena) {
+    public void onInterrupt(Player player, GameArena gameArena) {
         if (hasTask(player)){
             player.closeInventory();
         }
@@ -93,12 +93,12 @@ public class EmptyGarbageTask extends GameTask {
     }
 
     @Override
-    public void assignToPlayer(Player player, Arena arena) {
+    public void assignToPlayer(Player player, GameArena gameArena) {
         if (hasTask(player)) return;
         //todo
         LinkedList<WallLever> assigned = OrderPriority.getLessUsedPanels(stages, this);
         if (assigned.isEmpty()) {
-            SteveSus.getInstance().getLogger().warning("Cannot assign clean garbage task to " + player.getName() + " on " + arena.getTemplateWorld() + "(" + arena.getGameId() + "). Bad configuration.");
+            SteveSus.getInstance().getLogger().warning("Cannot assign clean garbage task to " + player.getName() + " on " + gameArena.getTemplateWorld() + "(" + gameArena.getGameId() + "). Bad configuration.");
             return;
         }
         assignedLevers.put(player.getUniqueId(), assigned);
@@ -144,11 +144,11 @@ public class EmptyGarbageTask extends GameTask {
     }
 
     public void fixedOneAndGiveNext(Player player) {
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-        if (arena == null) return;
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+        if (gameArena == null) return;
         if (getCurrentStage(player) != getTotalStages(player)) {
             WallLever currentPanel = assignedLevers.get(player.getUniqueId()).removeFirst();
-            if (currentPanel.getDropLocation() != null && arena.getLiveSettings().isVisualTasksEnabled()) {
+            if (currentPanel.getDropLocation() != null && gameArena.getLiveSettings().isVisualTasksEnabled()) {
                 TaskChain<?> chain = SteveSus.newChain();
                 for (Material material : GarbageGUI.CANDIDATES) {
                     if (material == Material.AIR) continue;
@@ -162,15 +162,15 @@ public class EmptyGarbageTask extends GameTask {
             // mark done or
             if (assignedLevers.get(player.getUniqueId()).isEmpty()) {
                 player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURREOW, 1, 1);
-                arena.refreshTaskMeter();
-                arena.getGameEndConditions().tickGameEndConditions(arena);
-                PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
+                gameArena.refreshTaskMeter();
+                gameArena.getGameEndConditions().tickGameEndConditions(gameArena);
+                PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(gameArena, this, player);
                 Bukkit.getPluginManager().callEvent(taskDoneEvent);
             } else {
                 // or assign next
                 WallLever panel = assignedLevers.get(player.getUniqueId()).getFirst();
                 panel.getGlowingBox().startGlowing(player);
-                GameRoom room = arena.getRoom(panel.getGlowingBox().getMagmaCube().getLocation());
+                GameRoom room = gameArena.getRoom(panel.getGlowingBox().getMagmaCube().getLocation());
                 Locale playerLang = LanguageManager.getINSTANCE().getLocale(player);
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
                 player.sendMessage(playerLang.getMsg(player, EmptyGarbageTaskProvider.NEXT_PANEL).replace("{room}", (room == null ? playerLang.getMsg(null, Message.GAME_ROOM_NO_NAME) : room.getDisplayName(playerLang))));
@@ -178,10 +178,10 @@ public class EmptyGarbageTask extends GameTask {
         }
     }
 
-    private void tryOpenGUI(Player player, Entity entity, Arena arena) {
+    private void tryOpenGUI(Player player, Entity entity, GameArena gameArena) {
         if (entity.getType() != EntityType.MAGMA_CUBE) return;
-        if (!arena.isTasksAllowedATM()) return;
-        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
+        if (!gameArena.isTasksAllowedATM()) return;
+        if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
         if (hasTask(player)) {
             // should prevent called twice
             if (currentlyOpenPanel.contains(player.getUniqueId())) return;

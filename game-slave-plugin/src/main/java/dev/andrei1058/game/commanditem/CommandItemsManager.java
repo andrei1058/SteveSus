@@ -1,7 +1,7 @@
 package dev.andrei1058.game.commanditem;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.api.arena.sabotage.SabotageBase;
 import dev.andrei1058.game.api.arena.sabotage.SabotageCooldown;
@@ -69,8 +69,8 @@ public class CommandItemsManager {
         if (tag != null) {
             // stop op cool down?
             if (player.getCooldown(itemStack.getType()) != 0) return;
-            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-            if (arena == null) return;
+            GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+            if (gameArena == null) return;
             String[] data = tag.split(":");
             if (data.length == 0) return;
 
@@ -79,7 +79,7 @@ public class CommandItemsManager {
             if (data.length > 1 && data[0].equals("sabotage")) {
                 String[] subData = data[1].split(",");
                 if (subData.length < 2) return;
-                sabotageBase = arena.getLoadedSabotage(subData[0], subData[1]);
+                sabotageBase = gameArena.getLoadedSabotage(subData[0], subData[1]);
             }
 
             // check item
@@ -87,14 +87,14 @@ public class CommandItemsManager {
                 if (tag.equals("kill")) {
                     Player nearest = null;
                     Player clone;
-                    double distance = arena.getLiveSettings().getKillDistance().getCurrentValue();
-                    Team playerTeam = arena.getPlayerTeam(player);
-                    for (Player inGame : arena.getPlayers()) {
+                    double distance = gameArena.getLiveSettings().getKillDistance().getCurrentValue();
+                    Team playerTeam = gameArena.getPlayerTeam(player);
+                    for (Player inGame : gameArena.getPlayers()) {
                         if (player.equals(inGame)) continue;
 
                         double currentDistance;
-                        if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(inGame, arena)){
-                            clone = arena.getCamHandler().getClone(inGame.getUniqueId());
+                        if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(inGame, gameArena)){
+                            clone = gameArena.getCamHandler().getClone(inGame.getUniqueId());
                             if (clone == null){
                                 continue;
                             } else {
@@ -110,22 +110,22 @@ public class CommandItemsManager {
                         }
                     }
                     if (nearest != null) {
-                        arena.killPlayer(player, nearest);
+                        gameArena.killPlayer(player, nearest);
                     }
                 }
             } else {
                 // usage cool down
-                SabotageCooldown sabotageCooldown = arena.getSabotageCooldown();
+                SabotageCooldown sabotageCooldown = gameArena.getSabotageCooldown();
                 if (sabotageCooldown == null) {
                     return;
                 }
                 if (sabotageBase.isActive()) {
                     return;
                 }
-                if (arena.getMeetingStage() != MeetingStage.NO_MEETING){
+                if (gameArena.getMeetingStage() != MeetingStage.NO_MEETING){
                     return;
                 }
-                if (arena.getGameState() != GameState.IN_GAME){
+                if (gameArena.getGameState() != GameState.IN_GAME){
                     return;
                 }
                 if (sabotageCooldown.isPaused()) {
@@ -325,10 +325,10 @@ public class CommandItemsManager {
                                 } catch (Exception ignored) {
                                     break;
                                 }
-                                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-                                if (arena != null) {
+                                GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+                                if (gameArena != null) {
                                     PlayerCoolDown cooldown = PlayerCoolDown.getOrCreatePlayerData(player);
-                                    cooldown.updateCoolDown("kill", arena.getLiveSettings().getKillCooldown().getMinValue());
+                                    cooldown.updateCoolDown("kill", gameArena.getLiveSettings().getKillCooldown().getMinValue());
                                     player.setCooldown(material, cooldown.getCoolDown("kill") * 20);
                                 }
                             }

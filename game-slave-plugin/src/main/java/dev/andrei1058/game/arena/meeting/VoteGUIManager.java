@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.meeting;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.arena.command.VoteCmd;
 import dev.andrei1058.game.common.CommonManager;
@@ -43,10 +43,10 @@ public class VoteGUIManager {
      * Open a GUI to a player.
      *
      * @param player player receiver.
-     * @param arena  player's arena.
+     * @param gameArena  player's arena.
      */
-    public static void openToPlayer(@NotNull Player player, @NotNull Arena arena) {
-        String guiName = ArenaManager.getINSTANCE().getTemplate(arena.getTemplateWorld(), true).getProperty(ArenaConfig.EXCLUSION_LAYOUT);
+    public static void openToPlayer(@NotNull Player player, @NotNull GameArena gameArena) {
+        String guiName = ArenaManager.getINSTANCE().getTemplate(gameArena.getTemplateWorld(), true).getProperty(ArenaConfig.EXCLUSION_LAYOUT);
         if (!getInstance().hasExclusionGUI(guiName)){
             guiName = "main";
         }
@@ -54,7 +54,7 @@ public class VoteGUIManager {
         String finalGuiName = guiName;
         Bukkit.getScheduler().runTaskAsynchronously(CommonManager.getINSTANCE().getPlugin(), () -> {
             List<String> pattern = getInstance().getConfig().getList(finalGuiName + "." + VoteLayoutConfig.VOTE_GENERIC_PATTERN_PATH);
-            ExclusionGUI gui = new ExclusionGUI(finalGuiName, pattern, player, LanguageManager.getINSTANCE().getLocale(player), arena);
+            ExclusionGUI gui = new ExclusionGUI(finalGuiName, pattern, player, LanguageManager.getINSTANCE().getLocale(player), gameArena);
             // open sync
             Bukkit.getScheduler().runTask(CommonManager.getINSTANCE().getPlugin(), () -> gui.open(player));
         });

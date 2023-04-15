@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.gametask.fuelengines;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
@@ -222,7 +222,7 @@ public class FuelEnginesTaskProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable GameTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (configuration.isJsonNull()) return null;
         if (!configuration.has("candidates")) return null;
         if (!configuration.get("candidates").isJsonArray()) {
@@ -243,14 +243,14 @@ public class FuelEnginesTaskProvider extends TaskProvider {
                 if (storageElement.isJsonNull()) continue;
                 storage = convertor.convert(storageElement.getAsString(), null);
                 if (storage != null) {
-                    storage.setWorld(arena.getWorld());
+                    storage.setWorld(gameArena.getWorld());
                 }
             }
             if (candidate.has("engine")) {
                 JsonElement engineElement = candidate.get("engine");
                 engine = convertor.convert(engineElement.getAsString(), null);
                 if (engine != null) {
-                    engine.setWorld(arena.getWorld());
+                    engine.setWorld(gameArena.getWorld());
                 }
 
             }
@@ -260,6 +260,6 @@ public class FuelEnginesTaskProvider extends TaskProvider {
             }
         }
         if (taskCandidates.isEmpty()) return null;
-        return new FuelEnginesTask(localName, taskCandidates, arena);
+        return new FuelEnginesTask(localName, taskCandidates, gameArena);
     }
 }

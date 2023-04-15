@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.meeting;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.PlayerColorAssigner;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Locale;
@@ -30,11 +30,11 @@ public class ExclusionGUI extends BaseGUI {
     private static final String NBT_EXCLUSION_TARGET_UUID = "autt-1058-ex";
     private final LinkedHashMap<Integer, RefreshableSlotHolder> playerSlots = new LinkedHashMap<>();
 
-    public ExclusionGUI(String guiName, List<String> pattern, Player player, Locale lang, Arena arena) {
+    public ExclusionGUI(String guiName, List<String> pattern, Player player, Locale lang, GameArena gameArena) {
         super(pattern, lang, new ExclusionHolder(), (lang.hasPath(Message.EXCLUSION_GUI_NAME + "-" + guiName) ?
                 lang.getMsg(player, Message.EXCLUSION_GUI_NAME + "-" + guiName) : lang.getMsg(player, Message.EXCLUSION_GUI_NAME))
                 .replace("{spectator}", player.getDisplayName()).replace("{spectator_raw}", player.getName())
-                .replace("{time}", String.valueOf(arena.getCountdown())));
+                .replace("{time}", String.valueOf(gameArena.getCountdown())));
 
         // load content
         YamlConfiguration yml = VoteGUIManager.getInstance().getConfig().getYml();
@@ -52,7 +52,7 @@ public class ExclusionGUI extends BaseGUI {
 
                 slots.forEach(slot -> {
                     final int currentPlayerFinal = ++currentPlayer[0];
-                    RefreshableSlotHolder itemHolder = (slot1, lang12, filter) -> getItemStack(yml, path, arena, replacementString, currentPlayerFinal, player, guiName);
+                    RefreshableSlotHolder itemHolder = (slot1, lang12, filter) -> getItemStack(yml, path, gameArena, replacementString, currentPlayerFinal, player, guiName);
                     ItemStack itemStack = itemHolder.getSlotItem(slot, lang, null);
                     if (itemStack != null && itemStack.getType() != Material.AIR) {
                         playerSlots.put(slot, itemHolder);
@@ -60,17 +60,17 @@ public class ExclusionGUI extends BaseGUI {
                     this.getInventory().setItem(slot, itemStack);
                 });
             } else {
-                withReplacement(replacementString.charAt(0), (slot, lang1, filter) -> getItemStack(yml, path, arena, replacementString, 0, player, guiName));
+                withReplacement(replacementString.charAt(0), (slot, lang1, filter) -> getItemStack(yml, path, gameArena, replacementString, 0, player, guiName));
             }
         }
     }
 
-    private ItemStack getItemStack(YamlConfiguration yml, String path, Arena arena, String replacementString, int currentPlayer, Player player, String guiName) {
+    private ItemStack getItemStack(YamlConfiguration yml, String path, GameArena gameArena, String replacementString, int currentPlayer, Player player, String guiName) {
         Player targetPlayer = null;
         PlayerColorAssigner.PlayerColor playerColor = null;
 
-        List<Player> filteredPlayers = arena.getPlayers().stream().filter(pl -> {
-            Team team = arena.getPlayerTeam(pl);
+        List<Player> filteredPlayers = gameArena.getPlayers().stream().filter(pl -> {
+            Team team = gameArena.getPlayerTeam(pl);
             if (team == null) return false;
             return team.canBeVoted();
         }).collect(Collectors.toList());
@@ -79,8 +79,8 @@ public class ExclusionGUI extends BaseGUI {
         if (yml.getBoolean(path + "." + replacementString + ".vote")) {
             if (filteredPlayers.size() > currentPlayer) {
                 targetPlayer = filteredPlayers.get(currentPlayer);
-                if (arena.getPlayerColorAssigner() != null) {
-                    playerColor = arena.getPlayerColorAssigner().getPlayerColor(targetPlayer);
+                if (gameArena.getPlayerColorAssigner() != null) {
+                    playerColor = gameArena.getPlayerColorAssigner().getPlayerColor(targetPlayer);
                 }
             } else {
                 return new ItemStack(Material.AIR);
@@ -124,7 +124,7 @@ public class ExclusionGUI extends BaseGUI {
         }
         ItemStack item = playerColor == null ? ItemUtil.createItem(yml.getString(path + "." + replacementString + ".item.material"),
                 (byte) yml.getInt(path + "." + replacementString + ".item.data"), yml.getInt(path + "." + replacementString + ".item.amount"),
-                yml.getBoolean(path + "." + replacementString + ".item.enchanted"), tags) : playerColor.getPlayerHead(targetPlayer, arena);
+                yml.getBoolean(path + "." + replacementString + ".item.enchanted"), tags) : playerColor.getPlayerHead(targetPlayer, gameArena);
 
         if (playerColor != null) {
             for (int i = 0; i < tags.size(); i += 2) {
@@ -151,17 +151,17 @@ public class ExclusionGUI extends BaseGUI {
 
             // if target item
             if (targetPlayer != null) {
-                displayName = displayName.replace("{target}", targetPlayer.getDisplayName()).replace("{target_raw}", targetPlayer.getName()).replace("{target_uuid}", targetPlayer.getUniqueId().toString()).replace("{time}", String.valueOf(arena.getCountdown()));
+                displayName = displayName.replace("{target}", targetPlayer.getDisplayName()).replace("{target_raw}", targetPlayer.getName()).replace("{target_uuid}", targetPlayer.getUniqueId().toString()).replace("{time}", String.valueOf(gameArena.getCountdown()));
             }
             meta.setDisplayName(displayName);
 
             if (targetPlayer == null) {
                 meta.setLore(getLang().getMsgList(player, lorePath, new String[]{"{player}", player.getDisplayName(), "{player_raw}", player.getName(), "{player_uuid}", player.getUniqueId().toString(),
-                        "{time}", String.valueOf(arena.getCountdown())}));
+                        "{time}", String.valueOf(gameArena.getCountdown())}));
             } else {
                 meta.setLore(getLang().getMsgList(targetPlayer, lorePath, new String[]{"{player}", player.getDisplayName(), "{player_raw}", player.getName(), "{player_uuid}", player.getUniqueId().toString(),
-                        "{target}", targetPlayer.getDisplayName(), "{target_raw}", targetPlayer.getName(), "{target_uuid}", targetPlayer.getUniqueId().toString(), "{time}", String.valueOf(arena.getCountdown()),
-                        "{status}", getStatusReplacement(LanguageManager.getINSTANCE().getLocale(player), player, targetPlayer, arena)}));
+                        "{target}", targetPlayer.getDisplayName(), "{target_raw}", targetPlayer.getName(), "{target_uuid}", targetPlayer.getUniqueId().toString(), "{time}", String.valueOf(gameArena.getCountdown()),
+                        "{status}", getStatusReplacement(LanguageManager.getINSTANCE().getLocale(player), player, targetPlayer, gameArena)}));
             }
 
             item.setItemMeta(meta);
@@ -169,15 +169,15 @@ public class ExclusionGUI extends BaseGUI {
         return item;
     }
 
-    private static String getStatusReplacement(Locale playerLocale, Player guiHolder, Player target, Arena arena) {
+    private static String getStatusReplacement(Locale playerLocale, Player guiHolder, Player target, GameArena gameArena) {
         if (target.isOnline()) {
             StringBuilder result = new StringBuilder("\n");
-            if (arena.getMeetingButton() != null) {
-                if (arena.getMeetingButton().isLastRequester(target)) {
+            if (gameArena.getMeetingButton() != null) {
+                if (gameArena.getMeetingButton().isLastRequester(target)) {
                     result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_REQUESTER)).append("\n");
                 }
-                if (arena.getCurrentVoting() != null && !arena.getLiveSettings().isAnonymousVotes()) {
-                    Set<Player> votes = arena.getCurrentVoting().getVotes(target, arena);
+                if (gameArena.getCurrentVoting() != null && !gameArena.getLiveSettings().isAnonymousVotes()) {
+                    Set<Player> votes = gameArena.getCurrentVoting().getVotes(target, gameArena);
                     if (!votes.isEmpty()) {
                         result.append(playerLocale.getMsg(guiHolder, Message.EXCLUSION_GUI_STATUS_VOTERS)).append("\n");
                         for (Player player : votes) {
@@ -230,11 +230,11 @@ public class ExclusionGUI extends BaseGUI {
             }
             tag = CommonManager.getINSTANCE().getItemSupport().getTag(itemStack, NBT_EXCLUSION_TARGET_UUID);
             if (tag != null && !tag.isEmpty()) {
-                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-                if (arena != null) {
-                    if (arena.getCurrentVoting() == null) return;
+                GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+                if (gameArena != null) {
+                    if (gameArena.getCurrentVoting() == null) return;
 
-                    Team playerTeam = arena.getPlayerTeam(player);
+                    Team playerTeam = gameArena.getPlayerTeam(player);
                     if (playerTeam == null) return;
                     UUID targetUUID;
                     try {
@@ -246,12 +246,12 @@ public class ExclusionGUI extends BaseGUI {
                     if (target == null) {
                         return;
                     }
-                    Arena targetArena = ArenaManager.getINSTANCE().getArenaByPlayer(target);
+                    GameArena targetGameArena = ArenaManager.getINSTANCE().getArenaByPlayer(target);
                     // in case player stayed with open GUI a long time and target left
-                    if (targetArena == null || !targetArena.equals(arena)) {
+                    if (targetGameArena == null || !targetGameArena.equals(gameArena)) {
                         return;
                     }
-                    if (arena.getCurrentVoting().addVote(target, player, arena)) {
+                    if (gameArena.getCurrentVoting().addVote(target, player, gameArena)) {
                         player.closeInventory();
                     }
                 }

@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.prevention.abandon;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.entity.Player;
 
 public interface AbandonCondition {
@@ -18,7 +18,7 @@ public interface AbandonCondition {
      *
      * @return true if abandon condition is satisfied.
      */
-    boolean getOutcome(Player player, Arena arena);
+    boolean getOutcome(Player player, GameArena gameArena);
 
     /**
      * Called when fetching data from config file.

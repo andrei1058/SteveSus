@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
@@ -207,14 +207,14 @@ public class UnlockManifoldsProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable GameTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (!validateElements(configuration, "location")) {
             return null;
         }
         String loc = configuration.get("location").getAsString();
         Location location = new OrphanLocationProperty().convert(loc, null);
         if (location == null) return null;
-        location.setWorld(arena.getWorld());
-        return new UnlockManifoldsTask(localName, arena, location);
+        location.setWorld(gameArena.getWorld());
+        return new UnlockManifoldsTask(localName, gameArena, location);
     }
 }

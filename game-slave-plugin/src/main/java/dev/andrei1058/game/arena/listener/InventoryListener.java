@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.listener;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.arena.ArenaManager;
 import org.bukkit.entity.Player;
@@ -23,10 +23,10 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event){
         final Player player = (Player) event.getPlayer();
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-        if (arena == null) return;
-        for (GameListener listener : arena.getGameListeners()){
-            listener.onInventoryClose(arena, player, event.getInventory());
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+        if (gameArena == null) return;
+        for (GameListener listener : gameArena.getGameListeners()){
+            listener.onInventoryClose(gameArena, player, event.getInventory());
         }
     }
 }

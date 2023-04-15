@@ -5,7 +5,7 @@ import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.HologramClickListener;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Message;
 import org.bukkit.Location;
@@ -27,15 +27,15 @@ public class SecurityMonitor {
 
         if (clickListener == null){
             clickListener = (player, lineClickType) -> {
-                Arena arena = SteveSusAPI.getInstance().getArenaHandler().getArenaByPlayer(player);
-                if (arena == null) return;
-                if (arena.getCamHandler() == null) return;
-                if (arena.getCamHandler().getCams().isEmpty()) return;
-                if (arena.isSpectator(player)) return;
-                Team playerTeam = arena.getPlayerTeam(player);
+                GameArena gameArena = SteveSusAPI.getInstance().getArenaHandler().getArenaByPlayer(player);
+                if (gameArena == null) return;
+                if (gameArena.getCamHandler() == null) return;
+                if (gameArena.getCamHandler().getCams().isEmpty()) return;
+                if (gameArena.isSpectator(player)) return;
+                Team playerTeam = gameArena.getPlayerTeam(player);
                 if (playerTeam == null) return;
                 if (playerTeam.getIdentifier().endsWith("-ghost")) return;
-                arena.getCamHandler().startWatching(player, arena, arena.getCamHandler().getCams().get(0));
+                gameArena.getCamHandler().startWatching(player, gameArena, gameArena.getCamHandler().getCams().get(0));
             };
         }
 

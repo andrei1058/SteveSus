@@ -1,7 +1,7 @@
 package dev.andrei1058.game.server.bungee;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -40,20 +40,20 @@ public class JoinQuitListenerBungee implements Listener {
             // If is logging in trough BedWarsProxy
             Locale playerLang = proxyUser.getLanguage() == null ? LanguageManager.getINSTANCE().getDefaultLocale() : proxyUser.getLanguage();
 
-            Arena arena = ArenaManager.getINSTANCE().getArenaById(proxyUser.getArenaId());
+            GameArena gameArena = ArenaManager.getINSTANCE().getArenaById(proxyUser.getArenaId());
             // check if arena is not available, time out etc.
-            if (arena == null || proxyUser.isTimedOut() || arena.getGameState() == GameState.ENDING) {
+            if (gameArena == null || proxyUser.isTimedOut() || gameArena.getGameState() == GameState.ENDING) {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, playerLang.getMsg(e.getPlayer(), CommonMessage.ARENA_STATUS_ENDING_NAME));
                 proxyUser.destroy("Time out or game unavailable at PlayerLoginEvent");
                 return;
             }
 
             // Player logic
-            if (arena.getGameState() == GameState.STARTING || arena.getGameState() == GameState.WAITING) {
+            if (gameArena.getGameState() == GameState.STARTING || gameArena.getGameState() == GameState.WAITING) {
                 // Vip join/ kick feature
-                if (arena.isFull() && ArenaManager.getINSTANCE().hasVipJoin(p)) {
+                if (gameArena.isFull() && ArenaManager.getINSTANCE().hasVipJoin(p)) {
                     boolean canJoin = false;
-                    for (Player inGame : arena.getPlayers()) {
+                    for (Player inGame : gameArena.getPlayers()) {
                         if (!ArenaManager.getINSTANCE().hasVipJoin(inGame)) {
                             canJoin = true;
                             inGame.kickPlayer(LanguageManager.getINSTANCE().getMsg(inGame, Message.VIP_JOIN_KICKED));
@@ -64,9 +64,9 @@ public class JoinQuitListenerBungee implements Listener {
                         e.disallow(PlayerLoginEvent.Result.KICK_FULL, playerLang.getMsg(e.getPlayer(), Message.VIP_JOIN_DENIED));
                     }
                 }
-            } else if (arena.getGameState() == GameState.IN_GAME) {
+            } else if (gameArena.getGameState() == GameState.IN_GAME) {
                 // Spectator logic
-                if (!(!arena.getSpectatePermission().isEmpty() && p.hasPermission(arena.getSpectatePermission()))) {
+                if (!(!gameArena.getSpectatePermission().isEmpty() && p.hasPermission(gameArena.getSpectatePermission()))) {
                     e.disallow(PlayerLoginEvent.Result.KICK_OTHER, playerLang.getMsg(e.getPlayer(), CommonMessage.ARENA_JOIN_DENIED_SPECTATOR));
                 }
             }
@@ -108,10 +108,10 @@ public class JoinQuitListenerBungee implements Listener {
             Locale playerLang = proxyUser.getLanguage() == null ? LanguageManager.getINSTANCE().getDefaultLocale() : proxyUser.getLanguage();
 
             // There's nothing to re-join, so he might want to join an arena
-            Arena arena = ArenaManager.getINSTANCE().getArenaById(proxyUser.getArenaId());
+            GameArena gameArena = ArenaManager.getINSTANCE().getArenaById(proxyUser.getArenaId());
 
             // Check if the arena is still available or request time-out etc.
-            if (arena == null || proxyUser.isTimedOut() || arena.getGameState() == GameState.ENDING) {
+            if (gameArena == null || proxyUser.isTimedOut() || gameArena.getGameState() == GameState.ENDING) {
                 p.kickPlayer(playerLang.getMsg(p, CommonMessage.ARENA_STATUS_ENDING_NAME));
                 proxyUser.destroy("Time out or game unavailable at PlayerLoginEvent");
                 return;
@@ -122,7 +122,7 @@ public class JoinQuitListenerBungee implements Listener {
             JoinCommonListener.displayCustomerDetails(p);
 
             // Join as player
-            if (arena.getGameState() == GameState.STARTING || arena.getGameState() == GameState.WAITING) {
+            if (gameArena.getGameState() == GameState.STARTING || gameArena.getGameState() == GameState.WAITING) {
                 //todo add sounds
                 //Sounds.playSound("join-allowed", p);
 
@@ -166,7 +166,7 @@ public class JoinQuitListenerBungee implements Listener {
                         }
                     }
                 }
-                arena.addPlayer(p, true);
+                gameArena.addPlayer(p, true);
             } else {
                 // Join as spectator
                 Location spectatorTarget = null;
@@ -176,7 +176,7 @@ public class JoinQuitListenerBungee implements Listener {
                         spectatorTarget = targetPlayer.getLocation();
                     }
                 }
-                if (!arena.addSpectator(p, spectatorTarget)) {
+                if (!gameArena.addSpectator(p, spectatorTarget)) {
                     p.kickPlayer(LanguageManager.getINSTANCE().getMsg(p, CommonMessage.ARENA_JOIN_DENIED_SPECTATOR));
                 }
             }

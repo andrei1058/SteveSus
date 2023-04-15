@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.team;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
@@ -19,11 +19,11 @@ public class GhostImpostorTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
     private boolean canVote = false;
-    private final Arena arena;
+    private final GameArena gameArena;
     private int teamSize;
 
-    public GhostImpostorTeam(Arena arena) {
-        this.arena = arena;
+    public GhostImpostorTeam(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
     @Override
@@ -99,8 +99,8 @@ public class GhostImpostorTeam implements Team {
     }
 
     @Override
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.securitycamera;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -29,46 +29,46 @@ public class SecurityListener implements GameListener, Listener {
     }
 
     @Override
-    public void onPlayerLeave(Arena arena, Player player, boolean spectator) {
-        if (arena.getCamHandler() != null){
-            arena.getCamHandler().stopWatching(player, arena);
+    public void onPlayerLeave(GameArena gameArena, Player player, boolean spectator) {
+        if (gameArena.getCamHandler() != null){
+            gameArena.getCamHandler().stopWatching(player, gameArena);
         }
     }
 
     @Override
-    public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
-        if (arena.getCamHandler() != null){
-            List<UUID> players = arena.getCamHandler().getPlayersOnCams();
+    public void onMeetingStageChange(GameArena gameArena, MeetingStage oldStage, MeetingStage newStage) {
+        if (gameArena.getCamHandler() != null){
+            List<UUID> players = gameArena.getCamHandler().getPlayersOnCams();
             if (players.isEmpty()) return;
 
             for (UUID player : players){
                 Player onCam = Bukkit.getPlayer(player);
                 if (onCam != null){
-                    arena.getCamHandler().stopWatching(onCam, arena);
+                    gameArena.getCamHandler().stopWatching(onCam, gameArena);
                 }
             }
         }
     }
 
     @Override
-    public void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
-        if (arena.getCamHandler() == null) return;
-        if (arena.getCamHandler().isOnCam(player, arena)){
-            arena.getCamHandler().stopWatching(player, arena);
+    public void onPlayerToggleSneakEvent(GameArena gameArena, Player player, boolean isSneaking) {
+        if (gameArena.getCamHandler() == null) return;
+        if (gameArena.getCamHandler().isOnCam(player, gameArena)){
+            gameArena.getCamHandler().stopWatching(player, gameArena);
         }
     }
 
     @Override
-    public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
+    public void onGameStateChange(GameArena gameArena, GameState oldState, GameState newState) {
         if (newState == GameState.ENDING){
-            if (arena.getCamHandler() != null){
-                List<UUID> players = arena.getCamHandler().getPlayersOnCams();
+            if (gameArena.getCamHandler() != null){
+                List<UUID> players = gameArena.getCamHandler().getPlayersOnCams();
                 if (players.isEmpty()) return;
 
                 for (UUID player : players){
                     Player onCam = Bukkit.getPlayer(player);
                     if (onCam != null){
-                        arena.getCamHandler().stopWatching(onCam, arena);
+                        gameArena.getCamHandler().stopWatching(onCam, gameArena);
                     }
                 }
             }
@@ -76,25 +76,25 @@ public class SecurityListener implements GameListener, Listener {
     }
 
     @Override
-    public void onPlayerToggleFly(Arena arena, Player player, boolean isFlying) {
+    public void onPlayerToggleFly(GameArena gameArena, Player player, boolean isFlying) {
         if (isFlying) return;
-        if (arena.getCamHandler() == null) return;
-        if (arena.getCamHandler().isOnCam(player, arena)){
+        if (gameArena.getCamHandler() == null) return;
+        if (gameArena.getCamHandler().isOnCam(player, gameArena)){
             player.setFlying(true);
         }
     }
 
     @EventHandler
     public void onItemSwap(PlayerItemHeldEvent event){
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
-        if (arena == null) return;
-        if (arena.getCamHandler() == null) return;
-        if (arena.getCamHandler().isOnCam(event.getPlayer(), arena)){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
+        if (gameArena == null) return;
+        if (gameArena.getCamHandler() == null) return;
+        if (gameArena.getCamHandler().isOnCam(event.getPlayer(), gameArena)){
             event.setCancelled(true);
             if (event.getNewSlot() > 4){
-                arena.getCamHandler().nextCam(event.getPlayer(), arena);
+                gameArena.getCamHandler().nextCam(event.getPlayer(), gameArena);
             } else if (event.getNewSlot() < 4){
-                arena.getCamHandler().previousCam(event.getPlayer(), arena);
+                gameArena.getCamHandler().previousCam(event.getPlayer(), gameArena);
             }
         }
     }

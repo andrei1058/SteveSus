@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.common.api.arena.GameState;
@@ -33,7 +33,7 @@ public class MeetingButton {
     private int currentEntry = -1;
     private UUID lastRequester;
 
-    public MeetingButton(Plugin plugin, Location location, Arena arena) {
+    public MeetingButton(Plugin plugin, Location location, GameArena gameArena) {
         location.setX(location.getBlockX() + 0.5);
         location.setZ(location.getBlockZ() + 0.5);
         ArmorStand buttonKeeper = location.getWorld().spawn(location.clone().subtract(0, 1.5, 0), ArmorStand.class);
@@ -42,20 +42,20 @@ public class MeetingButton {
         buttonKeeper.setGravity(false);
         ItemStack meetingHead = ItemUtil.createSkullWithSkin("https://textures.minecraft.net/texture/c73fb2a28f3b665486412db7b66cdb7fc5c7d33d74e850b94722dd3d14aaa", "Emergency Meeting");
         buttonKeeper.setHelmet(meetingHead);
-        buttonKeeper.setMetadata(MEETING_BUTTON_META_DATA_KEY, new FixedMetadataValue(plugin, arena.getGameId()));
+        buttonKeeper.setMetadata(MEETING_BUTTON_META_DATA_KEY, new FixedMetadataValue(plugin, gameArena.getGameId()));
 
         buttonHologram = new Hologram(location.clone().add(0, 1.5, 0), 3);
         HologramPage page = buttonHologram.getPage(0);
         assert page != null;
         page.setLineContent(0, new LineTextContent(s -> SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_HOLO1)));
-        page.setLineContent(1, new LineTextContent(s -> arena.getMeetingStage() == MeetingStage.NO_MEETING ? SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_HOLO2) : " "));
+        page.setLineContent(1, new LineTextContent(s -> gameArena.getMeetingStage() == MeetingStage.NO_MEETING ? SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_HOLO2) : " "));
         page.setLineContent(2, new LineTextContent(s -> {
-            if (arena.getMeetingStage() == MeetingStage.TALKING) {
-                return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_VOTING_STARTS_IN).replace("{time}", String.valueOf(arena.getCountdown()));
-            } else if (arena.getMeetingStage() == MeetingStage.VOTING) {
-                return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN).replace("{time}", String.valueOf(arena.getCountdown()));
+            if (gameArena.getMeetingStage() == MeetingStage.TALKING) {
+                return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_VOTING_STARTS_IN).replace("{time}", String.valueOf(gameArena.getCountdown()));
+            } else if (gameArena.getMeetingStage() == MeetingStage.VOTING) {
+                return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN).replace("{time}", String.valueOf(gameArena.getCountdown()));
             }
-            return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT).replace("{amount}", String.valueOf(arena.getMeetingsLeft(s)));
+            return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT).replace("{amount}", String.valueOf(gameArena.getMeetingsLeft(s)));
         }));
 
         this.particleLocations = getCircle(location.clone().add(0, 0.3, 0), 0.6, 15);
@@ -65,9 +65,9 @@ public class MeetingButton {
     /**
      * Refresh lines during meetings.
      */
-    public void refreshLines(Arena arena) {
+    public void refreshLines(GameArena gameArena) {
         if (buttonHologram != null) {
-            arena.getPlayers().forEach(buttonHologram::refreshLines);
+            gameArena.getPlayers().forEach(buttonHologram::refreshLines);
         }
         for (int i = 0; i < 5; i++) {
             Location loc = particleLocations.get(particleLocations.size() == ++currentEntry ? currentEntry = 0 : currentEntry);
@@ -83,10 +83,10 @@ public class MeetingButton {
     /**
      * Used when a player interacts with button holder entity.
      */
-    public void onClick(Player player, Arena arena) {
-        if (arena.getMeetingStage() != MeetingStage.NO_MEETING) return;
-        if (arena.getGameState() != GameState.IN_GAME) return;
-        Team playerTeam = arena.getPlayerTeam(player);
+    public void onClick(Player player, GameArena gameArena) {
+        if (gameArena.getMeetingStage() != MeetingStage.NO_MEETING) return;
+        if (gameArena.getGameState() != GameState.IN_GAME) return;
+        Team playerTeam = gameArena.getPlayerTeam(player);
         if (playerTeam == null) return;
         if (!playerTeam.canUseMeetingButton()) {
             return;
@@ -94,19 +94,19 @@ public class MeetingButton {
         // check cool down
         if (lastUsage != 0) {
             int delay = (int) ((System.currentTimeMillis() - lastUsage) / 1000L);
-            if (delay < arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue()) {
-                int seconds = arena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() - delay;
+            if (delay < gameArena.getLiveSettings().getEmergencyCoolDown().getCurrentValue()) {
+                int seconds = gameArena.getLiveSettings().getEmergencyCoolDown().getCurrentValue() - delay;
                 player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EMERGENCY_DENIED_COOL_DOWN).replace("{time}", String.valueOf(seconds + 1)));
                 return;
             }
         }
         // check usage limit per player
-        if (arena.getMeetingsLeft(player) == 0) {
+        if (gameArena.getMeetingsLeft(player) == 0) {
             player.sendMessage(SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.EMERGENCY_DENIED_NO_MEETINGS_LEFT));
             return;
         }
 
-        if (arena.startMeeting(player, null)) {
+        if (gameArena.startMeeting(player, null)) {
             lastRequester = player.getUniqueId();
         } else {
             return;

@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -9,25 +9,25 @@ public class GameRestartEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private int gameId;
-    private Arena arena;
+    private GameArena gameArena;
 
     /**
      * Triggered when a game is finished and marked as respawning.
      *
      * @param gameId game id.
-     * @param arena  arena.
+     * @param gameArena  arena.
      */
-    public GameRestartEvent(int gameId, Arena arena) {
+    public GameRestartEvent(int gameId, GameArena gameArena) {
         this.gameId = gameId;
-        this.arena = arena;
+        this.gameArena = gameArena;
     }
 
     public int getGameId() {
         return gameId;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

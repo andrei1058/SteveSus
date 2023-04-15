@@ -10,7 +10,7 @@ A murder mystery mini-game based on the famous and trending impostor game.
 ## How to disable a language  
 Each language file contains an option called 'enable' on the first line. Just set it to false. This option is ignored if the language is set as server's default language.
 
-## What's the multi-arena lobby protection coverage?  
+## What's the multi-gameArena lobby protection coverage?  
 List: blocks TNTs, blocks entity explosions, blocks entity spawn (only CUSTOM and SPAWNER_EGG spawn reason are allowed), disables block breacking and placing, disables block fading (ice melting etc.), disables fire interact, disables bucket fill and empty, disables breaking hanging entities (paintings etc.), disables entities from changing blocks (like players jumping on wheat), disables player food change level, disables pvp and other entity damage, blocks rain. 
 
 ## Available placeholders in stats GUIs  
@@ -29,12 +29,12 @@ List: blocks TNTs, blocks entity explosions, blocks entity spawn (only CUSTOM an
 - And if it is a teleporter item: {target} display name, {target_raw} raw name, {target_uuid} target uuid.
 
 
-## Placeholders that can be used in arena display item name and lore  
-- {name} arena display name, {template} arena template name, {status} game state, {on} current players (spectators excluded),
+## Placeholders that can be used in gameArena display item name and lore  
+- {name} gameArena display name, {template} gameArena template name, {status} game state, {on} current players (spectators excluded),
  {max} player limit, {spectating} among of players spectating, {game_tag}, {game_id}
  
 ## Placeholders that can be used in scoreboard
-- {name} arena display name, {template} arena template name, {status} game state, {on} current players (spectators excluded),
+- {name} gameArena display name, {template} gameArena template name, {status} game state, {on} current players (spectators excluded),
  {max} player limit, {spectating} among of players spectating, {game_tag}, {game_id}, {date}, {player}, {player_raw}, {server_name},
 {countdown} for countdown (available at starting/ ending).
   - {tasks_long}, {tasks_short}, {tasks_common}, {tasks_visual}
@@ -70,17 +70,17 @@ add code example and how to register active sessions
 
 # Custom configuration notes:  
 - If you want custom messages for a template add in language file:
-  - arena-display-item-waiting-name-[templateName]
-  - arena-display-item-waiting-lore-[templateName]
-  - arena-display-item-starting-name-[templateName]
-  - arena-display-item-starting-lore-[templateName]
-  - arena-display-item-playing-name-[templateName]
-  - arena-display-item-playing-lore-[templateName]
-  - arena-display-item--name-[templateName]
-  - arena-display-item-ending-lore-[templateName]
+  - gameArena-display-item-waiting-name-[templateName]
+  - gameArena-display-item-waiting-lore-[templateName]
+  - gameArena-display-item-starting-name-[templateName]
+  - gameArena-display-item-starting-lore-[templateName]
+  - gameArena-display-item-playing-name-[templateName]
+  - gameArena-display-item-playing-lore-[templateName]
+  - gameArena-display-item--name-[templateName]
+  - gameArena-display-item-ending-lore-[templateName]
   
  - Custom selector name:
-   - arena-selector-gui-name-[nameHere]
+   - gameArena-selector-gui-name-[nameHere]
    
  - Where to set selector replacement items name and lore?
    - selector-[selectorName]-replacement-[replacementCharacter]-name
@@ -111,7 +111,7 @@ add a new path in sounds file for a single second `count-down-tick-5: ENTITY_CHI
 
 ## Common placeholders PAPI
 
-player_count_global, spectator_count_global, online_count_global (Get amount of users playing or spectating from all arenas), arena_count_global, 
+player_count_global, spectator_count_global, online_count_global (Get amount of users playing or spectating from all gameArenas), arena_count_global, 
 player_count_game_TAG (will return 0 if not found), spectator_count_game_TAG (will return 0 if not found), user_count_game_TAG, game_state_TAG
  (translated in player's language)
  PLACEHOLDERS TO BE RE-DOCUMENTED

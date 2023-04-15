@@ -29,21 +29,21 @@ public class LiveSettings {
     private TaskMeterUpdatePolicy taskMeterUpdatePolicy = TaskMeterUpdatePolicy.ALWAYS;
     private boolean sprintAllowed = false;
     private IntegerRange sabotageCooldown = new IntegerRange(10, 45, 60);
-    private Arena arena;
+    private GameArena gameArena;
 
     /**
      * This is triggered when live settings is initialized by arena.
      */
-    public void init(Arena arena) {
-        this.arena = arena;
+    public void init(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
     /**
      * Null if settings were not initialized yet by the arena.
      */
     @Nullable
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     /**
@@ -72,7 +72,7 @@ public class LiveSettings {
      * <p>
      * Set meetings per player.
      * Can do that only if the game didn't start already.
-     * If you want to give a player more meetings use {@link Arena#setMeetingsLeft(Player, int)}.
+     * If you want to give a player more meetings use {@link GameArena#setMeetingsLeft(Player, int)}.
      */
     public IntegerRange getMeetingsPerPlayer() {
         return meetingsPerPlayer;

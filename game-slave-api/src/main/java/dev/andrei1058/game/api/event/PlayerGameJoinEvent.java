@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -12,7 +12,7 @@ public class PlayerGameJoinEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final Player player;
     private final boolean spectator;
     private boolean cancelled = false;
@@ -22,20 +22,20 @@ public class PlayerGameJoinEvent extends Event implements Cancellable {
      * You can cancel this event for example if you have a penalty system.
      * <p>
      * This event is triggered by the following methods:
-     * {@link Arena#addPlayer(Player, boolean)}, {@link Arena#joinPlayer(Player, boolean)}, {@link Arena#addSpectator(Player, Location)}, {@link Arena#joinSpectator(Player, String)}.
+     * {@link GameArena#addPlayer(Player, boolean)}, {@link GameArena#joinPlayer(Player, boolean)}, {@link GameArena#addSpectator(Player, Location)}, {@link GameArena#joinSpectator(Player, String)}.
      *
-     * @param arena     target arena.
+     * @param gameArena     target arena.
      * @param player    player.
      * @param spectator if joined as spectator.
      */
-    public PlayerGameJoinEvent(Arena arena, Player player, boolean spectator) {
-        this.arena = arena;
+    public PlayerGameJoinEvent(GameArena gameArena, Player player, boolean spectator) {
+        this.gameArena = gameArena;
         this.player = player;
         this.spectator = spectator;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     public Player getPlayer() {

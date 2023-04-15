@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.ability.vent;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.arena.vent.Vent;
@@ -27,23 +27,23 @@ public class VentListener implements GameListener {
     }
 
     @Override
-    public void onPlayerToggleSneakEvent(Arena arena, Player player, boolean isSneaking) {
-        if (arena.getVentHandler() == null) return;
+    public void onPlayerToggleSneakEvent(GameArena gameArena, Player player, boolean isSneaking) {
+        if (gameArena.getVentHandler() == null) return;
         if (isSneaking) {
-            if (arena.getVentHandler().isVenting(player)) {
-                Vent vent = arena.getVentHandler().unVent(player, SteveSus.getInstance());
+            if (gameArena.getVentHandler().isVenting(player)) {
+                Vent vent = gameArena.getVentHandler().unVent(player, SteveSus.getInstance());
                 if (vent != null) {
-                    Bukkit.getPluginManager().callEvent(new PlayerUnVentEvent(arena, player, vent));
-                    for (GameListener listener : arena.getGameListeners()) {
-                        listener.onPlayerUnVent(arena, player, vent);
+                    Bukkit.getPluginManager().callEvent(new PlayerUnVentEvent(gameArena, player, vent));
+                    for (GameListener listener : gameArena.getGameListeners()) {
+                        listener.onPlayerUnVent(gameArena, player, vent);
                     }
                 }
             } else {
-                Vent vent = arena.getVentHandler().startVenting(player, SteveSus.getInstance());
+                Vent vent = gameArena.getVentHandler().startVenting(player, SteveSus.getInstance());
                 if (vent != null) {
-                    Bukkit.getPluginManager().callEvent(new PlayerVentEvent(arena, player, vent));
-                    for (GameListener listener : arena.getGameListeners()) {
-                        listener.onPlayerVent(arena, player, vent);
+                    Bukkit.getPluginManager().callEvent(new PlayerVentEvent(gameArena, player, vent));
+                    for (GameListener listener : gameArena.getGameListeners()) {
+                        listener.onPlayerVent(gameArena, player, vent);
                     }
                 }
             }
@@ -51,49 +51,49 @@ public class VentListener implements GameListener {
     }
 
     @Override
-    public void onPlayerInteract(Arena arena, Player player, PlayerInteractEvent event, boolean hasItemInHand) {
+    public void onPlayerInteract(GameArena gameArena, Player player, PlayerInteractEvent event, boolean hasItemInHand) {
         if (!hasItemInHand) return;
-        if (arena.getVentHandler() == null) return;
+        if (gameArena.getVentHandler() == null) return;
         String tag = CommonManager.getINSTANCE().getItemSupport().getTag(event.getItem(), "nextVent");
         if (tag == null) return;
         event.setCancelled(true);
-        Vent vent = arena.getVentHandler().switchVent(player, tag);
+        Vent vent = gameArena.getVentHandler().switchVent(player, tag);
         if (vent != null) {
-            Bukkit.getPluginManager().callEvent(new PlayerSwitchVentEvent(arena, player, vent));
-            for (GameListener listener : arena.getGameListeners()) {
-                listener.onPlayerSwitchVent(arena, player, vent);
+            Bukkit.getPluginManager().callEvent(new PlayerSwitchVentEvent(gameArena, player, vent));
+            for (GameListener listener : gameArena.getGameListeners()) {
+                listener.onPlayerSwitchVent(gameArena, player, vent);
             }
         }
     }
 
     @Override
-    public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
-        if (arena.getVentHandler() == null) return;
+    public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
+        if (gameArena.getVentHandler() == null) return;
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() == Material.AIR) return;
         String tag = CommonManager.getINSTANCE().getItemSupport().getTag(item, "nextVent");
         if (tag == null) return;
-        Vent vent = arena.getVentHandler().switchVent(player, tag);
+        Vent vent = gameArena.getVentHandler().switchVent(player, tag);
         if (vent != null) {
-            Bukkit.getPluginManager().callEvent(new PlayerSwitchVentEvent(arena, player, vent));
-            for (GameListener listener : arena.getGameListeners()) {
-                listener.onPlayerSwitchVent(arena, player, vent);
+            Bukkit.getPluginManager().callEvent(new PlayerSwitchVentEvent(gameArena, player, vent));
+            for (GameListener listener : gameArena.getGameListeners()) {
+                listener.onPlayerSwitchVent(gameArena, player, vent);
             }
         }
     }
 
     @Override
-    public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
-        if (arena.getVentHandler() == null) return;
+    public void onGameStateChange(GameArena gameArena, GameState oldState, GameState newState) {
+        if (gameArena.getVentHandler() == null) return;
         if (newState == GameState.IN_GAME) {
-            for (Vent vent : arena.getVentHandler().getVents()) {
+            for (Vent vent : gameArena.getVentHandler().getVents()) {
                 vent.getHologram().show();
-                for (Team team : arena.getGameTeams()) {
+                for (Team team : gameArena.getGameTeams()) {
                     if (team.isInnocent()) {
                         team.getMembers().forEach(mem -> vent.getHologram().hide(mem));
                     }
                 }
-                for (Player spectator : arena.getSpectators()) {
+                for (Player spectator : gameArena.getSpectators()) {
                     vent.getHologram().hide(spectator);
                 }
             }
@@ -101,30 +101,30 @@ public class VentListener implements GameListener {
     }
 
     @Override
-    public void onPlayerJoin(Arena arena, Player player) {
-        if (arena.getVentHandler() == null) return;
-        if (arena.getGameState() == GameState.IN_GAME) {
-            for (Vent vent : arena.getVentHandler().getVents()) {
+    public void onPlayerJoin(GameArena gameArena, Player player) {
+        if (gameArena.getVentHandler() == null) return;
+        if (gameArena.getGameState() == GameState.IN_GAME) {
+            for (Vent vent : gameArena.getVentHandler().getVents()) {
                 vent.getHologram().hide(player);
             }
         }
     }
 
     @Override
-    public void onPlayerToSpectator(Arena arena, Player player) {
-        if (arena.getVentHandler() == null) return;
-        for (Vent vent : arena.getVentHandler().getVents()) {
+    public void onPlayerToSpectator(GameArena gameArena, Player player) {
+        if (gameArena.getVentHandler() == null) return;
+        for (Vent vent : gameArena.getVentHandler().getVents()) {
             vent.getHologram().hide(player);
         }
     }
 
     @Override
-    public void onPlayerMove(Arena arena, Player player, Location from, @Nullable Team playerTeam) {
-        if (arena.getVentHandler() == null) return;
-        if (arena.getGameState() != GameState.IN_GAME) return;
+    public void onPlayerMove(GameArena gameArena, Player player, Location from, @Nullable Team playerTeam) {
+        if (gameArena.getVentHandler() == null) return;
+        if (gameArena.getGameState() != GameState.IN_GAME) return;
         if (playerTeam == null) return;
         if (playerTeam.isInnocent()) return;
-        for (Vent vent : arena.getVentHandler().getVents()) {
+        for (Vent vent : gameArena.getVentHandler().getVents()) {
             int distance = (int) player.getLocation().distance(vent.getBlock().getLocation());
             if (vent.getHologram().isHiddenFor(player)) {
                 if (distance <= 7) {

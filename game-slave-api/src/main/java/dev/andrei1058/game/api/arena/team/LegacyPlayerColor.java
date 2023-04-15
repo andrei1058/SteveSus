@@ -1,7 +1,7 @@
 package dev.andrei1058.game.api.arena.team;
 
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
@@ -67,7 +67,7 @@ public enum LegacyPlayerColor implements PlayerColorAssigner.PlayerColor {
     }
 
     @Override
-    public void apply(Player player, Arena arena) {
+    public void apply(Player player, GameArena gameArena) {
         String displayName = SteveSusAPI.getInstance().getLocaleHandler().getDefaultLocale().getMsg(player, Message.COLOR_NAME_PATH_.toString() + getUniqueIdentifier());
         player.setDisplayName(displayName);
         //player.setPlayerListName(displayName);
@@ -91,7 +91,7 @@ public enum LegacyPlayerColor implements PlayerColorAssigner.PlayerColor {
     }
 
     @Override
-    public @NotNull ItemStack getPlayerHead(Player player, Arena arena) {
+    public @NotNull ItemStack getPlayerHead(Player player, GameArena gameArena) {
         return displayItem == null ? displayItem = ItemUtil.createSkullWithSkin(skin, getDefaultDisplayName()) : displayItem;
     }
 

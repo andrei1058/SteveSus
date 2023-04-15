@@ -2,7 +2,7 @@ package dev.andrei1058.game.worldmanager;
 
 import co.aikar.taskchain.TaskChain;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.setup.SetupSession;
 import dev.andrei1058.game.api.world.WorldAdapter;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -64,10 +64,10 @@ public class InternalWorldAdapter implements WorldAdapter {
     }
 
     @Override
-    public void onArenaEnableQueue(String worldToClone, Arena arena) {
+    public void onArenaEnableQueue(String worldToClone, GameArena gameArena) {
         TaskChain<?> chain = SteveSus.newChain();
 
-        String gameSessionWorld = worldToClone + ArenaManager.WORLD_NAME_SEPARATOR + arena.getGameId();
+        String gameSessionWorld = worldToClone + ArenaManager.WORLD_NAME_SEPARATOR + gameArena.getGameId();
         File worldTemplateFolder = new File(Bukkit.getWorldContainer(), worldToClone);
         File zipTemplate = new File(backupFolder, worldToClone + ".zip");
         File worldCloneFolder = new File(Bukkit.getWorldContainer(), gameSessionWorld);
@@ -137,7 +137,7 @@ public class InternalWorldAdapter implements WorldAdapter {
             });
         } else {
             // If the world is already loaded initialize the arena
-            arena.init(Bukkit.getWorld(worldToClone));
+            gameArena.init(Bukkit.getWorld(worldToClone));
             ArenaManager.getINSTANCE().removeFromEnableQueue(gameSessionWorld);
             chain.abortChain();
             nextInQueue();
@@ -148,15 +148,15 @@ public class InternalWorldAdapter implements WorldAdapter {
     }
 
     @Override
-    public void onArenaRestart(Arena arena) {
-        if (arena.getWorld() == null) return;
-        SteveSus.newChain().sync(() -> Bukkit.unloadWorld(arena.getWorld(), false)).execute();
+    public void onArenaRestart(GameArena gameArena) {
+        if (gameArena.getWorld() == null) return;
+        SteveSus.newChain().sync(() -> Bukkit.unloadWorld(gameArena.getWorld(), false)).execute();
     }
 
     @Override
-    public void onArenaDisable(Arena arena) {
-        if (arena.getWorld() == null) return;
-        SteveSus.newChain().sync(() -> Bukkit.unloadWorld(arena.getWorld(), false)).execute();
+    public void onArenaDisable(GameArena gameArena) {
+        if (gameArena.getWorld() == null) return;
+        SteveSus.newChain().sync(() -> Bukkit.unloadWorld(gameArena.getWorld(), false)).execute();
     }
 
     @Override

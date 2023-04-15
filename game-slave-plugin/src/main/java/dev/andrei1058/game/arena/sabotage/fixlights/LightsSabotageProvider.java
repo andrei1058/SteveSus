@@ -3,7 +3,7 @@ package dev.andrei1058.game.arena.sabotage.fixlights;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.sabotage.SabotageBase;
 import dev.andrei1058.game.api.arena.sabotage.SabotageProvider;
 import dev.andrei1058.game.api.glow.GlowColor;
@@ -94,8 +94,8 @@ public class LightsSabotageProvider extends SabotageProvider {
     }
 
     @Override
-    public @Nullable SabotageBase onArenaInit(Arena arena, JsonObject configuration) {
-        if (arena.hasLoadedSabotage(getUniqueIdentifier())) return null;
+    public @Nullable SabotageBase onArenaInit(GameArena gameArena, JsonObject configuration) {
+        if (gameArena.hasLoadedSabotage(getUniqueIdentifier())) return null;
         // check required data
         if (!(configuration.has("location"))) return null;
 
@@ -103,8 +103,8 @@ public class LightsSabotageProvider extends SabotageProvider {
         OrphanLocationProperty importer = new OrphanLocationProperty();
         Location loc = importer.convert(configuration.get("location").getAsString(), null);
         if (loc == null) return null;
-        loc.setWorld(arena.getWorld());
-        return new LightsSabotage(arena, loc);
+        loc.setWorld(gameArena.getWorld());
+        return new LightsSabotage(gameArena, loc);
     }
 
     @Override

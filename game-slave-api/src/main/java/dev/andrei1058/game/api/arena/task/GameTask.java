@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.arena.task;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
@@ -35,7 +35,7 @@ public abstract class GameTask {
      * Triggered on emergency meeting, player leave, player kill, INVENTORY CLOSE etc.
      * Check if given player has task assigned and was doing this task here.
      */
-    public abstract void onInterrupt(Player player, Arena arena);
+    public abstract void onInterrupt(Player player, GameArena gameArena);
 
     /**
      * Get player current stage.
@@ -65,7 +65,7 @@ public abstract class GameTask {
      * Use eventually when game starts.
      * Enable visual details for the given players. Yes, it will be triggered for multiple players.
      */
-    public abstract void assignToPlayer(Player player, Arena arena);
+    public abstract void assignToPlayer(Player player, GameArena gameArena);
 
     /**
      * Get list of players having this task.

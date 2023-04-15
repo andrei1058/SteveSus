@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -23,7 +23,7 @@ public class SpectatorFirstPersonEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final Player spectator;
     private final Player target;
     private final SpectateAction action;
@@ -33,22 +33,22 @@ public class SpectatorFirstPersonEvent extends Event implements Cancellable {
      * This is triggered when a player was eliminated and moved to spectators.
      * <p>
      * This event is triggered by the following methods:
-     * {@link Arena#switchToSpectator(Player)}.
+     * {@link GameArena#switchToSpectator(Player)}.
      *
-     * @param arena     target arena.
+     * @param gameArena     target arena.
      * @param spectator spectator.
      * @param target    target.
      * @param action    check if started or stopped spectating.
      */
-    public SpectatorFirstPersonEvent(Arena arena, Player spectator, Player target, SpectateAction action) {
-        this.arena = arena;
+    public SpectatorFirstPersonEvent(GameArena gameArena, Player spectator, Player target, SpectateAction action) {
+        this.gameArena = gameArena;
         this.spectator = spectator;
         this.target = target;
         this.action = action;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     public Player getSpectator() {

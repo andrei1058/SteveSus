@@ -31,7 +31,7 @@ public interface ArenaHandler {
      * @return null if not found.
      */
     @Nullable
-    Arena getArenaById(int id);
+    GameArena getArenaById(int id);
 
     /**
      * Load and start a new game from the given template.
@@ -45,31 +45,31 @@ public interface ArenaHandler {
     /**
      * Add an arena to the arenas list.
      * Do that only when your arena is ready to be used.
-     * If your arena needs to wait for worlds to be loaded use {@link #addToEnableQueue(Arena)}.
+     * If your arena needs to wait for worlds to be loaded use {@link #addToEnableQueue(GameArena)}.
      * Use this to register your custom arena to be accessible via gui, commands etc.
      * Internal arenas are added automatically if started by {@link #startArenaFromTemplate(String).}
      * Triggers {@link GameInitializedEvent}.
      *
-     * @param arena your arena.
+     * @param gameArena your arena.
      * @return true if added successfully.
      */
-    boolean addArena(Arena arena);
+    boolean addArena(GameArena gameArena);
 
     /**
      * Use this to add your arena to the enable queue.
      * Usually used when needs to wait the world to be loaded.
-     * This will automatically cal {@link #addArena(Arena)} when the world is loaded.
-     * This will trigger {@link WorldAdapter#onArenaEnableQueue(String, Arena)}
+     * This will automatically cal {@link #addArena(GameArena)} when the world is loaded.
+     * This will trigger {@link WorldAdapter#onArenaEnableQueue(String, GameArena)}
      *
-     * @param arena arena to be added to the enable queue.
+     * @param gameArena arena to be added to the enable queue.
      * @return true if successfully added to the queue.
      */
-    boolean addToEnableQueue(Arena arena);
+    boolean addToEnableQueue(GameArena gameArena);
 
     /**
      * Remove an arena from the enable queue.
      * This is automatically called at bukkit-world-load-event if you started
-     * your arena using {@link ArenaHandler#startArenaFromTemplate(String)} or if you used {@link ArenaHandler#addToEnableQueue(Arena)} before.
+     * your arena using {@link ArenaHandler#startArenaFromTemplate(String)} or if you used {@link ArenaHandler#addToEnableQueue(GameArena)} before.
      *
      * @param gameWorld arena associated to this world to be removed from the queue.
      */
@@ -81,15 +81,15 @@ public interface ArenaHandler {
      * @return arena.
      */
     @Nullable
-    Arena getFromEnableQueue(String gameWorld);
+    GameArena getFromEnableQueue(String gameWorld);
 
     /**
      * Remove an arena from the arenas list.
      * This must be used when the arena is disabled, restarted etc.
      *
-     * @param arena arena instance.
+     * @param gameArena arena instance.
      */
-    void removeArena(Arena arena);
+    void removeArena(GameArena gameArena);
 
     /**
      * Get directory where arena configuration is saved.
@@ -142,14 +142,14 @@ public interface ArenaHandler {
      *
      * @return unmodifiable arena list.
      */
-    List<Arena> getArenas();
+    List<GameArena> getArenas();
 
     /**
      * Get list of arena in enable queue.
      *
      * @return unmodifiable list of arenas in enable queue.
      */
-    List<Arena> getEnableQueue();
+    List<GameArena> getEnableQueue();
 
     /**
      * Get the arena where a user is playing or spectating.
@@ -158,7 +158,7 @@ public interface ArenaHandler {
      * @return arena or null if not found.
      */
     @Nullable
-    Arena getArenaByPlayer(Player player);
+    GameArena getArenaByPlayer(Player player);
 
     /**
      * Get the arena by world name.
@@ -167,17 +167,17 @@ public interface ArenaHandler {
      * @return arena or null if not found.
      */
     @Nullable
-    Arena getArenaByWorld(@NotNull String worldName);
+    GameArena getArenaByWorld(@NotNull String worldName);
 
     /**
      * It is very important to declare in which arena is the player.
-     * So if you're using custom {@link Arena} make sure to declare this when a player or spectator is added to your arena.
+     * So if you're using custom {@link GameArena} make sure to declare this when a player or spectator is added to your arena.
      * This will simply add the player to a hash map and nothing else, but keeping track of player's arena is trivial.
      *
      * @param player player to be declared.
-     * @param arena  target arena. Null if player is no longer in any arena.
+     * @param gameArena  target arena. Null if player is no longer in any arena.
      */
-    void setArenaByPlayer(Player player, @Nullable Arena arena);
+    void setArenaByPlayer(Player player, @Nullable GameArena gameArena);
 
     /**
      * Check an arena configuration.
@@ -190,10 +190,10 @@ public interface ArenaHandler {
     /**
      * Disable an arena.
      * Will remove it from the arenas list.
-     * Will trigger {@link WorldAdapter#onArenaDisable(Arena)}.
-     * Will trigger {@link Arena#disable()}.
+     * Will trigger {@link WorldAdapter#onArenaDisable(GameArena)}.
+     * Will trigger {@link GameArena#disable()}.
      */
-    void disableArena(Arena arena);
+    void disableArena(GameArena gameArena);
 
     /**
      * Get amount of users playing and spectating.

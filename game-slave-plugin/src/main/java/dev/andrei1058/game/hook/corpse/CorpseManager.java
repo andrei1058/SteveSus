@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.PlayerCorpse;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Message;
@@ -29,11 +29,11 @@ public class CorpseManager {
     private static boolean corpseReborn = false;
 
     @Nullable
-    public static PlayerCorpse spawnCorpse(Arena arena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
+    public static PlayerCorpse spawnCorpse(GameArena gameArena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
         if (!corpseReborn) {
             return null;
         }
-        return new CorpseRebornBody(arena, player, location, helmet, chestPlate, leggings, boots);
+        return new CorpseRebornBody(gameArena, player, location, helmet, chestPlate, leggings, boots);
     }
 
     public static class CorpseRebornBody implements PlayerCorpse {
@@ -43,7 +43,7 @@ public class CorpseManager {
         private final Hologram hologram;
         private final Region region;
 
-        public CorpseRebornBody(Arena arena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
+        public CorpseRebornBody(GameArena gameArena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
             owner = player;
             this.region = new CircleRegion(location, 3, false);
             data = CorpseAPI.spawnCorpse(player, location, new ItemStack[]{}, helmet, chestPlate, leggings, boots);
@@ -52,8 +52,8 @@ public class CorpseManager {
             assert page != null;
             page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.DEAD_BODY_HOLO_LINE1)));
             page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.DEAD_BODY_HOLO_LINE2)));
-            arena.getPlayers().forEach(inGame -> {
-                Team playerTeam = arena.getPlayerTeam(inGame);
+            gameArena.getPlayers().forEach(inGame -> {
+                Team playerTeam = gameArena.getPlayerTeam(inGame);
                 if (isInRange(inGame.getLocation()) && playerTeam.canReportBody()) {
                     hologram.show(inGame);
                 } else {

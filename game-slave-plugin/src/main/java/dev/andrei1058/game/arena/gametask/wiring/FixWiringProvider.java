@@ -1,7 +1,7 @@
 package dev.andrei1058.game.arena.gametask.wiring;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
 import dev.andrei1058.game.api.locale.Message;
@@ -364,7 +364,7 @@ public class FixWiringProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable FixWiringTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable FixWiringTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (!validateElements(configuration, "stages", "panels")) {
             return null;
         }
@@ -376,13 +376,13 @@ public class FixWiringProvider extends TaskProvider {
             if (validateElements(panelObject, "location", "wires", "flag")) {
                 Location location = new OrphanLocationProperty().convert(panelObject.get("location").getAsString(), null);
                 if (location != null) {
-                    WallPanel wallPanel = new WallPanel(arena, location.getBlockX(), location.getBlockY(), location.getBlockZ(), panelObject.get("wires").getAsInt(), FixWiringTask.PanelFlag.valueOf(panelObject.get("flag").getAsString().toUpperCase()));
+                    WallPanel wallPanel = new WallPanel(gameArena, location.getBlockX(), location.getBlockY(), location.getBlockZ(), panelObject.get("wires").getAsInt(), FixWiringTask.PanelFlag.valueOf(panelObject.get("flag").getAsString().toUpperCase()));
                     panelList.add(wallPanel);
                 }
             }
         });
         if (!panelList.isEmpty()) {
-            return new FixWiringTask(panelList, stages, localName, arena);
+            return new FixWiringTask(panelList, stages, localName, gameArena);
         }
         return null;
     }

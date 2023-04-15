@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.runnable;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.api.arena.room.GameRoom;
 import dev.andrei1058.game.api.arena.sabotage.SabotageBase;
@@ -16,14 +16,14 @@ import org.bukkit.entity.Player;
 
 public class ArenaTaskPlaying implements Runnable {
 
-    private final Arena arena;
+    private final GameArena gameArena;
 
-    public ArenaTaskPlaying(Arena arena) {
-        this.arena = arena;
+    public ArenaTaskPlaying(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override
@@ -66,8 +66,8 @@ public class ArenaTaskPlaying implements Runnable {
                 getArena().setCountdown(getArena().getCountdown() - 1);
                 if (getArena().getMeetingStage() == MeetingStage.VOTING){
                     if (getArena().getCountdown() <= 5){
-                        GameSound.VOTING_ENDS_TICK.playToPlayers(arena.getPlayers());
-                        GameSound.VOTING_ENDS_TICK.playToPlayers(arena.getSpectators());
+                        GameSound.VOTING_ENDS_TICK.playToPlayers(gameArena.getPlayers());
+                        GameSound.VOTING_ENDS_TICK.playToPlayers(gameArena.getSpectators());
                     }
                     getArena().getWorld().getPlayers().forEach(player -> {
                         if (player.getOpenInventory() != null){

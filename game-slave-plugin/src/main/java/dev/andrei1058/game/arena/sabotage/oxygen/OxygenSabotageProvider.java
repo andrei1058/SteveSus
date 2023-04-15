@@ -4,7 +4,7 @@ import com.andrei1058.spigot.commandlib.ICommandNode;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubRootCommand;
 import dev.andrei1058.game.api.SteveSusAPI;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.sabotage.SabotageBase;
 import dev.andrei1058.game.api.arena.sabotage.SabotageProvider;
 import dev.andrei1058.game.api.locale.LocaleManager;
@@ -155,8 +155,8 @@ public class OxygenSabotageProvider extends SabotageProvider {
     }
 
     @Override
-    public @Nullable SabotageBase onArenaInit(Arena arena, JsonObject configuration) {
-        if (arena.hasLoadedSabotage(getUniqueIdentifier())) return null;
+    public @Nullable SabotageBase onArenaInit(GameArena gameArena, JsonObject configuration) {
+        if (gameArena.hasLoadedSabotage(getUniqueIdentifier())) return null;
         // check required data
         if (!(configuration.has("locations") && configuration.has("deadLine"))) return null;
 
@@ -166,13 +166,13 @@ public class OxygenSabotageProvider extends SabotageProvider {
         for (JsonElement element : configuration.get("locations").getAsJsonArray()) {
             Location loc = importer.convert(element.getAsString(), null);
             if (loc != null) {
-                loc.setWorld(arena.getWorld());
+                loc.setWorld(gameArena.getWorld());
                 locationList.add(loc);
             }
         }
         if (locationList.isEmpty()) return null;
         int deadLine = configuration.get("deadLine").getAsInt();
-        return new OxygenSabotage(arena, deadLine, locationList);
+        return new OxygenSabotage(gameArena, deadLine, locationList);
     }
 
     @Override

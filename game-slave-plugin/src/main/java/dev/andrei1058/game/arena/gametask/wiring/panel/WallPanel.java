@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.arena.gametask.wiring.FixWiringProvider;
 import dev.andrei1058.game.arena.gametask.wiring.FixWiringTask;
@@ -34,13 +34,13 @@ public class WallPanel {
 
     private int assignments = 0;
 
-    public WallPanel(Arena arena, int x, int y, int z, int wiresAmount, FixWiringTask.PanelFlag flag) {
+    public WallPanel(GameArena gameArena, int x, int y, int z, int wiresAmount, FixWiringTask.PanelFlag flag) {
         this.wiresAmount = wiresAmount;
         this.flag = flag;
 
-        this.itemFrame = (ItemFrame) arena.getWorld().getNearbyEntities(new Location(arena.getWorld(), x, y, z), 1, 1, 1).stream().filter(entity -> entity instanceof ItemFrame).findFirst().orElse(null);
+        this.itemFrame = (ItemFrame) gameArena.getWorld().getNearbyEntities(new Location(gameArena.getWorld(), x, y, z), 1, 1, 1).stream().filter(entity -> entity instanceof ItemFrame).findFirst().orElse(null);
         if (this.itemFrame == null) {
-            SteveSus.getInstance().getLogger().warning("Item Frame needs to be placed at " + x + " " + y + " " + z + " on " + arena.getTemplateWorld() + " for Fix Wiring task!");
+            SteveSus.getInstance().getLogger().warning("Item Frame needs to be placed at " + x + " " + y + " " + z + " on " + gameArena.getTemplateWorld() + " for Fix Wiring task!");
             return;
         }
         this.itemFrame.setItem(null);
@@ -53,7 +53,7 @@ public class WallPanel {
 
             RenderedMap map = MapBuilder.create() // make a new builder
                     .addRenderers(catRenderer) // add the renderers to this map
-                    .world(arena.getWorld()) // set the world this map is bound to, e.g. the world of the target player
+                    .world(gameArena.getWorld()) // set the world this map is bound to, e.g. the world of the target player
                     .build(); // build the map
             ItemStack mapItem = map.createItemStack();
             this.itemFrame.setItem(mapItem);

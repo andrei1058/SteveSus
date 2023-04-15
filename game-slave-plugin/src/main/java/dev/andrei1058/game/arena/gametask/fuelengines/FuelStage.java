@@ -3,7 +3,7 @@ package dev.andrei1058.game.arena.gametask.fuelengines;
 import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.glow.GlowColor;
 import dev.andrei1058.game.api.glow.GlowingBox;
@@ -69,8 +69,8 @@ public class FuelStage {
         }
     }
 
-    public void onInteract(Player player, boolean halfDone, FuelEnginesTask task, Arena arena, Entity entity) {
-        if (!arena.isTasksAllowedATM()) return;
+    public void onInteract(Player player, boolean halfDone, FuelEnginesTask task, GameArena gameArena, Entity entity) {
+        if (!gameArena.isTasksAllowedATM()) return;
         if (!GlowingManager.isGlowing(entity, player)) {
             return;
         }
@@ -84,7 +84,7 @@ public class FuelStage {
             nextAllowed.put(player.getUniqueId(), System.currentTimeMillis() + 1000L);
         }
         Locale lang = LanguageManager.getINSTANCE().getLocale(player.getUniqueId());
-        StorageGUI gui = new StorageGUI(lang, task, arena);
+        StorageGUI gui = new StorageGUI(lang, task, gameArena);
         gui.open(player);
     }
 }

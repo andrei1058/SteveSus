@@ -1,7 +1,7 @@
 package dev.andrei1058.game.server.bungeelegacy;
 
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import dev.andrei1058.game.config.MainConfig;
 import dev.andrei1058.game.server.ServerManager;
@@ -22,14 +22,14 @@ public class BungeeLegacyRestartManager {
         return INSTANCE;
     }
 
-    public void performAction(Arena arena) {
+    public void performAction(GameArena gameArena) {
         boolean restartServer = gamesBeforeRestart > 0 || gamesBeforeRestart-- == 0;
         if (restartServer) {
             String restartCommand = ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.BUNGEE_LEGACY_RESTART_COMMAND);
             SteveSus.getInstance().getLogger().warning("Running restart command as console: " + restartCommand);
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), restartCommand);
         } else {
-            ArenaManager.getINSTANCE().startArenaFromTemplate(arena.getTemplateWorld());
+            ArenaManager.getINSTANCE().startArenaFromTemplate(gameArena.getTemplateWorld());
         }
     }
 }

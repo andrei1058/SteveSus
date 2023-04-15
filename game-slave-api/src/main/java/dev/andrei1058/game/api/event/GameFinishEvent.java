@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -12,16 +12,16 @@ public class GameFinishEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final LinkedList<Team> winners;
 
     /**
      * Triggered when a game is finished.
      *
-     * @param arena  arena.
+     * @param gameArena  arena.
      */
-    public GameFinishEvent(Arena arena, LinkedList<Team> winners) {
-        this.arena = arena;
+    public GameFinishEvent(GameArena gameArena, LinkedList<Team> winners) {
+        this.gameArena = gameArena;
         this.winners = winners;
     }
 
@@ -34,8 +34,8 @@ public class GameFinishEvent extends Event {
      *
      * @return arena.
      */
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

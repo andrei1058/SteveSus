@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.securitycamera;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.securitycamera.CamHandler;
 import dev.andrei1058.game.api.arena.securitycamera.SecurityCam;
 import dev.andrei1058.game.api.arena.securitycamera.SecurityMonitor;
@@ -28,20 +28,20 @@ public class CameraManager implements CamHandler {
     private final HashMap<UUID, InventoryBackup> inventories = new HashMap<>();
     private boolean sabotaged = false;
 
-    public CameraManager(List<SecurityCam> cameras, List<SecurityMonitor> monitors, Arena arena) {
+    public CameraManager(List<SecurityCam> cameras, List<SecurityMonitor> monitors, GameArena gameArena) {
         cams.addAll(cameras);
         this.monitors.addAll(monitors);
-        arena.registerGameListener(SecurityListener.getInstance());
+        gameArena.registerGameListener(SecurityListener.getInstance());
     }
 
     @Override
-    public boolean startWatching(Player player, Arena arena, SecurityCam cam) {
-        if (!arena.isPlayer(player)) return false;
-        Team team = arena.getPlayerTeam(player);
+    public boolean startWatching(Player player, GameArena gameArena, SecurityCam cam) {
+        if (!gameArena.isPlayer(player)) return false;
+        Team team = gameArena.getPlayerTeam(player);
         if (team == null) return false;
         if (team.getIdentifier().endsWith("-ghost")) return false;
         player.getInventory().setHeldItemSlot(4);
-        if (isOnCam(player, arena)) {
+        if (isOnCam(player, gameArena)) {
             SecurityCam previous = onCameras.remove(player.getUniqueId());
             if (previous != null) {
                 if (onCameras.values().stream().noneMatch(occurrence -> occurrence.equals(previous))) {
@@ -58,7 +58,7 @@ public class CameraManager implements CamHandler {
             player.setFlying(true);
             player.getInventory().clear();
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 2, false, false));
-            arena.setCantMove(player, true);
+            gameArena.setCantMove(player, true);
             CommandItemsManager.sendCommandItems(player, CommandItemsManager.CATEGORY_ON_CAM);
         }
         cam.getHolder().setHelmet(SecurityCam.getInUse());
@@ -67,7 +67,7 @@ public class CameraManager implements CamHandler {
     }
 
     @Override
-    public void stopWatching(Player player, Arena arena) {
+    public void stopWatching(Player player, GameArena gameArena) {
         Player clone = clones.remove(player.getUniqueId());
         SecurityCam camera = onCameras.remove(player.getUniqueId());
         if (clone != null) {
@@ -77,9 +77,9 @@ public class CameraManager implements CamHandler {
             clone.damage(Integer.MAX_VALUE);
             clone.remove();
             player.removePotionEffect(PotionEffectType.INVISIBILITY);
-            arena.setCantMove(player, false);
-            ServerManager.getINSTANCE().getPlayerNPCSupport().sendDestroyPacket(clone, arena.getPlayers());
-            ServerManager.getINSTANCE().getPlayerNPCSupport().sendDestroyPacket(clone, arena.getSpectators());
+            gameArena.setCantMove(player, false);
+            ServerManager.getINSTANCE().getPlayerNPCSupport().sendDestroyPacket(clone, gameArena.getPlayers());
+            ServerManager.getINSTANCE().getPlayerNPCSupport().sendDestroyPacket(clone, gameArena.getSpectators());
         }
         if (camera != null) {
             if (onCameras.values().stream().noneMatch(cam -> cam.equals(camera))) {
@@ -93,12 +93,12 @@ public class CameraManager implements CamHandler {
     }
 
     @Override
-    public boolean isOnCam(Player player, Arena arena, SecurityCam cam) {
+    public boolean isOnCam(Player player, GameArena gameArena, SecurityCam cam) {
         return onCameras.containsKey(player.getUniqueId());
     }
 
     @Override
-    public boolean isOnCam(Player player, Arena arena) {
+    public boolean isOnCam(Player player, GameArena gameArena) {
         return onCameras.containsKey(player.getUniqueId());
     }
 
@@ -128,9 +128,9 @@ public class CameraManager implements CamHandler {
             for (UUID uuid : getPlayersOnCams()) {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player != null) {
-                    Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
-                    if (arena != null) {
-                        stopWatching(player, arena);
+                    GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(player);
+                    if (gameArena != null) {
+                        stopWatching(player, gameArena);
                     }
                 }
             }
@@ -153,8 +153,8 @@ public class CameraManager implements CamHandler {
     }
 
     @Override
-    public void nextCam(Player player, Arena arena) {
-        if (!isOnCam(player, arena)) return;
+    public void nextCam(Player player, GameArena gameArena) {
+        if (!isOnCam(player, gameArena)) return;
         SecurityCam currentCam = getPlayerCam(player);
         if (cams.isEmpty()) return;
         if (currentCam == null) return;
@@ -168,12 +168,12 @@ public class CameraManager implements CamHandler {
         }
         SecurityCam nextCam = cams.get(entry >= cams.size() ? 0 : entry);
         if (nextCam == null) return;
-        startWatching(player, arena, nextCam);
+        startWatching(player, gameArena, nextCam);
     }
 
     @Override
-    public void previousCam(Player player, Arena arena) {
-        if (!isOnCam(player, arena)) return;
+    public void previousCam(Player player, GameArena gameArena) {
+        if (!isOnCam(player, gameArena)) return;
         SecurityCam currentCam = getPlayerCam(player);
         if (cams.isEmpty()) return;
         if (currentCam == null) return;
@@ -188,6 +188,6 @@ public class CameraManager implements CamHandler {
         entry -= 2;
         SecurityCam nextCam = cams.get(entry < 0 ? cams.size() - 1 : entry >= cams.size() ? 0 : entry);
         if (nextCam == null) return;
-        startWatching(player, arena, nextCam);
+        startWatching(player, gameArena, nextCam);
     }
 }

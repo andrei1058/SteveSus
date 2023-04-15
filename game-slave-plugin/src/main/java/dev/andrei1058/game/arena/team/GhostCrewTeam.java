@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.team;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Locale;
 import dev.andrei1058.game.api.locale.Message;
@@ -17,10 +17,10 @@ import java.util.List;
 public class GhostCrewTeam implements Team {
 
     private final LinkedList<Player> members = new LinkedList<>();
-    private final Arena arena;
+    private final GameArena gameArena;
 
-    public GhostCrewTeam(Arena arena) {
-        this.arena = arena;
+    public GhostCrewTeam(GameArena gameArena) {
+        this.gameArena = gameArena;
     }
 
     @Override
@@ -99,8 +99,8 @@ public class GhostCrewTeam implements Team {
     }
 
     @Override
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

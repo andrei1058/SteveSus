@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.api.arena.sabotage.GenericWarning;
@@ -41,7 +41,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
     private static final LinkedList<ItemStack> pulseFaces = new LinkedList<>();
 
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final GenericWarning warning;
     private int deadLineSeconds;
     private boolean active = false;
@@ -50,16 +50,16 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
     /**
      * @param fixLocations where to spawn fix monitor.
      */
-    public OxygenSabotage(Arena arena, int deadLineSeconds, List<Location> fixLocations) {
-        this.arena = arena;
+    public OxygenSabotage(GameArena gameArena, int deadLineSeconds, List<Location> fixLocations) {
+        this.gameArena = gameArena;
         this.deadLineSeconds = deadLineSeconds;
         fixLocations.forEach(fix -> monitors.add(new OxygenMonitor(fix)));
-        this.warning = new GenericWarning(arena, deadLineSeconds, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, OxygenSabotageProvider.NAME_PATH).replace("{fixed}", "0").replace("{total}", String.valueOf(monitors.size())));
-        arena.registerGameListener(new OxygenListener());
+        this.warning = new GenericWarning(gameArena, deadLineSeconds, LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, OxygenSabotageProvider.NAME_PATH).replace("{fixed}", "0").replace("{total}", String.valueOf(monitors.size())));
+        gameArena.registerGameListener(new OxygenListener());
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             warning.restore();
             this.deadLineSeconds = warning.getOriginalSeconds();
             getArena().getPlayers().forEach(player -> player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, OxygenSabotageProvider.FIXED_SUBTITLE), 0, 40, 0));
-            arena.tryEnableTaskIndicators();
+            gameArena.tryEnableTaskIndicators();
             Bukkit.getPluginManager().callEvent(new GameSabotageDeactivateEvent(getArena(), this, false));
         } else {
             warning.setBarName(LanguageManager.getINSTANCE().getDefaultLocale().getMsg(null, OxygenSabotageProvider.NAME_PATH).replace("{fixed}", String.valueOf(fixed)).replace("{total}", String.valueOf(monitors.size())));
@@ -88,7 +88,7 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         for (OxygenMonitor monitor : monitors) {
             monitor.onErrorFix(true);
         }
-        arena.tryEnableTaskIndicators();
+        gameArena.tryEnableTaskIndicators();
         Bukkit.getPluginManager().callEvent(new GameSabotageDeactivateEvent(getArena(), this, true));
     }
 
@@ -100,8 +100,8 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         for (OxygenMonitor monitor : monitors) {
             monitor.startError();
         }
-        arena.interruptTasks();
-        arena.disableTaskIndicators();
+        gameArena.interruptTasks();
+        gameArena.disableTaskIndicators();
         Bukkit.getPluginManager().callEvent(new GameSabotageActivateEvent(getArena(), this, player));
     }
 
@@ -223,28 +223,28 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
 
     private class OxygenListener implements GameListener {
         @Override
-        public void onPlayerLeave(Arena arena, Player player, boolean spectator) {
+        public void onPlayerLeave(GameArena gameArena, Player player, boolean spectator) {
             warning.removePlayer(player);
         }
 
         @Override
-        public void onPlayerToSpectator(Arena arena, Player player) {
+        public void onPlayerToSpectator(GameArena gameArena, Player player) {
             warning.removePlayer(player);
         }
 
         @Override
-        public void onPlayerInteractEntity(Arena arena, Player player, Entity entity) {
+        public void onPlayerInteractEntity(GameArena gameArena, Player player, Entity entity) {
             if (!isActive()) return;
             tryOpen(player, entity);
         }
 
         @Override
-        public void onEntityPunch(Arena arena, Player player, Entity entity) {
+        public void onEntityPunch(GameArena gameArena, Player player, Entity entity) {
             tryOpen(player, entity);
         }
 
         @Override
-        public void onMeetingStageChange(Arena arena, MeetingStage oldStage, MeetingStage newStage) {
+        public void onMeetingStageChange(GameArena gameArena, MeetingStage oldStage, MeetingStage newStage) {
             if (oldStage == MeetingStage.NO_MEETING) {
                 forceFixOnDeadBody();
             }
@@ -252,9 +252,9 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
 
         private void tryOpen(Player player, Entity entity) {
             if (!isActive()) return;
-            Team playerTeam = arena.getPlayerTeam(player);
+            Team playerTeam = gameArena.getPlayerTeam(player);
             if (playerTeam == null || playerTeam.getIdentifier().endsWith("-ghost")) return;
-            if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;
+            if (gameArena.getCamHandler() != null && gameArena.getCamHandler().isOnCam(player, gameArena)) return;
             for (OxygenMonitor monitor : monitors) {
                 if ((entity.equals(monitor.armorStand) || entity.equals(monitor.getGlowingBox().getMagmaCube())) && !monitor.isFixed()) {
                     SteveSus.newChain().async(() -> {

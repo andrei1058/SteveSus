@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.server;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -404,15 +404,15 @@ public enum GameSound {
             cachedRange.add(new RangedSound(x, y, path.replace(GameSound.COUNT_DOWN_TICK_.toString(), "")));
         }
 
-        public static void playForSecond(Arena arena, int second) {
+        public static void playForSecond(GameArena gameArena, int second) {
             String path = yml.getString(GameSound.COUNT_DOWN_TICK_.getYmlPath() + second);
             if (path != null) {
-                COUNT_DOWN_TICK_.playManual("" + second, arena.getPlayers());
+                COUNT_DOWN_TICK_.playManual("" + second, gameArena.getPlayers());
                 return;
             }
             cachedRange.forEach(sound -> {
                 if (sound.start <= second && sound.end >= second) {
-                    COUNT_DOWN_TICK_.playManual(sound.pathAdditions, arena.getPlayers());
+                    COUNT_DOWN_TICK_.playManual(sound.pathAdditions, gameArena.getPlayers());
                 }
             });
         }

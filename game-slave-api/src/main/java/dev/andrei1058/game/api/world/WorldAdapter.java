@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.world;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.ArenaHandler;
 import dev.andrei1058.game.api.setup.SetupHandler;
 import dev.andrei1058.game.api.setup.SetupSession;
@@ -40,20 +40,20 @@ public interface WorldAdapter {
      * If your world is already loaded and you want to use it do not forget to initialize the arena in this method.
      * If something went wrong remove the arena from the queue {@link ArenaHandler#removeFromEnableQueue(String)}}.
      *
-     * @param arena arena
+     * @param gameArena arena
      */
-    void onArenaEnableQueue(String worldName, Arena arena);
+    void onArenaEnableQueue(String worldName, GameArena gameArena);
 
     /**
      * Triggered when an arena is restarting.
      * Unload world logic.
      */
-    void onArenaRestart(Arena arena);
+    void onArenaRestart(GameArena gameArena);
 
     /**
      * Triggered when an arena is forced to disable via command etc.
      */
-    void onArenaDisable(Arena arena);
+    void onArenaDisable(GameArena gameArena);
 
     /**
      * Triggered at {@link SetupHandler#addSession(SetupSession)} and by consequence at {@link SetupHandler#createSetupSession(Player, String)}.

@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.gametask.upload.UploadTaskProvider;
 import dev.andrei1058.game.language.LanguageManager;
 import com.github.johnnyjayjay.spigotmaps.MapBuilder;
@@ -29,11 +29,11 @@ public class WallPanel {
     private Hologram hologram;
     private final PanelType panelType;
 
-    public WallPanel(Arena arena, Location location, PanelType panelType) {
+    public WallPanel(GameArena gameArena, Location location, PanelType panelType) {
         this.panelType = panelType;
         this.itemFrame = (ItemFrame) location.getWorld().getNearbyEntities(new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ()), 1, 1, 1).stream().filter(entity -> entity instanceof ItemFrame).findFirst().orElse(null);
         if (this.itemFrame == null) {
-            SteveSus.getInstance().getLogger().warning("Item Frame needs to be placed at " + location.toString() + " on " + arena.getTemplateWorld() + " for UploadTask task!");
+            SteveSus.getInstance().getLogger().warning("Item Frame needs to be placed at " + location.toString() + " on " + gameArena.getTemplateWorld() + " for UploadTask task!");
             return;
         }
         this.itemFrame.setItem(null);
@@ -46,7 +46,7 @@ public class WallPanel {
 
             RenderedMap map = MapBuilder.create() // make a new builder
                     .addRenderers(catRenderer) // add the renderers to this map
-                    .world(arena.getWorld()) // set the world this map is bound to, e.g. the world of the target player
+                    .world(gameArena.getWorld()) // set the world this map is bound to, e.g. the world of the target player
                     .build(); // build the map
             ItemStack mapItem = map.createItemStack();
             this.itemFrame.setItem(mapItem);

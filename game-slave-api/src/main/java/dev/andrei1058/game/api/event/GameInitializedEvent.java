@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -8,25 +8,25 @@ public class GameInitializedEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private Arena arena;
+    private GameArena gameArena;
     private String template;
     private String cloneWorldName;
 
     /**
      * Triggered when an arena is declared as ready.
      *
-     * @param arena          arena.
+     * @param gameArena          arena.
      * @param template       original world name.
      * @param cloneWorldName cloned world name.
      */
-    public GameInitializedEvent(Arena arena, String template, String cloneWorldName) {
-        this.arena = arena;
+    public GameInitializedEvent(GameArena gameArena, String template, String cloneWorldName) {
+        this.gameArena = gameArena;
         this.template = template;
         this.cloneWorldName = cloneWorldName;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     public String getTemplate() {

@@ -1,6 +1,6 @@
 package dev.andrei1058.game.api.event;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -11,16 +11,16 @@ public class PlayerEjectEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Arena arena;
+    private final GameArena gameArena;
     private final Player player;
 
-    public PlayerEjectEvent(Arena arena, Player player) {
-        this.arena = arena;
+    public PlayerEjectEvent(GameArena gameArena, Player player) {
+        this.gameArena = gameArena;
         this.player = player;
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     /**

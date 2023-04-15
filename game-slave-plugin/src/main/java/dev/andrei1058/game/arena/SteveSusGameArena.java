@@ -85,7 +85,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SteveSusArena implements Arena {
+public class SteveSusGameArena implements GameArena {
 
     private final String templateWorld;
     private final int gameId;
@@ -149,7 +149,7 @@ public class SteveSusArena implements Arena {
     private CamHandler camHandler;
     private GameStats gameStats = new GameStats();
 
-    public SteveSusArena(String templateWorld, int gameId) {
+    public SteveSusGameArena(String templateWorld, int gameId) {
         this.templateWorld = templateWorld;
         this.gameId = gameId;
         this.gameTag = ServerManager.getINSTANCE().getServerType() != ServerType.MULTI_ARENA ? ServerManager.getINSTANCE().getConfig().getProperty(MainConfig.BUNGEE_AUTO_SCALE_PROXIED_NAME) + ":" : "" + getGameId();

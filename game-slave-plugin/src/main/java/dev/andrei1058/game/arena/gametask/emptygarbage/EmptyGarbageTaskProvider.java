@@ -4,7 +4,7 @@ import com.andrei1058.hologramapi.Hologram;
 import com.andrei1058.hologramapi.HologramPage;
 import com.andrei1058.hologramapi.content.LineTextContent;
 import dev.andrei1058.game.SteveSus;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.task.GameTask;
 import dev.andrei1058.game.api.arena.task.TaskProvider;
 import dev.andrei1058.game.api.arena.task.TaskType;
@@ -309,7 +309,7 @@ public class EmptyGarbageTaskProvider extends TaskProvider {
     }
 
     @Override
-    public @Nullable GameTask onGameInit(Arena arena, JsonObject configuration, String localName) {
+    public @Nullable GameTask onGameInit(GameArena gameArena, JsonObject configuration, String localName) {
         if (configuration.isJsonNull()) return null;
         if (!configuration.has("list")) return null;
         if (!configuration.has("stages")) return null;
@@ -325,12 +325,12 @@ public class EmptyGarbageTaskProvider extends TaskProvider {
             JsonElement loc = obj.get("location");
             Location location = new OrphanLocationProperty().convert(loc.getAsString(), null);
             if (location == null) continue;
-            location.setWorld(arena.getWorld());
+            location.setWorld(gameArena.getWorld());
             Location drop = null;
             if (obj.has("drop")) {
                 drop = new OrphanLocationProperty().convert(obj.get("drop").getAsString(), null);
                 if (drop != null) {
-                    drop.setWorld(arena.getWorld());
+                    drop.setWorld(gameArena.getWorld());
                 }
             }
             OrderPriority priority = OrderPriority.NONE;
@@ -343,6 +343,6 @@ public class EmptyGarbageTaskProvider extends TaskProvider {
             wallLevers.add(new WallLever(location, drop, priority));
         }
         int stages = configuration.get("stages").getAsInt();
-        return new EmptyGarbageTask(localName, arena, wallLevers, stages);
+        return new EmptyGarbageTask(localName, gameArena, wallLevers, stages);
     }
 }

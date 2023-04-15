@@ -1,6 +1,6 @@
 package dev.andrei1058.game.server.common;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.meeting.MeetingStage;
 import dev.andrei1058.game.api.arena.team.Team;
 import dev.andrei1058.game.api.locale.Message;
@@ -22,9 +22,9 @@ public class PlayerChatListener implements Listener {
         if (e == null) return;
         if (e.isCancelled()) return;
         final Player player = e.getPlayer();
-        final Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        final GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
 
-        if (arena == null) {
+        if (gameArena == null) {
             if (ServerManager.getINSTANCE().getServerType() == ServerType.MULTI_ARENA && LobbyProtectionListener.getLobbyWorld() != null) {
                 if (player.getWorld().getName().equals(LobbyProtectionListener.getLobbyWorld())) {
                     // format lobby
@@ -36,17 +36,17 @@ public class PlayerChatListener implements Listener {
                 }
             }
         } else {
-            Team playerTeam = arena.getPlayerTeam(player);
+            Team playerTeam = gameArena.getPlayerTeam(player);
             e.getRecipients().removeIf(receiver -> !receiver.getWorld().equals(player.getWorld()) || (playerTeam != null && playerTeam.chatFilter(receiver)));
-            if (arena.getGameState() == GameState.IN_GAME) {
-                if (!(arena.getMeetingStage() == MeetingStage.TALKING || arena.getMeetingStage() == MeetingStage.VOTING)) {
+            if (gameArena.getGameState() == GameState.IN_GAME) {
+                if (!(gameArena.getMeetingStage() == MeetingStage.TALKING || gameArena.getMeetingStage() == MeetingStage.VOTING)) {
                     player.sendMessage(LanguageManager.getINSTANCE().getMsg(player, Message.TALK_ALLOWED_DURING_MEETINGS));
                     e.setCancelled(true);
                     return;
                 }
             }
             Message format;
-            switch (arena.getGameState()) {
+            switch (gameArena.getGameState()) {
                 case WAITING:
                     format = Message.CHAT_FORMAT_WAITING;
                     break;

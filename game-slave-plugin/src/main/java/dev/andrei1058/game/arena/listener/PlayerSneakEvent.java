@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.listener;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.arena.GameListener;
 import dev.andrei1058.game.arena.ArenaManager;
 import org.bukkit.entity.Player;
@@ -14,12 +14,12 @@ public class PlayerSneakEvent implements Listener {
     @EventHandler
     public void onPlayerSneak(PlayerToggleSneakEvent event) {
         if (event.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
+        if (gameArena != null) {
             final Player player = event.getPlayer();
             final boolean isSneaking = event.isSneaking();
-            for (GameListener listener : arena.getGameListeners()){
-                listener.onPlayerToggleSneakEvent(arena, player, isSneaking);
+            for (GameListener listener : gameArena.getGameListeners()){
+                listener.onPlayerToggleSneakEvent(gameArena, player, isSneaking);
             }
         }
     }
@@ -27,12 +27,12 @@ public class PlayerSneakEvent implements Listener {
     @EventHandler
     public void onToggleFlight(PlayerToggleFlightEvent event){
         if (event.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
-        if (arena != null) {
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(event.getPlayer());
+        if (gameArena != null) {
             final Player player = event.getPlayer();
             final boolean isSneaking = event.isFlying();
-            for (GameListener listener : arena.getGameListeners()){
-                listener.onPlayerToggleFly(arena, player, isSneaking);
+            for (GameListener listener : gameArena.getGameListeners()){
+                listener.onPlayerToggleFly(gameArena, player, isSneaking);
             }
         }
     }

@@ -2,7 +2,7 @@ package dev.andrei1058.game.arena.command;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.api.server.PluginPermission;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -30,9 +30,9 @@ public class TeleporterCmd {
                 .withDisplayHover(s -> LanguageManager.getINSTANCE().getMsg(s, Message.CMD_TELEPORTER_DESC))
                 .withClickAction(ClickEvent.Action.RUN_COMMAND)
                 .withExecutor((s, args) -> {
-                    Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer((Player) s);
-                    assert arena != null;
-                    TeleporterManager.openToPlayer(((Player) s), arena);
+                    GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer((Player) s);
+                    assert gameArena != null;
+                    TeleporterManager.openToPlayer(((Player) s), gameArena);
                 })
         );
     }

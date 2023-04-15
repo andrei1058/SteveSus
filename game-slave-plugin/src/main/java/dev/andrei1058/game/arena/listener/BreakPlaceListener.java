@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.listener;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.arena.ArenaManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,8 +19,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -28,8 +28,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -37,8 +37,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onIceMelt(BlockFadeEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getBlock().getWorld().getName());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getBlock().getWorld().getName());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -46,8 +46,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onBucketFill(PlayerBucketFillEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -55,8 +55,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onBucketEmpty(PlayerBucketEmptyEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(e.getPlayer());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -64,8 +64,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getLocation().getWorld().getName());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getLocation().getWorld().getName());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -73,8 +73,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getBlock().getWorld().getName());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getBlock().getWorld().getName());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -82,8 +82,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onPaintingRemove(HangingBreakByEntityEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getEntity().getWorld().getName());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }
@@ -91,8 +91,8 @@ public class BreakPlaceListener implements Listener {
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
         if (e.isCancelled()) return;
-        Arena arena = ArenaManager.getINSTANCE().getArenaByWorld(e.getBlock().getWorld().getName());
-        if (arena != null){
+        GameArena gameArena = ArenaManager.getINSTANCE().getArenaByWorld(e.getBlock().getWorld().getName());
+        if (gameArena != null){
             e.setCancelled(true);
         }
     }

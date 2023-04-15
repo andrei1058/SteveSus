@@ -1,6 +1,6 @@
 package dev.andrei1058.game.arena.runnable;
 
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.language.LanguageManager;
 import dev.andrei1058.game.server.ServerManager;
@@ -10,15 +10,15 @@ import org.bukkit.entity.Player;
 
 public class ArenaTaskRestarting implements Runnable {
 
-    private final Arena arena;
+    private final GameArena gameArena;
 
-    public ArenaTaskRestarting(Arena arena) {
-        this.arena = arena;
-        arena.setCountdown(20);
+    public ArenaTaskRestarting(GameArena gameArena) {
+        this.gameArena = gameArena;
+        gameArena.setCountdown(20);
     }
 
-    public Arena getArena() {
-        return arena;
+    public GameArena getArena() {
+        return gameArena;
     }
 
     @Override

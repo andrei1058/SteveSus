@@ -2,7 +2,7 @@ package dev.andrei1058.game.arena.command;
 
 import com.andrei1058.spigot.commandlib.fast.FastRootCommand;
 import com.andrei1058.spigot.commandlib.fast.FastSubCommand;
-import dev.andrei1058.game.api.arena.Arena;
+import dev.andrei1058.game.api.arena.GameArena;
 import dev.andrei1058.game.api.locale.Message;
 import dev.andrei1058.game.api.server.PluginPermission;
 import dev.andrei1058.game.arena.ArenaManager;
@@ -30,9 +30,9 @@ public class ForceStartCmd {
                 .withPermAdditions((s) -> {
                     if (s instanceof Player) {
                         if (s.hasPermission(PluginPermission.CMD_FORCE_START.get()) || s.hasPermission(CommonPermission.ALL.get())) {
-                            Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(((Player) s));
-                            if (arena != null) {
-                                return arena.getGameState() == GameState.WAITING || arena.getGameState() == GameState.STARTING;
+                            GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(((Player) s));
+                            if (gameArena != null) {
+                                return gameArena.getGameState() == GameState.WAITING || gameArena.getGameState() == GameState.STARTING;
                             }
                         }
                     }
@@ -41,26 +41,26 @@ public class ForceStartCmd {
                 .withExecutor((s, args) -> {
                             Player p = (Player) s;
                             if (args.length == 1 && args[0].equalsIgnoreCase("debug") && p.isOp()) {
-                                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
-                                if (arena != null) {
-                                    if (arena.getGameState() != GameState.STARTING) {
-                                        arena.switchState(GameState.STARTING);
+                                GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
+                                if (gameArena != null) {
+                                    if (gameArena.getGameState() != GameState.STARTING) {
+                                        gameArena.switchState(GameState.STARTING);
                                     }
-                                    arena.setCountdown(5);
+                                    gameArena.setCountdown(5);
                                     p.sendMessage(ChatColor.RED + "Start debugging..");
                                     ServerManager.getINSTANCE().setDebuggingLogs(true);
                                 }
                             } else {
-                                Arena arena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
-                                assert arena != null;
-                                if (!arena.canForceStart()) {
+                                GameArena gameArena = ArenaManager.getINSTANCE().getArenaByPlayer(p);
+                                assert gameArena != null;
+                                if (!gameArena.canForceStart()) {
                                     p.sendMessage(LanguageManager.getINSTANCE().getMsg(p, Message.CMD_FORCE_START_FAILED));
                                     return;
                                 }
 
-                                if (arena.getGameState() != GameState.STARTING) {
-                                    arena.switchState(GameState.STARTING);
-                                    arena.setCountdown(15);
+                                if (gameArena.getGameState() != GameState.STARTING) {
+                                    gameArena.switchState(GameState.STARTING);
+                                    gameArena.setCountdown(15);
                                 }
                             }
                         }
