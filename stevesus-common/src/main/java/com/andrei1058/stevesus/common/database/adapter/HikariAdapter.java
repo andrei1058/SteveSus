@@ -7,6 +7,8 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -72,6 +74,31 @@ public class HikariAdapter implements DatabaseAdapter {
 
     @Override
     public void saveUserLanguage(UUID uuid, CommonLocale locale) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean hasUserStats(UUID uuid) {
+        return false;
+    }
+
+    @Override
+    public void initUserStats(UUID uuid) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void saveUserStats(UUID uuid, Map<String, Object> values) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public HashMap<String, Object> getUserStats(UUID uuid) {
+        return null;
+    }
+
+    @Override
+    public void initUserStatsTable() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

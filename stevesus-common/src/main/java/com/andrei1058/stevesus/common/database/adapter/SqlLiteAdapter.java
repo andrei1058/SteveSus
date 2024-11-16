@@ -6,6 +6,8 @@ import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class SqlLiteAdapter implements DatabaseAdapter {
@@ -23,6 +25,31 @@ public class SqlLiteAdapter implements DatabaseAdapter {
 
     @Override
     public void saveUserLanguage(UUID uuid, CommonLocale isoCode) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean hasUserStats(UUID uuid) {
+        return false;
+    }
+
+    @Override
+    public void initUserStats(UUID uuid) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void saveUserStats(UUID uuid, Map<String, Object> values) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public HashMap<String, Object> getUserStats(UUID uuid) {
+        return null;
+    }
+
+    @Override
+    public void initUserStatsTable() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
