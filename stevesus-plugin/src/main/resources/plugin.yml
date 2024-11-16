@@ -1,0 +1,18 @@
+name: "SteveSus"
+version: "1.4.3-beta"
+description: "A murder mystery mini-game"
+authors:
+  - andrei1058
+website: "https://andrei1058.dev"
+api-version: "1.13"
+commands:
+  ss:
+    description: "Main command"
+
+softdepend:
+  - Vault
+  - PlaceholderAPI
+  - CorpseReborn
+  - GlowAPI
+  - PacketListenerAPI
+main: com.andrei1058.stevesus.SteveSus

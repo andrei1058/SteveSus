@@ -49,23 +49,6 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!--Spigot plugin.yml annotations -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>plugin-annotations</artifactId>
-            <version>[1.2.3-SNAPSHOT,)</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bukkit</groupId>
-                    <artifactId>bukkit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!--CommandLib -->
         <dependency>
             <groupId>com.andrei1058.spigot.commandlib</groupId>
