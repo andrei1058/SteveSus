@@ -1,7 +1,5 @@
 package com.andrei1058.stevesus.connector.language;
 
-import com.andrei1058.dbi.DatabaseAdapter;
-import com.andrei1058.dbi.column.datavalue.SimpleValue;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;

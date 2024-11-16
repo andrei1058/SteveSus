@@ -47,7 +47,7 @@ public class StatsManager {
         PlayerStatsCache cache = new PlayerStatsCache(player);
 
         for (Map.Entry<String, Object> entry : result.entrySet()) {
-            if (entry.getKey().equals(PlayerStatsTable.FIRST_PLAY)) {
+            if (entry.getKey().equals(StatsList.FIRST_PLAY)) {
                 if (entry.getValue() == null) {
                     cache.setFirstPlay(null);
                 } else {
@@ -55,7 +55,7 @@ public class StatsManager {
                     // todo test
 //                    cache.setFirstPlay((Date) entry.getKey().castResult(entry.getValue()));
                 }
-            } else if (entry.getKey().equals(PlayerStatsTable.LAST_PLAY)) {
+            } else if (entry.getKey().equals(StatsList.LAST_PLAY)) {
                 if (entry.getValue() == null) {
                     cache.setLastPlay(null);
                 } else {
@@ -63,31 +63,31 @@ public class StatsManager {
                     cache.setLastPlay((Date) entry.getValue());
 //                    cache.setLastPlay((Date) entry.getKey().castResult(entry.getValue()));
                 }
-            } else if (entry.getKey().equals(PlayerStatsTable.GAMES_ABANDONED)) {
+            } else if (entry.getKey().equals(StatsList.GAMES_ABANDONED)) {
                 // todo
                 cache.setGamesAbandoned((Integer) entry.getValue());
 //                cache.setGamesAbandoned((Integer) entry.getKey().castResult(entry.getValue()));
-            } else if (entry.getKey().equals(PlayerStatsTable.GAMES_WON)) {
+            } else if (entry.getKey().equals(StatsList.GAMES_WON)) {
                 // todo
                 cache.setGamesWon((Integer) entry.getValue());
 //                cache.setGamesWon((Integer) entry.getKey().castResult(entry.getValue()));
-            } else if (entry.getKey().equals(PlayerStatsTable.GAMES_LOST)) {
+            } else if (entry.getKey().equals(StatsList.GAMES_LOST)) {
                 // todo
                 cache.setGamesLost((Integer) entry.getValue());
 //                cache.setGamesLost((Integer) entry.getKey().castResult(entry.getValue()));
-            } else if (entry.getKey().equals(PlayerStatsTable.KILLS)) {
+            } else if (entry.getKey().equals(StatsList.KILLS)) {
                 // todo
                 cache.setKills((Integer) entry.getValue());
 //                cache.setKills((int) entry.getKey().castResult(entry.getValue()));
-            } else if (entry.getKey().equals(PlayerStatsTable.SABOTAGES)) {
+            } else if (entry.getKey().equals(StatsList.SABOTAGES)) {
                 // todo
                 cache.setSabotages((Integer) entry.getValue());
 //                cache.setSabotages((int) entry.getKey().castResult(entry.getValue()));
-            } else if (entry.getKey().equals(PlayerStatsTable.FIXED_SABOTAGES)) {
+            } else if (entry.getKey().equals(StatsList.FIXED_SABOTAGES)) {
                 // todo
                 cache.setFixedSabotages((Integer) entry.getValue());
 //                cache.setFixedSabotages((int) entry.getKey().castResult(entry.getValue()));
-            } else if (entry.getKey().equals(PlayerStatsTable.TASKS)) {
+            } else if (entry.getKey().equals(StatsList.TASKS)) {
                 // todo
                 cache.setTasks((Integer) entry.getValue());
 //                cache.setTasks((int) entry.getKey().castResult(entry.getValue()));
