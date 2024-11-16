@@ -1,7 +1,5 @@
 package com.andrei1058.stevesus.language;
 
-import com.andrei1058.dbi.DatabaseAdapter;
-import com.andrei1058.dbi.column.datavalue.SimpleValue;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.event.PlayerLanguageChangeEvent;
 import com.andrei1058.stevesus.api.locale.Locale;
@@ -99,7 +97,7 @@ public class LanguageManager implements LocaleManager, CommonLocaleManager {
      * To be used in your plugin's onEnable.
      */
     public static void onEnable() {
-        DatabaseManager.getINSTANCE().getDatabase().createTable(getINSTANCE().languageTable, false);
+        DatabaseManager.getINSTANCE().getDatabase().createUserLanguageTable();
     }
 
     /**

@@ -2,7 +2,6 @@ package com.andrei1058.stevesus.language;
 
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.Arrays;
