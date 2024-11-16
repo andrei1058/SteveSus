@@ -1,12 +1,10 @@
 package com.andrei1058.stevesus.server.bungeelegacy;
 
-import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.arena.ArenaManager;
 import com.andrei1058.stevesus.common.api.arena.GameState;
-import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.command.CommonCmdManager;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
@@ -19,31 +17,38 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-
-import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 public class JoinQuitListenerBungeeLegacy implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPreLoginForLanguage(AsyncPlayerPreLoginEvent e) {
+    public void onPreLoginForLanguage(@NotNull AsyncPlayerPreLoginEvent e) {
         if (e.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
             // Do nothing if login fails
             return;
         }
-        final UUID p = e.getUniqueId();
-        CommonLocale translation = DatabaseManager.getINSTANCE().getDatabase().select(LanguageManager.getINSTANCE().getLanguageTable().LANGUAGE, LanguageManager.getINSTANCE().getLanguageTable(), new EqualsOperator<>(LanguageManager.getINSTANCE().getLanguageTable().PRIMARY_KEY, p));
-        SteveSus.newChain().sync(() -> LanguageManager.getINSTANCE().setPlayerLocale(p, LanguageManager.getINSTANCE().getLocale(translation.getIsoCode()), false)).execute();
+        String iso = DatabaseManager.getINSTANCE().getDatabase().getUserLanguage(e.getUniqueId());
+        if (null == iso) {
+            return;
+        }
+
+        // because this bukkit event is async
+        SteveSus.newChain().sync(
+                () -> LanguageManager.getINSTANCE().setPlayerLocale(
+                        e.getUniqueId(),
+                        LanguageManager.getINSTANCE().getLocale(iso), false)
+        ).execute();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onLoginForLanguage(PlayerLoginEvent e) {
+    public void onLoginForLanguage(@NotNull PlayerLoginEvent e) {
         if (e.getResult() != PlayerLoginEvent.Result.ALLOWED) {
             LanguageManager.getINSTANCE().setPlayerLocale(e.getPlayer().getUniqueId(), null, false);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onLogin(PlayerLoginEvent e) {
+    public void onLogin(@NotNull PlayerLoginEvent e) {
         final Player p = e.getPlayer();
 
         // Do not allow login if the arena wasn't loaded yet
@@ -90,7 +95,7 @@ public class JoinQuitListenerBungeeLegacy implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onJoin(PlayerJoinEvent e) {
+    public void onJoin(@NotNull PlayerJoinEvent e) {
         e.setJoinMessage("");
         final Player p = e.getPlayer();
 

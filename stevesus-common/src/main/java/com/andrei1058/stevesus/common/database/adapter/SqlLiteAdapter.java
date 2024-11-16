@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.common.database.adapter;
 
 import com.andrei1058.stevesus.common.api.database.DatabaseAdapter;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,6 +26,11 @@ public class SqlLiteAdapter implements DatabaseAdapter {
 
     @Override
     public void saveUserLanguage(UUID uuid, CommonLocale isoCode) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public @Nullable String getUserLanguage(UUID uuid) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

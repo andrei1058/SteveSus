@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.common.api.database;
 
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +23,14 @@ public interface DatabaseAdapter {
     void saveUserLanguage(UUID uuid, CommonLocale locale);
 
     /**
+     * Fetch user locale preference.
+     *
+     * @param uuid player.
+     * @return iso code language.
+     */
+    @Nullable String getUserLanguage(UUID uuid);
+
+    /**
      * Check if database contains stats for given user.
      *
      * @param uuid player.
@@ -39,13 +48,14 @@ public interface DatabaseAdapter {
     /**
      * Save-update user stats.
      *
-     * @param uuid player.
+     * @param uuid   player.
      * @param values statistic-id is the key, the number/date/string is the value.
      */
     void saveUserStats(UUID uuid, Map<String, Object> values);
 
     /**
      * Get user stats.
+     *
      * @param uuid player.
      * @return statistic-id is the key, the number/date/string is the value.
      */

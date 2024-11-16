@@ -4,6 +4,7 @@ import com.andrei1058.stevesus.common.api.database.DatabaseAdapter;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -74,6 +75,11 @@ public class HikariAdapter implements DatabaseAdapter {
 
     @Override
     public void saveUserLanguage(UUID uuid, CommonLocale locale) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public @Nullable String getUserLanguage(UUID uuid) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

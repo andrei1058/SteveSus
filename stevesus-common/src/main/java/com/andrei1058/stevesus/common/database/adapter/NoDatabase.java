@@ -2,6 +2,7 @@ package com.andrei1058.stevesus.common.database.adapter;
 
 import com.andrei1058.stevesus.common.api.database.DatabaseAdapter;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,11 @@ public class NoDatabase implements DatabaseAdapter {
     @Override
     public void saveUserLanguage(UUID uuid, CommonLocale locale) {
 
+    }
+
+    @Override
+    public @Nullable String getUserLanguage(UUID uuid) {
+        return null;
     }
 
     @Override

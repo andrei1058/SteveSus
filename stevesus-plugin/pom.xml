@@ -59,14 +59,14 @@
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>chat-version</artifactId>
-            <version>[1.5.0,)</version>
+            <version>1.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!--Command Util-->
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>cmd-version</artifactId>
-            <version>[1.5.0,)</version>
+            <version>1.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!--Annotations-->
@@ -108,9 +108,9 @@
         <dependency>
             <groupId>ch.jalu</groupId>
             <artifactId>configme</artifactId>
-            <version>[1.2.0,)</version>
-            <scope>compile</scope>
+            <version>1.4.1</version>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -220,7 +220,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.5.3</version>
                 <configuration>
                     <relocations>
                         <relocation>
