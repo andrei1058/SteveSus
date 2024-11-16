@@ -17,10 +17,9 @@
     </properties>
 
     <repositories>
-        <!-- Map API any maybe more -->
         <repository>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
         <!-- Glowing API, Packet Listener API -->
         <repository>
@@ -30,7 +29,7 @@
         <!-- Corpse API -->
         <repository>
             <id>andrei1058-releases</id>
-            <url>https://repo.andrei1058.com/releases</url>
+            <url>https://repo.andrei1058.dev/releases</url>
         </repository>
     </repositories>
 
@@ -153,7 +152,7 @@
         <dependency>
             <groupId>com.github.johnnyjayjay</groupId>
             <artifactId>spigot-maps</artifactId>
-            <version>[2.1.1,)</version>
+            <version>2.1.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- Corpse API -->
@@ -186,20 +185,22 @@
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>player_npc_version</artifactId>
-            <version>1.5.4-SNAPSHOT</version>
+            <version>1.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!-- Particle API -->
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>particle-version</artifactId>
-            <version>1.5.4-SNAPSHOT</version>
+            <version>1.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.golde.bukkit.corpsereborn</groupId>
             <artifactId>corpsereborn-api</artifactId>
             <version>2.16.0</version>
+            <scope>system</scope>
+            <systemPath>/home/andrei/CorpseReborn.jar</systemPath>
         </dependency>
     </dependencies>
     <build>

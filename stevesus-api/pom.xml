@@ -26,13 +26,6 @@
             <version>RELEASE</version>
             <scope>provided</scope>
         </dependency>
-        <!-- DataBase API -->
-        <dependency>
-            <groupId>com.andrei1058.dbi</groupId>
-            <artifactId>DataBaseInterface</artifactId>
-            <version>[0.1-SNAPSHOT,)</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- Plugin Common -->
         <dependency>
             <groupId>com.andrei1058.stevesus</groupId>
@@ -58,7 +51,7 @@
         <dependency>
             <groupId>com.andrei1058.spigot.versionsupport</groupId>
             <artifactId>particle-version</artifactId>
-            <version>1.5.4-SNAPSHOT</version>
+            <version>1.7.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 

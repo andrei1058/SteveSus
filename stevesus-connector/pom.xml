@@ -33,12 +33,11 @@
             <version>[1.5.0,)</version>
             <scope>compile</scope>
         </dependency>
-        <!--Annotations-->
+        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
-            <scope>provided</scope>
+            <version>26.0.1</version>
         </dependency>
         <!--bStats-->
         <dependency>
