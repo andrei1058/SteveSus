@@ -49,7 +49,7 @@ public class DatabaseManager implements DatabaseService {
             INSTANCE = new DatabaseManager(plugin, databaseFolderPath);
 
             if (INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_ENABLED)) {
-                loadDatabaseConfiguration();
+                loadDatabaseConfiguration(plugin);
             } else {
                 plugin.getLogger().info("Using SQLite adapter.");
                 try {
