@@ -11,7 +11,6 @@ import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
-import com.andrei1058.stevesus.common.database.table.LanguageTable;
 import com.andrei1058.stevesus.common.hook.HookManager;
 import com.andrei1058.stevesus.config.MainConfig;
 import com.andrei1058.stevesus.server.ServerManager;
@@ -32,7 +31,6 @@ public class LanguageManager implements LocaleManager, CommonLocaleManager {
     private final LinkedList<Locale> loadedLanguages = new LinkedList<>();
     private final HashMap<UUID, Locale> languageByPlayer = new HashMap<>();
     private Locale defaultLanguage;
-    private final LanguageTable languageTable = new LanguageTable();
     private File languagesFolder = new File(SteveSus.getInstance().getDataFolder(), "Locales");
 
     private LanguageManager() {
@@ -267,8 +265,8 @@ public class LanguageManager implements LocaleManager, CommonLocaleManager {
                 Bukkit.getPluginManager().callEvent(new PlayerLanguageChangeEvent(player, translation, old));
             }
         }
-        LanguageTable table = LanguageManager.getINSTANCE().getLanguageTable();
-        DatabaseManager.getINSTANCE().getDatabase().insert(table, Arrays.asList(new SimpleValue<>(table.PRIMARY_KEY, uuid), new SimpleValue<>(table.LANGUAGE, translation)), DatabaseAdapter.InsertFallback.UPDATE);
+
+        DatabaseManager.getINSTANCE().getDatabase().saveUserLanguage(uuid, translation);
         return true;
     }
 
@@ -305,9 +303,5 @@ public class LanguageManager implements LocaleManager, CommonLocaleManager {
     @Override
     public String getMsg(Player player, String path) {
         return getLocale(player).getMsg(player, path);
-    }
-
-    public LanguageTable getLanguageTable() {
-        return languageTable;
     }
 }

@@ -112,13 +112,6 @@
             <version>[1.2.0,)</version>
             <scope>compile</scope>
         </dependency>
-        <!-- DataBase API -->
-        <dependency>
-            <groupId>com.andrei1058.dbi</groupId>
-            <artifactId>DataBaseInterface</artifactId>
-            <version>[0.1-SNAPSHOT,)</version>
-            <scope>compile</scope>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -250,8 +243,8 @@
                             <shadedPattern>com.andrei1058.stevesus.libs.versionsupport</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.andrei1058.dbi</pattern>
-                            <shadedPattern>com.andrei1058.stevesus.libs.dbi</shadedPattern>
+                            <pattern>com.zaxxer.hikari</pattern>
+                            <shadedPattern>com.andrei1058.stevesus.libs.hikari</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>co.aikar.taskchain</pattern>

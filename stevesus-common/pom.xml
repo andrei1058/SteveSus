@@ -46,25 +46,30 @@
             <scope>compile</scope>
         </dependency>
         <!--Annotations-->
+        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
-            <optional>true</optional>
+            <version>26.0.1</version>
         </dependency>
         <!--ConfigMe-->
         <dependency>
             <groupId>ch.jalu</groupId>
             <artifactId>configme</artifactId>
-            <version>[1.2.0,)</version>
-            <scope>compile</scope>
+            <version>1.4.1</version>
         </dependency>
-        <!-- DataBase API -->
+        <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
         <dependency>
-            <groupId>com.andrei1058.dbi</groupId>
-            <artifactId>DataBaseInterface</artifactId>
-            <version>[0.1-SNAPSHOT,)</version>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
             <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- ItemStack version support -->
         <dependency>

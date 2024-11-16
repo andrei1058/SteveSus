@@ -1,6 +1,5 @@
 package com.andrei1058.stevesus.common.api.database;
 
-import com.andrei1058.dbi.DatabaseAdapter;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;

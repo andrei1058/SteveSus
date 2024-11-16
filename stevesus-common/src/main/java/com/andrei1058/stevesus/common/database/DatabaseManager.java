@@ -2,13 +2,14 @@ package com.andrei1058.stevesus.common.database;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
-import com.andrei1058.dbi.DatabaseAdapter;
-import com.andrei1058.dbi.adapter.HikariAdapter;
-import com.andrei1058.dbi.adapter.SQLiteAdapter;
+import com.andrei1058.stevesus.common.api.database.DatabaseAdapter;
 import com.andrei1058.stevesus.common.api.database.DatabaseService;
+import com.andrei1058.stevesus.common.database.adapter.HikariAdapter;
 import com.andrei1058.stevesus.common.database.adapter.NoDatabase;
+import com.andrei1058.stevesus.common.database.adapter.SqlLiteAdapter;
 import com.andrei1058.stevesus.common.database.config.DatabaseConfig;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -48,44 +49,11 @@ public class DatabaseManager implements DatabaseService {
             INSTANCE = new DatabaseManager(plugin, databaseFolderPath);
 
             if (INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_ENABLED)) {
-                try {
-                    if (DatabaseManager.getINSTANCE().setDatabaseAdapter(new HikariAdapter(plugin.getName() + "JdbcPool",
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_POOL_SIZE).orElse(10),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_MAX_LIFETIME).orElse(1800),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_HOST),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_PORT),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_NAME),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_USER),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_PASS),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_VERIFY_CERTIFICATE).orElse(true),
-                            INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_SSL)
-                    ))){
-                        plugin.getLogger().severe("Using MySQL database adapter.");
-                    } else {
-                        plugin.getLogger().info("Fallback on SQLite adapter.");
-                        if (!DatabaseManager.getINSTANCE().setDatabaseAdapter(new SQLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath()))) {
-                            plugin.getLogger().info("Using no database integration.");
-                            DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
-                        }
-                    }
-                } catch (SQLException e) {
-                    plugin.getLogger().severe("Cannot connect to database!");
-                    e.printStackTrace();
-                    plugin.getLogger().info("Fallback on SQLite adapter.");
-                    try {
-                        if (!DatabaseManager.getINSTANCE().setDatabaseAdapter(new SQLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath()))) {
-                            DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
-                        }
-                    } catch (SQLException exception) {
-                        exception.printStackTrace();
-                        plugin.getLogger().info("Using no database integration.");
-                        DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
-                    }
-                }
+                loadDatabaseConfiguration();
             } else {
                 plugin.getLogger().info("Using SQLite adapter.");
                 try {
-                    DatabaseManager.getINSTANCE().setDatabaseAdapter(new SQLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath()));
+                    DatabaseManager.getINSTANCE().setDatabaseAdapter(getCreateSqlLiteAdapter());
                 } catch (SQLException exception) {
                     exception.printStackTrace();
                     plugin.getLogger().info("Using no database integration.");
@@ -137,5 +105,50 @@ public class DatabaseManager implements DatabaseService {
     @Override
     public File getDatabaseConfigurationPath() {
         return databaseFolder;
+    }
+
+    public static DatabaseAdapter getCreateHikariAdapter(@NotNull Plugin plugin) throws SQLException {
+        return new HikariAdapter(plugin.getName() + "JdbcPool",
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_POOL_SIZE).orElse(10),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_MAX_LIFETIME).orElse(1800),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_HOST),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_PORT),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_NAME),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_USER),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_PASS),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_VERIFY_CERTIFICATE).orElse(true),
+                INSTANCE.databaseConfig.getProperty(DatabaseConfig.DATABASE_SSL)
+        );
+    }
+
+    public static DatabaseAdapter getCreateSqlLiteAdapter() throws SQLException {
+        return new SqlLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath());
+    }
+
+    private static void loadDatabaseConfiguration(Plugin plugin) {
+        try {
+            if (DatabaseManager.getINSTANCE().setDatabaseAdapter(getCreateHikariAdapter(plugin))){
+                plugin.getLogger().severe("Using MySQL database adapter.");
+            } else {
+                plugin.getLogger().info("Fallback on SQLite adapter.");
+                if (!DatabaseManager.getINSTANCE().setDatabaseAdapter(getCreateSqlLiteAdapter())) {
+                    plugin.getLogger().info("Using no database integration.");
+                    DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Cannot connect to database!");
+            e.printStackTrace();
+            plugin.getLogger().info("Fallback on SQLite adapter.");
+            try {
+                if (!DatabaseManager.getINSTANCE().setDatabaseAdapter(getCreateSqlLiteAdapter())) {
+                    DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
+                }
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+                plugin.getLogger().info("Using no database integration.");
+                DatabaseManager.getINSTANCE().setDatabaseAdapter(new NoDatabase());
+            }
+        }
     }
 }

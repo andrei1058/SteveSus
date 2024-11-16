@@ -19,13 +19,6 @@
             <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!--Spigot plugin.yml annotations -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>plugin-annotations</artifactId>
-            <version>[1.2.3-SNAPSHOT,)</version>
-            <scope>provided</scope>
-        </dependency>
         <!--CommandLib -->
         <dependency>
             <groupId>com.andrei1058.spigot.commandlib</groupId>
@@ -73,12 +66,6 @@
             <groupId>ch.jalu</groupId>
             <artifactId>configme</artifactId>
             <version>[1.2.0,)</version>
-        </dependency>
-        <!-- DataBase API -->
-        <dependency>
-            <groupId>com.andrei1058.dbi</groupId>
-            <artifactId>DataBaseInterface</artifactId>
-            <version>[0.1-SNAPSHOT,)</version>
         </dependency>
         <!-- Connector API -->
         <dependency>
