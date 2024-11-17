@@ -105,7 +105,8 @@ public class GameSidebarManager {
                     GameSidebar sidebar = new GameSidebar(player, content, finalArena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
                     if (finalArena != null && finalArena.getGameState() != GameState.IN_GAME) {
-                        sidebar.getHandle().playerListClear();
+                        // fixme disabled after sidebar lib upgrade
+//                        sidebar.getHandle().playerListClear();
                     }
                 }).execute();
             } else {
@@ -117,7 +118,8 @@ public class GameSidebarManager {
                         sidebar.hidePlayerName(inGame);
                     }
                 } else {
-                    sidebar.getHandle().playerListClear();
+                    // fixme disabled after sidebar lib upgrade
+//                    sidebar.getHandle().playerListClear();
                 }
             }
         } else {
@@ -129,7 +131,8 @@ public class GameSidebarManager {
                     previousSidebar.hidePlayerName(inGame);
                 }
             } else {
-                previousSidebar.getHandle().playerListClear();
+                // fixme disabled after sidebar lib upgrade
+//                previousSidebar.getHandle().playerListClear();
             }
         }
     }
@@ -154,23 +157,24 @@ public class GameSidebarManager {
                     }
                     final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GENERIC_PREFIX).replace("{display_color}", displayColor);
                     final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GENERIC_SUGGIX).replace("{display_color}", displayColor);
-                    sidebar.getHandle().playerListCreate(player,
-                            new SidebarLine() {
-                                @NotNull
-                                @Override
-                                public String getLine() {
-                                    return prefix;
-                                }
-                            },
-                            new SidebarLine() {
-                                @NotNull
-                                @Override
-                                public String getLine() {
-                                    return suffix;
-                                }
-                            }, true);
-
-                    sidebar.getHandle().playerListHideNameTag(player);
+// fixme disabled after sidebar lib upgrade
+                    //                    sidebar.getHandle().playerListCreate(player,
+//                            new SidebarLine() {
+//                                @NotNull
+//                                @Override
+//                                public String getLine() {
+//                                    return prefix;
+//                                }
+//                            },
+//                            new SidebarLine() {
+//                                @NotNull
+//                                @Override
+//                                public String getLine() {
+//                                    return suffix;
+//                                }
+//                            }, true);
+// fixme disabled after sidebar lib upgrade
+//                    sidebar.getHandle().playerListHideNameTag(player);
                 }
             }
         }).execute();
@@ -194,23 +198,25 @@ public class GameSidebarManager {
         for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
             final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_PREFIX).replace("{display_color}", displayColor);
             final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_SUFFIX).replace("{display_color}", displayColor);
-            sidebar.getHandle().playerListCreate(ghost,
-                    new SidebarLine() {
-                        @NotNull
-                        @Override
-                        public String getLine() {
-                            return prefix;
-                        }
-                    },
-                    new SidebarLine() {
-                        @NotNull
-                        @Override
-                        public String getLine() {
-                            return suffix;
-                        }
-                    }, true);
+// fixme disabled after sidebar lib upgrade
+            //            sidebar.getHandle().playerListCreate(ghost,
+//                    new SidebarLine() {
+//                        @NotNull
+//                        @Override
+//                        public String getLine() {
+//                            return prefix;
+//                        }
+//                    },
+//                    new SidebarLine() {
+//                        @NotNull
+//                        @Override
+//                        public String getLine() {
+//                            return suffix;
+//                        }
+//                    }, true);
             sidebar.hidePlayerName(ghost);
-            sidebar.getHandle().playerListRefreshAnimation();
+            // fixme disabled after sidebar lib upgrade
+//            sidebar.getHandle().playerListRefreshAnimation();
         }
     }
 
@@ -230,9 +236,10 @@ public class GameSidebarManager {
             // remove sidebar from active list
             //sidebarByPlayer.remove(player.getUniqueId());;
             // remove player data from current sidebar
-            sidebar.getHandle().remove(player.getUniqueId());
+            sidebar.getHandle().remove(player);
             // remove trace of player from other scoreboards
-            sidebarByPlayer.values().forEach(sb -> sb.getHandle().playerListRemove(player.getName()));
+            // fixme disabled after sidebar lib upgrade
+//            sidebarByPlayer.values().forEach(sb -> sb.getHandle().playerListRemove(player.getName()));
         }
     }
 
@@ -272,7 +279,8 @@ public class GameSidebarManager {
     public void hidePlayerName(Player receiver, Player player) {
         GameSidebar sidebar = sidebarByPlayer.get(receiver.getUniqueId());
         if (sidebar != null) {
-            sidebar.getHandle().playerListHideNameTag(player);
+            // fixme disabled after sidebar lib upgrade
+//            sidebar.getHandle().playerListHideNameTag(player);
         }
     }
 }

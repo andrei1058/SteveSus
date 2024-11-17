@@ -127,8 +127,8 @@
         <!-- Sidebar API -->
         <dependency>
             <groupId>com.andrei1058.spigot.sidebar</groupId>
-            <artifactId>sidebar-api</artifactId>
-            <version>0.3-SNAPSHOT</version>
+            <artifactId>sidebar-base</artifactId>
+            <version>24.2</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -140,6 +140,12 @@
                     <artifactId>annotations</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.andrei1058.spigot.sidebar</groupId>
+            <artifactId>sidebar-v1_12_R1</artifactId>
+            <version>24.2</version>
+            <scope>compile</scope>
         </dependency>
         <!-- Hologram API -->
         <dependency>

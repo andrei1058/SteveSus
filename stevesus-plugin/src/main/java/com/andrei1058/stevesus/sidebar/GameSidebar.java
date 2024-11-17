@@ -46,7 +46,12 @@ public class GameSidebar {
      * @param content sidebar lines.
      * @param arena   arena if target is in a game.
      */
-    protected GameSidebar(@NotNull Player player, @NotNull List<String> content, @Nullable Arena arena, @NotNull SimpleDateFormat dateFormat) {
+    protected GameSidebar(
+            @NotNull Player player,
+            @NotNull List<String> content,
+            @Nullable Arena arena,
+            @NotNull SimpleDateFormat dateFormat
+    ) {
         this.player = player;
         this.arena = arena;
         this.dateFormat = dateFormat;
@@ -115,7 +120,7 @@ public class GameSidebar {
         setLines(content);
 
         // apply sidebar
-        handle.apply(player);
+        handle.add(player);
         SteveSus.debug("Gave player scoreboard: " + player.getName());
     }
 
@@ -134,7 +139,7 @@ public class GameSidebar {
         }
 
         // remove previous lines
-        while (getHandle().linesAmount() > 0) {
+        while (getHandle().lineCount() > 0) {
             getHandle().removeLine(0);
         }
 
@@ -272,6 +277,7 @@ public class GameSidebar {
     }
 
     public void hidePlayerName(Player player) {
-        this.handle.playerListHideNameTag(player);
+        // todo needs tab group
+//        this.handle.playerListHideNameTag(player);
     }
 }
