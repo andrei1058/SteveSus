@@ -4,9 +4,6 @@ description: "A plugin that helps you join Among Us arenas."
 authors:
   - andrei1058
 website: "https://andrei1058.com"
-commands:
-  ss:
-    description: "Main command"
 softdepend:
   - Vault
   - PlaceholderAPI

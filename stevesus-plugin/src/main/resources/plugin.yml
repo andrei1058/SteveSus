@@ -5,10 +5,6 @@ authors:
   - andrei1058
 website: "https://andrei1058.dev"
 api-version: "1.13"
-commands:
-  ss:
-    description: "Main command"
-
 softdepend:
   - Vault
   - PlaceholderAPI

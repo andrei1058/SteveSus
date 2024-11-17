@@ -122,7 +122,8 @@ public class DatabaseManager implements DatabaseService {
     }
 
     public static DatabaseAdapter getCreateSqlLiteAdapter() throws SQLException {
-        return new SqlLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath());
+//        return new SqlLiteAdapter(getINSTANCE().getSQLiteFile().toURI().getPath());
+        return new NoDatabase();
     }
 
     private static void loadDatabaseConfiguration(Plugin plugin) {

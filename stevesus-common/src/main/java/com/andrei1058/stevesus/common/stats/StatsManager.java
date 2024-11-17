@@ -9,6 +9,7 @@ import com.andrei1058.stevesus.common.stats.config.StatsConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.Date;
@@ -45,7 +46,18 @@ public class StatsManager {
         HashMap<String, Object> result = DatabaseManager.getINSTANCE().getDatabase().getUserStats(player);
 
         PlayerStatsCache cache = new PlayerStatsCache(player);
+        this.mapToCache(result, cache);
 
+        cache.setGamesPlayed(cache.getGamesWon() + cache.getGamesLost());
+        //todo other stats for new game
+
+        playerStats.put(player, cache);
+    }
+
+    private void mapToCache(@Nullable HashMap<String, Object> result, PlayerStatsCache cache) {
+        if (null == result || result.isEmpty()) {
+            return;
+        }
         for (Map.Entry<String, Object> entry : result.entrySet()) {
             if (entry.getKey().equals(StatsList.FIRST_PLAY)) {
                 if (entry.getValue() == null) {
@@ -93,10 +105,7 @@ public class StatsManager {
 //                cache.setTasks((int) entry.getKey().castResult(entry.getValue()));
             }
         }
-        cache.setGamesPlayed(cache.getGamesWon() + cache.getGamesLost());
-        //todo other stats for new game
 
-        playerStats.put(player, cache);
     }
 
     /**
