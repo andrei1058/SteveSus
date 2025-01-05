@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @SuppressWarnings("SameParameterValue")
+@Deprecated
 public class ReflectCorpse {
 
     private final int entityID;
@@ -246,7 +247,7 @@ public class ReflectCorpse {
                                 (bedLocation.getBlockX(), bedLocation.getBlockY(), bedLocation.getBlockZ()));
             }
             for (Player pl : Bukkit.getOnlinePlayers()) {
-                pl.sendBlockChange(bedLocation, Material.BED_BLOCK, (byte) 0);
+                pl.sendBlockChange(bedLocation, Material.RED_BED, (byte) 0);
             }
             sendPacket(bedPacket);
             teleport(getGround(location).add(0, 0.125, 0));

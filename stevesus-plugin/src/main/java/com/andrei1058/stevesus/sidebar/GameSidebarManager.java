@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.sidebar;
 
+import com.andrei1058.spigot.sidebar.PlayerTab;
 import com.andrei1058.spigot.sidebar.SidebarLine;
 import com.andrei1058.spigot.sidebar.SidebarManager;
 import com.andrei1058.stevesus.SteveSus;
@@ -105,7 +106,7 @@ public class GameSidebarManager {
                     GameSidebar sidebar = new GameSidebar(player, content, finalArena, playerLocale.getTimeZonedDateFormat());
                     sidebarByPlayer.put(player.getUniqueId(), sidebar);
                     if (finalArena != null && finalArena.getGameState() != GameState.IN_GAME) {
-                        sidebar.getHandle().playerListClear();
+                        sidebar.getHandle().removeTabs();
                     }
                 }).execute();
             } else {
@@ -117,7 +118,7 @@ public class GameSidebarManager {
                         sidebar.hidePlayerName(inGame);
                     }
                 } else {
-                    sidebar.getHandle().playerListClear();
+                    sidebar.getHandle().removeTabs();
                 }
             }
         } else {
@@ -129,12 +130,12 @@ public class GameSidebarManager {
                     previousSidebar.hidePlayerName(inGame);
                 }
             } else {
-                previousSidebar.getHandle().playerListClear();
+                previousSidebar.getHandle().removeTabs();
             }
         }
     }
 
-    public static void hidePlayerNames(Arena arena) {
+    public static void hidePlayerNames(@NotNull Arena arena) {
         if (arena.getGameState() != GameState.IN_GAME) return;
         SteveSus.newChain().delay(20).sync(() -> {
             for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
@@ -152,25 +153,32 @@ public class GameSidebarManager {
                             displayColor = playerColor.getDisplayColor(player);
                         }
                     }
-                    final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GENERIC_PREFIX).replace("{display_color}", displayColor);
-                    final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GENERIC_SUGGIX).replace("{display_color}", displayColor);
-                    sidebar.getHandle().playerListCreate(player,
+                    final String prefix = LanguageManager.getINSTANCE().getMsg(
+                            sidebar.getPlayer(), Message.TAB_LIST_GENERIC_PREFIX
+                    ).replace("{display_color}", displayColor);
+                    final String suffix = LanguageManager.getINSTANCE().getMsg(
+                            sidebar.getPlayer(), Message.TAB_LIST_GENERIC_SUGGIX
+                    ).replace("{display_color}", displayColor);
+
+                    var tab = sidebar.getHandle().playerTabCreate(
+                            player.getName(),
+                            player,
                             new SidebarLine() {
-                                @NotNull
                                 @Override
-                                public String getLine() {
+                                public @NotNull String getLine() {
                                     return prefix;
                                 }
                             },
                             new SidebarLine() {
-                                @NotNull
                                 @Override
-                                public String getLine() {
+                                public @NotNull String getLine() {
                                     return suffix;
                                 }
-                            }, true);
-
-                    sidebar.getHandle().playerListHideNameTag(player);
+                            },
+                            PlayerTab.PushingRule.PUSH_OTHER_TEAMS
+                    );
+                    tab.setNameTagVisibility(PlayerTab.NameTagVisibility.NEVER);
+                    tab.add(player);
                 }
             }
         }).execute();
@@ -192,25 +200,35 @@ public class GameSidebarManager {
             }
         }
         for (GameSidebar sidebar : getInstance().getSidebars(arena)) {
-            final String prefix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_PREFIX).replace("{display_color}", displayColor);
-            final String suffix = LanguageManager.getINSTANCE().getMsg(sidebar.getPlayer(), Message.TAB_LIST_GHOST_SUFFIX).replace("{display_color}", displayColor);
-            sidebar.getHandle().playerListCreate(ghost,
+            final String prefix = LanguageManager.getINSTANCE().getMsg(
+                    sidebar.getPlayer(), Message.TAB_LIST_GHOST_PREFIX
+            ).replace("{display_color}", displayColor);
+            final String suffix = LanguageManager.getINSTANCE().getMsg(
+                    sidebar.getPlayer(), Message.TAB_LIST_GHOST_SUFFIX
+            ).replace("{display_color}", displayColor);
+
+            sidebar.getHandle().removeTab(ghost.getName());
+            var tab = sidebar.getHandle().playerTabCreate(
+                    ghost.getName(),
+                    ghost,
                     new SidebarLine() {
-                        @NotNull
                         @Override
-                        public String getLine() {
+                        public @NotNull String getLine() {
                             return prefix;
                         }
                     },
                     new SidebarLine() {
-                        @NotNull
                         @Override
-                        public String getLine() {
+                        public @NotNull String getLine() {
                             return suffix;
                         }
-                    }, true);
+                    },
+                    PlayerTab.PushingRule.NEVER
+            );
+            tab.setNameTagVisibility(PlayerTab.NameTagVisibility.NEVER);
+            tab.add(ghost);
             sidebar.hidePlayerName(ghost);
-            sidebar.getHandle().playerListRefreshAnimation();
+            sidebar.getHandle().playerTabRefreshAnimation();
         }
     }
 
@@ -228,11 +246,16 @@ public class GameSidebarManager {
         GameSidebar sidebar = sidebarByPlayer.remove(player.getUniqueId());
         if (sidebar != null) {
             // remove sidebar from active list
-            //sidebarByPlayer.remove(player.getUniqueId());;
+            sidebarByPlayer.remove(player.getUniqueId());
             // remove player data from current sidebar
-            sidebar.getHandle().remove(player.getUniqueId());
+            sidebar.getHandle().remove(player);
             // remove trace of player from other scoreboards
-            sidebarByPlayer.values().forEach(sb -> sb.getHandle().playerListRemove(player.getName()));
+            sidebarByPlayer.values().forEach(
+                    sb -> {
+                        sb.getHandle().remove(player);
+                        sb.getHandle().removeTab(player.getName());
+                    }
+            );
         }
     }
 
@@ -269,10 +292,12 @@ public class GameSidebarManager {
         return sidebarByPlayer.values().stream().filter(sb -> sb.getArena() != null && sb.getArena().equals(arena)).collect(Collectors.toSet());
     }
 
+    @Deprecated(forRemoval = true)
     public void hidePlayerName(Player receiver, Player player) {
         GameSidebar sidebar = sidebarByPlayer.get(receiver.getUniqueId());
         if (sidebar != null) {
-            sidebar.getHandle().playerListHideNameTag(player);
+            // fixme disabled after sidebar lib upgrade
+//            sidebar.getHandle().playerListHideNameTag(player);
         }
     }
 }

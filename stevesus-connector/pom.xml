@@ -16,14 +16,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <!--Spigot plugin.yml annotations -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>plugin-annotations</artifactId>
-            <version>[1.2.3-SNAPSHOT,)</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!--CommandLib -->
@@ -40,12 +33,11 @@
             <version>[1.5.0,)</version>
             <scope>compile</scope>
         </dependency>
-        <!--Annotations-->
+        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
-            <scope>provided</scope>
+            <version>26.0.1</version>
         </dependency>
         <!--bStats-->
         <dependency>
@@ -73,12 +65,6 @@
             <groupId>ch.jalu</groupId>
             <artifactId>configme</artifactId>
             <version>[1.2.0,)</version>
-        </dependency>
-        <!-- DataBase API -->
-        <dependency>
-            <groupId>com.andrei1058.dbi</groupId>
-            <artifactId>DataBaseInterface</artifactId>
-            <version>[0.1-SNAPSHOT,)</version>
         </dependency>
         <!-- Connector API -->
         <dependency>

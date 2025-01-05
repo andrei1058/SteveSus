@@ -1,12 +1,9 @@
 package com.andrei1058.stevesus.connector.language;
 
-import com.andrei1058.dbi.DatabaseAdapter;
-import com.andrei1058.dbi.column.datavalue.SimpleValue;
 import com.andrei1058.stevesus.common.api.locale.CommonLocale;
 import com.andrei1058.stevesus.common.api.locale.CommonLocaleManager;
 import com.andrei1058.stevesus.common.api.locale.CommonMessage;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
-import com.andrei1058.stevesus.common.database.table.LanguageTable;
 import com.andrei1058.stevesus.connector.SteveSusConnector;
 import com.andrei1058.stevesus.connector.api.event.PlayerLanguageChangeEvent;
 import com.andrei1058.stevesus.connector.config.ConnectorConfig;
@@ -27,7 +24,6 @@ public class LanguageManager implements CommonLocaleManager {
     private final LinkedList<CommonLocale> loadedLanguages = new LinkedList<>();
     private final HashMap<UUID, CommonLocale> languageByPlayer = new HashMap<>();
     private CommonLocale defaultLanguage;
-    private final LanguageTable languageTable = new LanguageTable();
     private File languagesFolder = new File(SteveSusConnector.getInstance().getDataFolder(), "Locales");
 
     private LanguageManager() {
@@ -93,7 +89,7 @@ public class LanguageManager implements CommonLocaleManager {
     }
 
     public static void onEnable() {
-        DatabaseManager.getINSTANCE().getDatabase().createTable(getINSTANCE().languageTable, false);
+        DatabaseManager.getINSTANCE().getDatabase().createUserLanguageTable();
     }
 
     /**
@@ -210,8 +206,8 @@ public class LanguageManager implements CommonLocaleManager {
                 Bukkit.getPluginManager().callEvent(new PlayerLanguageChangeEvent(player, translation, old));
             }
         }
-        LanguageTable table = LanguageManager.getINSTANCE().getLanguageTable();
-        DatabaseManager.getINSTANCE().getDatabase().insert(table, Arrays.asList(new SimpleValue<>(table.PRIMARY_KEY, uuid), new SimpleValue<>(table.LANGUAGE, translation)), DatabaseAdapter.InsertFallback.UPDATE);
+
+        DatabaseManager.getINSTANCE().getDatabase().saveUserLanguage(uuid, translation);
         return true;
     }
 
@@ -238,10 +234,6 @@ public class LanguageManager implements CommonLocaleManager {
     @Override
     public boolean isLocaleExist(@Nullable String isoCode) {
         return getLocale(isoCode) != null;
-    }
-
-    public LanguageTable getLanguageTable() {
-        return languageTable;
     }
 
     @Override

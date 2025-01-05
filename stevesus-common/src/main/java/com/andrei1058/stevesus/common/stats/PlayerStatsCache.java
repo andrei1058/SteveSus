@@ -1,19 +1,12 @@
 package com.andrei1058.stevesus.common.stats;
 
-import com.andrei1058.dbi.DatabaseAdapter;
-import com.andrei1058.dbi.column.Column;
-import com.andrei1058.dbi.column.ColumnValue;
-import com.andrei1058.dbi.column.datavalue.SimpleValue;
-import com.andrei1058.dbi.operator.EqualsOperator;
 import com.andrei1058.stevesus.common.CommonManager;
 import com.andrei1058.stevesus.common.database.DatabaseManager;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class PlayerStatsCache {
@@ -34,12 +27,7 @@ public class PlayerStatsCache {
         this.uuid = player;
 
         Bukkit.getScheduler().runTaskAsynchronously(CommonManager.getINSTANCE().getPlugin(), () -> {
-            UUID result = DatabaseManager.getINSTANCE().getDatabase().select(PlayerStatsTable.PRIMARY_KEY, StatsManager.getINSTANCE().getStatsTable(), new EqualsOperator<>(PlayerStatsTable.PRIMARY_KEY, player));
-            if (result == null) {
-                List<ColumnValue<?>> values = new ArrayList<>();
-                values.add(new SimpleValue<>(PlayerStatsTable.PRIMARY_KEY, player));
-                DatabaseManager.getINSTANCE().getDatabase().insert(StatsManager.getINSTANCE().getStatsTable(), values, DatabaseAdapter.InsertFallback.IGNORE);
-            }
+            DatabaseManager.getINSTANCE().getDatabase().initUserStats(uuid);
         });
     }
 
@@ -136,27 +124,29 @@ public class PlayerStatsCache {
      */
     public void saveStats(boolean abandoned) {
 
-        HashMap<Column<?>, ColumnValue<?>> toSave = new HashMap<>();
+        HashMap<String, Object> toSave = new HashMap<>();
 
         if (abandoned) {
             setGamesAbandoned(getGamesAbandoned() + 1);
         } else {
-            toSave.put(PlayerStatsTable.FIRST_PLAY, new SimpleValue<>(PlayerStatsTable.FIRST_PLAY, getFirstPlay() == null ? getLastPlay() : getFirstPlay()));
-            toSave.put(PlayerStatsTable.LAST_PLAY, new SimpleValue<>(PlayerStatsTable.LAST_PLAY, getLastPlay()));
+            toSave.put(StatsList.FIRST_PLAY.toString(), getFirstPlay() == null ? getLastPlay() : getFirstPlay());
+            toSave.put(StatsList.LAST_PLAY.toString(), getLastPlay());
 
-            toSave.put(PlayerStatsTable.GAMES_WON, new SimpleValue<>(PlayerStatsTable.GAMES_WON, getGamesWon()));
-            toSave.put(PlayerStatsTable.GAMES_LOST, new SimpleValue<>(PlayerStatsTable.GAMES_WON, getGamesLost()));
+            toSave.put(StatsList.GAMES_WON.toString(), getGamesWon());
+            toSave.put(StatsList.GAMES_LOST.toString(), getGamesLost());
 
-            toSave.put(PlayerStatsTable.KILLS, new SimpleValue<>(PlayerStatsTable.KILLS, getKills()));
-            toSave.put(PlayerStatsTable.SABOTAGES, new SimpleValue<>(PlayerStatsTable.SABOTAGES, getSabotages()));
-            toSave.put(PlayerStatsTable.FIXED_SABOTAGES, new SimpleValue<>(PlayerStatsTable.FIXED_SABOTAGES, getFixedSabotages()));
-            toSave.put(PlayerStatsTable.TASKS, new SimpleValue<>(PlayerStatsTable.TASKS, getTasks()));
+            toSave.put(StatsList.KILLS.toString(), getKills());
+            toSave.put(StatsList.SABOTAGES.toString(), getSabotages());
+            toSave.put(StatsList.FIXED_SABOTAGES.toString(), getFixedSabotages());
+            toSave.put(StatsList.TASKS.toString(), getTasks());
         }
-        toSave.put(PlayerStatsTable.GAMES_ABANDONED, new SimpleValue<>(PlayerStatsTable.GAMES_ABANDONED, getGamesAbandoned()));
+        toSave.put(StatsList.GAMES_ABANDONED.toString(), getGamesAbandoned());
 
         //todo other stats for new game
 
-        Bukkit.getScheduler().runTaskAsynchronously(CommonManager.getINSTANCE().getPlugin(), () -> DatabaseManager.getINSTANCE().getDatabase().set(StatsManager.getINSTANCE().getStatsTable(),
-                toSave, new EqualsOperator<>(PlayerStatsTable.PRIMARY_KEY, getUuid())));
+        Bukkit.getScheduler().runTaskAsynchronously(
+                CommonManager.getINSTANCE().getPlugin(),
+                () -> DatabaseManager.getINSTANCE().getDatabase().saveUserStats(uuid, toSave)
+        );
     }
 }

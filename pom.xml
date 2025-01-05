@@ -31,12 +31,12 @@
 
         <repository>
             <id>andrei1058-snapshots</id>
-            <url>https://repo.andrei1058.com/snapshots</url>
+            <url>https://repo.andrei1058.dev/snapshots</url>
         </repository>
 
         <repository>
             <id>andrei1058-releases</id>
-            <url>https://repo.andrei1058.com/releases</url>
+            <url>https://repo.andrei1058.dev/releases</url>
         </repository>
 
         <repository>

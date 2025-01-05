@@ -55,7 +55,13 @@ public class ArenaConfig implements SettingsHolder {
     public static final ListProperty<Location> MEETING_LOCATIONS = new ListProperty<>("emergency-meeting-locations", new OrphanLocationProperty(), new ArrayList<>());
 
     @Comment({" ", "Location where to spawn meeting button."})
-    public static final OptionalProperty<Location> MEETING_BUTTON_LOC = new OptionalProperty<>(new TypeBasedProperty<>("meeting-button-location", new Location(null, 0, 0, 0), new OrphanLocationProperty()));
+    public static final OptionalProperty<Location> MEETING_BUTTON_LOC = new OptionalProperty<>(
+            new TypeBasedProperty<>(
+                    "meeting-button-location",
+                    new Location(null, 0, 0, 0),
+                    new OrphanLocationProperty()
+            )
+    );
 
     @Comment({
             " ",

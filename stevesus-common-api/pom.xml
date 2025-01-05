@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!--CommandLib -->
@@ -26,24 +26,17 @@
             <version>1.1-SNAPSHOT</version>
             <optional>true</optional>
         </dependency>
-        <!--Annotations-->
+        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
-            <optional>true</optional>
+            <version>26.0.1</version>
         </dependency>
-        <!-- DataBase API -->
-        <dependency>
-            <groupId>com.andrei1058.dbi</groupId>
-            <artifactId>DataBaseInterface</artifactId>
-            <version>[0.1-SNAPSHOT,)</version>
-            <optional>true</optional>
-        </dependency>
+
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

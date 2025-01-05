@@ -51,24 +51,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.annotation.command.Command;
-import org.bukkit.plugin.java.annotation.dependency.SoftDependency;
-import org.bukkit.plugin.java.annotation.dependency.SoftDependsOn;
-import org.bukkit.plugin.java.annotation.plugin.ApiVersion;
-import org.bukkit.plugin.java.annotation.plugin.Description;
-import org.bukkit.plugin.java.annotation.plugin.Plugin;
-import org.bukkit.plugin.java.annotation.plugin.Website;
-import org.bukkit.plugin.java.annotation.plugin.author.Author;
 
 import java.io.File;
 
-@Plugin(name = "SteveSus", version = "1.4.2-beta")
-@Description(value = "A murder mystery mini-game")
-@Author(value = "andrei1058")
-@Website(value = "www.andrei1058.com")
-@ApiVersion(value = ApiVersion.Target.v1_13)
-@Command(name = "ss")
-@SoftDependsOn({@SoftDependency("Vault"), @SoftDependency("PlaceholderAPI"), @SoftDependency("CorpseReborn"), @SoftDependency("GlowAPI"), @SoftDependency("PacketListenerAPI")})
 public class SteveSus extends JavaPlugin implements SteveSusAPI, VersionUtil {
 
     private static SteveSus INSTANCE;

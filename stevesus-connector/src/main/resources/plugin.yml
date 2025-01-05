@@ -1,0 +1,11 @@
+name: "SteveSus-Connector"
+version: "1.0-alpha"
+description: "A plugin that helps you join Among Us arenas."
+authors:
+  - andrei1058
+website: "https://andrei1058.com"
+softdepend:
+  - Vault
+  - PlaceholderAPI
+
+main: com.andrei1058.stevesus.connector.SteveSusConnector
