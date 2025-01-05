@@ -159,7 +159,7 @@ public class SubmitScanTask extends GameTask {
                         currentPitch[0] -= 0.1;
                     }
                 }
-                player.playSound(scanCapsuleLocation, Sound.BLOCK_NOTE_BASS, (float) 1, (float) currentPitch[0]);
+                player.playSound(scanCapsuleLocation, Sound.BLOCK_NOTE_BLOCK_BASS, (float) 1, (float) currentPitch[0]);
                 if (arena.getLiveSettings().isVisualTasksEnabled() && getHandler().isVisual() && (playerTeam == null || !playerTeam.getIdentifier().endsWith("-ghost"))) {
                     scanParticles.forEach(loc -> loc.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, loc.clone().add(0, currentY[0], 0), 1));
                 } else {
