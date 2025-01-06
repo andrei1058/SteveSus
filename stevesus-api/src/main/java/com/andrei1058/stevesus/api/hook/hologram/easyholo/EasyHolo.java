@@ -38,7 +38,9 @@ public class EasyHolo implements HologramI {
 
     @Override
     public void hideToAll() {
-
+        perPlayer.forEach((uuid, holo) -> {
+            holo.hide();
+        });
     }
 
     @Override
