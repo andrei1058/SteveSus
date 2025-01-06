@@ -27,7 +27,12 @@ public class EasyHolo implements HologramI {
     public void setPageContent(List<Function<Player, String>> pageContent) {
         this.pageContent = pageContent;
         if (!perPlayer.isEmpty()) {
-            // todo remove existing content and send update to current players
+            perPlayer.forEach((uuid, holo) -> {
+                var player = Bukkit.getPlayer(uuid);
+                if (player != null) {
+                    updateLines(player, holo);
+                }
+            });
         }
     }
 
