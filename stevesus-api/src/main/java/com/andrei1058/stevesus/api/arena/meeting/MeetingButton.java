@@ -1,24 +1,24 @@
 package com.andrei1058.stevesus.api.arena.meeting;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.api.SteveSusAPI;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,16 +28,18 @@ public class MeetingButton {
     // use this to identify armor stand entity
     public static final String MEETING_BUTTON_META_DATA_KEY = "mbtnss";
 
-    private final Hologram buttonHologram;
+    private @Nullable HologramI buttonHologram = null;
     private long lastUsage;
-    private final List<Location> particleLocations;
+    private List<Location> particleLocations = new ArrayList<>();
     private int currentEntry = -1;
     private UUID lastRequester;
 
     public MeetingButton(Plugin plugin, Location location, Arena arena) {
         location.setX(location.getBlockX() + 0.5);
         location.setZ(location.getBlockZ() + 0.5);
-        ArmorStand buttonKeeper = location.getWorld().spawn(location.clone().subtract(0, 1.5, 0), ArmorStand.class);
+        ArmorStand buttonKeeper = location.getWorld().spawn(
+                location.clone().subtract(0, 1.5, 0), ArmorStand.class
+        );
         buttonKeeper.setRemoveWhenFarAway(false);
         buttonKeeper.setVisible(false);
         buttonKeeper.setGravity(false);
@@ -45,22 +47,31 @@ public class MeetingButton {
         buttonKeeper.setHelmet(meetingHead);
         buttonKeeper.setMetadata(MEETING_BUTTON_META_DATA_KEY, new FixedMetadataValue(plugin, arena.getGameId()));
 
-        buttonHologram = new Hologram(location.clone().add(0, 1.5, 0), 3);
-        HologramPage page = buttonHologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_HOLO1)));
-        page.setLineContent(1, new LineTextContent(s -> arena.getMeetingStage() == MeetingStage.NO_MEETING ? SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_HOLO2) : " "));
-        page.setLineContent(2, new LineTextContent(s -> {
-            if (arena.getMeetingStage() == MeetingStage.TALKING) {
-                return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_VOTING_STARTS_IN).replace("{time}", String.valueOf(arena.getCountdown()));
-            } else if (arena.getMeetingStage() == MeetingStage.VOTING) {
-                return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN).replace("{time}", String.valueOf(arena.getCountdown()));
-            }
-            return SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT).replace("{amount}", String.valueOf(arena.getMeetingsLeft(s)));
-        }));
+        if (null != HologramManager.getInstance().getProvider()) {
+            buttonHologram = HologramManager.getInstance().getProvider().spawnHologram(location);
+
+            var localeHandler = SteveSusAPI.getInstance().getLocaleHandler();
+            buttonHologram.setPageContent(Arrays.asList(
+                    receiver -> localeHandler.getMsg(receiver, Message.EMERGENCY_BUTTON_HOLO1),
+                    receiver -> arena.getMeetingStage() == MeetingStage.NO_MEETING ?
+                            localeHandler.getMsg(receiver, Message.EMERGENCY_BUTTON_HOLO2) :
+                            " ",
+                    receiver -> {
+                        if (arena.getMeetingStage() == MeetingStage.TALKING) {
+                            return localeHandler.getMsg(receiver, Message.EMERGENCY_BUTTON_STATUS_VOTING_STARTS_IN)
+                                    .replace("{time}", String.valueOf(arena.getCountdown()));
+                        } else if (arena.getMeetingStage() == MeetingStage.VOTING) {
+                            return localeHandler.getMsg(receiver, Message.EMERGENCY_BUTTON_STATUS_VOTING_ENDS_IN)
+                                    .replace("{time}", String.valueOf(arena.getCountdown()));
+                        }
+                        return localeHandler.getMsg(receiver, Message.EMERGENCY_BUTTON_STATUS_YOUR_MEETINGS_LEFT)
+                                .replace("{amount}", String.valueOf(arena.getMeetingsLeft(receiver)));
+                    }
+            ));
+            buttonHologram.hideToAll();
+        }
 
         this.particleLocations = getCircle(location.clone().add(0, 0.3, 0), 0.6, 15);
-        buttonHologram.hide();
     }
 
     /**
@@ -77,8 +88,15 @@ public class MeetingButton {
         }
     }
 
-    public void onGameStart() {
-        buttonHologram.show();
+    public void onGameStart(Arena arena) {
+        if (null != buttonHologram && null != arena) {
+            arena.getPlayers().forEach(
+                    player -> buttonHologram.showToPlayer(player)
+            );
+            arena.getSpectators().forEach(
+                    spectator -> buttonHologram.showToPlayer(spectator)
+            );
+        }
     }
 
     /**

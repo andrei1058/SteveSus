@@ -1,8 +1,5 @@
 package com.andrei1058.stevesus.arena.gametask.startreactor;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
@@ -10,6 +7,8 @@ import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
@@ -26,7 +25,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.Arrays;
 
 public class StartReactorTaskProvider extends TaskProvider {
 
@@ -129,14 +128,20 @@ public class StartReactorTaskProvider extends TaskProvider {
             GlowingBox glowingBox = new GlowingBox(location.clone().add(0.5, 0, 0.5), 2, GlowColor.GREEN);
             glowingBox.startGlowing(setupSession.getPlayer());
 
-            Hologram hologram = new Hologram(location, 2);
-            HologramPage page = hologram.getPage(0);
-            assert page != null;
-            page.setLineContent(0, new LineTextContent(s -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName())));
-            page.setLineContent(1, new LineTextContent(s -> localName));
+            var holoManager = HologramManager.getInstance().getProvider();
+            HologramI holo = null;
+            if (null != holoManager) {
+                holo = holoManager.spawnHologram(location);
+                holo.setPageContent(Arrays.asList(
+                        r -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()),
+                        r -> localName
+                ));
+            }
 
             // cache objects so they can be removed if player decides to remove this configuration
-            setupSession.cacheValue(getIdentifier() + "-" + localName + "-holo", hologram);
+            if (null != holo) {
+                setupSession.cacheValue(getIdentifier() + "-" + localName + "-holo", holo);
+            }
             setupSession.cacheValue(getIdentifier() + "-" + localName + "-glowing", glowingBox);
         }).execute();
     }

@@ -1,6 +1,6 @@
 package com.andrei1058.stevesus.api.arena;
 
-import com.andrei1058.hologramapi.Hologram;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +37,7 @@ public interface PlayerCorpse {
     /**
      * Get hologram to hide/ show it when necessary.
      */
-    @Nullable Hologram getHologram();
+    @Nullable HologramI getHologram();
 
     /**
      * Check if the given location is in corpse's range.

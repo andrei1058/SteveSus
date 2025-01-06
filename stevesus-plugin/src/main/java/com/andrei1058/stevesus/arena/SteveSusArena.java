@@ -971,7 +971,7 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.IN_GAME, this, false));
             // refresh meeting button lines
             if (getMeetingButton() != null) {
-                getMeetingButton().onGameStart();
+                getMeetingButton().onGameStart(this);
                 getMeetingButton().refreshLines(this);
                 getMeetingButton().setLastUsage(System.currentTimeMillis());
             }

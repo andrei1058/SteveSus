@@ -1,15 +1,15 @@
 package com.andrei1058.stevesus.api.arena.vent;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.CommonManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -21,13 +21,12 @@ public class Vent {
     private final Location location;
     private final LinkedList<Vent> connections = new LinkedList<>();
     private ItemStack displayItem;
-    private final Hologram hologram;
+    private @Nullable HologramI hologram;
 
     /**
      * Create a vent.
      *
      * @param identifier unique id.
-     * @param block      trap block on which players must shift to start venting.
      */
     public Vent(@NotNull String identifier, @NotNull Location location, @NotNull ItemStack displayItem) {
         this.identifier = identifier;
@@ -35,12 +34,15 @@ public class Vent {
         this.location.setX(location.getBlockX() + 0.5);
         this.location.setZ(location.getBlockZ() + 0.5);
         this.displayItem = CommonManager.getINSTANCE().getItemSupport().addTag(displayItem, "nextVent", identifier);
-        hologram = new Hologram(location.clone().add(0, 0.5, 0), 1);
-        HologramPage page = hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> SteveSusAPI.getInstance().getLocaleHandler().getMsg(s, Message.VENT_HOLO)));
-        hologram.hide();
-        hologram.allowCollisions(false);
+
+        if (null == HologramManager.getInstance().getProvider()) {
+            var holoManager = HologramManager.getInstance().getProvider();
+            hologram = holoManager.spawnHologram(location.clone().add(0, 0.5, 0));
+            hologram.setPageContent(List.of(
+                    receiver -> SteveSusAPI.getInstance().getLocaleHandler().getMsg(receiver, Message.VENT_HOLO)
+            ));
+            hologram.hideToAll();
+        }
     }
 
     /**
@@ -108,7 +110,7 @@ public class Vent {
         return vent.getIdentifier().equals(getIdentifier());
     }
 
-    public Hologram getHologram() {
+    public @Nullable HologramI getHologram() {
         return hologram;
     }
 }

@@ -1,8 +1,5 @@
 package com.andrei1058.stevesus.arena.gametask.manifolds;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
@@ -11,6 +8,8 @@ import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
 import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
@@ -21,7 +20,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -32,7 +34,7 @@ public class UnlockManifoldsTask extends GameTask {
     private final HashMap<UUID, Boolean> assignedPlayers = new HashMap<>();
     private final Arena arena;
     private final Block shulkerBlock;
-    private final Hologram hologram;
+    private @Nullable HologramI hologram = null;
     private final GlowingBox glowingBox;
 
     public UnlockManifoldsTask(String localName, Arena arena, Location location) {
@@ -44,13 +46,17 @@ public class UnlockManifoldsTask extends GameTask {
         shulkerBlock.setType(Material.BLACK_SHULKER_BOX);
         glowingBox = new GlowingBox(location, 2, GlowColor.YELLOW);
 
-        hologram = new Hologram(location.clone().add(0, 2, 0), 2);
-        hologram.allowCollisions(false);
-        HologramPage page = hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_NAME_PATH_.toString() + getHandler().getIdentifier())));
-        page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_DESCRIPTION_PATH_.toString() + getHandler().getIdentifier())));
-        hologram.hide();
+        var holoProvider = HologramManager.getInstance().getProvider();
+
+        if (null != holoProvider) {
+            hologram = holoProvider.spawnHologram(location.clone().add(0, 2, 0));
+            hologram.setPageContent(Arrays.asList(
+                    player -> LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_NAME_PATH_ + getHandler().getIdentifier()),
+                    player -> LanguageManager.getINSTANCE().getMsg(player, Message.GAME_TASK_DESCRIPTION_PATH_ + getHandler().getIdentifier())
+            ));
+            hologram.hideToAll();
+        }
+
 
         arena.registerGameListener(new GameListener() {
             @Override
@@ -80,14 +86,16 @@ public class UnlockManifoldsTask extends GameTask {
             @Override
             public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
                 if (newState == GameState.IN_GAME) {
-
+                    if (null == hologram) {
+                        return;
+                    }
                     // hide hologram for those who do not have this task
                     for (Player player : arena.getPlayers()) {
                         if (!hasTask(player)) {
-                            hologram.hide(player);
+                            hologram.hideFromPlayer(player);
                         }
                     }
-                    hologram.show();
+                    hologram.unHide();
                 }
             }
         });
@@ -159,36 +167,46 @@ public class UnlockManifoldsTask extends GameTask {
 
     @Override
     public void enableIndicators() {
+        if (null == hologram) {
+            return;
+        }
+
         for (Player player : arena.getPlayers()) {
             if (hasTask(player) && (getCurrentStage(player) != getTotalStages(player))) {
                 getGlowingBox().startGlowing(player);
-                hologram.hide(player);
+                hologram.hideFromPlayer(player);
             }
         }
     }
 
     @Override
     public void disableIndicators() {
+        if (null == hologram) {
+            return;
+        }
+
         for (Player player : arena.getPlayers()) {
             if (hasTask(player)) {
                 getGlowingBox().stopGlowing(player);
-                hologram.show(player);
+                hologram.showToPlayer(player);
             }
         }
     }
 
-    public void markDone(Player player) {
+    public void markDone(@NotNull Player player) {
         player.closeInventory();
         assignedPlayers.replace(player.getUniqueId(), true);
         arena.refreshTaskMeter();
         arena.getGameEndConditions().tickGameEndConditions(arena);
         getGlowingBox().stopGlowing(player);
-        hologram.hide(player);
+        if (null != hologram) {
+            hologram.hideFromPlayer(player);
+        }
         PlayerTaskDoneEvent taskDoneEvent = new PlayerTaskDoneEvent(arena, this, player);
         Bukkit.getPluginManager().callEvent(taskDoneEvent);
     }
 
-    private void tryOpenGUI(Player player, Arena arena) {
+    private void tryOpenGUI(Player player, @NotNull Arena arena) {
         if (!arena.isTasksAllowedATM()) return;
         if (hasTask(player)) {
             if (arena.getCamHandler() != null && arena.getCamHandler().isOnCam(player, arena)) return;

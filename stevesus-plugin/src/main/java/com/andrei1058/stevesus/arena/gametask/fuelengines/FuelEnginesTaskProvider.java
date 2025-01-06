@@ -11,7 +11,6 @@ import com.andrei1058.stevesus.api.setup.SetupSession;
 import com.andrei1058.stevesus.api.setup.util.SaveTaskItem;
 import com.andrei1058.stevesus.api.setup.util.SelectTargetBlocks;
 import com.andrei1058.stevesus.arena.ArenaManager;
-import com.andrei1058.stevesus.arena.gametask.emptygarbage.OrderPriority;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.config.properties.OrphanLocationProperty;
 import com.google.gson.JsonArray;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.function.Function;
 
 public class FuelEnginesTaskProvider extends TaskProvider {
 

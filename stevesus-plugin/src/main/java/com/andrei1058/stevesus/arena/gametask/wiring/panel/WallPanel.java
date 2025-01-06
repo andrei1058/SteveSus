@@ -1,10 +1,9 @@
 package com.andrei1058.stevesus.arena.gametask.wiring.panel;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringProvider;
 import com.andrei1058.stevesus.arena.gametask.wiring.FixWiringTask;
@@ -19,10 +18,12 @@ import org.bukkit.Location;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public class WallPanel {
@@ -30,7 +31,7 @@ public class WallPanel {
     private final int wiresAmount;
     private final FixWiringTask.PanelFlag flag;
     private final ItemFrame itemFrame;
-    private Hologram hologram;
+    private @Nullable HologramI hologram = null;
 
     private int assignments = 0;
 
@@ -61,12 +62,19 @@ public class WallPanel {
             e.printStackTrace();
         }
 
-        this.hologram = new Hologram(itemFrame.getLocation().clone().add(0,1,0).add((itemFrame.getLocation().getDirection().normalize()))/*.add(itemFrame.getLocation().getDirection())*/, 1);
-        HologramPage page = this.hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, FixWiringProvider.PANEL_HOLO)));
-        hologram.hide();
-        hologram.allowCollisions(false);
+        var holoManager = HologramManager.getInstance().getProvider();
+
+        if (null != holoManager) {
+            this.hologram = holoManager.spawnHologram(
+                    itemFrame.getLocation().clone().add(0, 1, 0)
+                            .add((itemFrame.getLocation().getDirection().normalize())
+                            )
+            );
+            this.hologram.setPageContent(List.of(
+                    r -> LanguageManager.getINSTANCE().getMsg(r, FixWiringProvider.PANEL_HOLO)
+            ));
+            this.hologram.hideToAll();
+        }
     }
 
     public ItemFrame getItemFrame() {
@@ -95,28 +103,28 @@ public class WallPanel {
         }).execute();
     }
 
-    public void startGlowing(UUID player){
+    public void startGlowing(UUID player) {
         Player player1 = Bukkit.getPlayer(player);
         if (player1 == null) return;
         GlowingManager.setGlowingGreen(getItemFrame(), player1);
         if (hologram != null) {
-            hologram.show(player1);
+            hologram.showToPlayer(player1);
         }
     }
 
-    public void startGlowing(Player player){
+    public void startGlowing(Player player) {
         GlowingManager.setGlowingGreen(getItemFrame(), player);
         if (hologram != null) {
-            hologram.show(player);
+            hologram.showToPlayer(player);
         }
     }
 
-    public void stopGlowing(UUID player){
+    public void stopGlowing(UUID player) {
         Player player1 = Bukkit.getPlayer(player);
         if (player1 == null) return;
         GlowingManager.getInstance().removeGlowing(getItemFrame(), player1);
         if (hologram != null) {
-            hologram.hide(player1);
+            hologram.showToPlayer(player1);
         }
     }
 
@@ -124,14 +132,14 @@ public class WallPanel {
         assignments++;
     }
 
-    public Hologram getHologram() {
+    public @Nullable HologramI getHologram() {
         return hologram;
     }
 
     public void stopGlowing(Player player) {
         GlowingManager.getInstance().removeGlowing(getItemFrame(), player);
         if (hologram != null) {
-            hologram.hide(player);
+            hologram.showToPlayer(player);
         }
     }
 }

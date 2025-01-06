@@ -6,7 +6,6 @@ import com.andrei1058.stevesus.common.api.database.DatabaseAdapter;
 import com.andrei1058.stevesus.common.api.database.DatabaseService;
 import com.andrei1058.stevesus.common.database.adapter.HikariAdapter;
 import com.andrei1058.stevesus.common.database.adapter.NoDatabase;
-import com.andrei1058.stevesus.common.database.adapter.SqlLiteAdapter;
 import com.andrei1058.stevesus.common.database.config.DatabaseConfig;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;

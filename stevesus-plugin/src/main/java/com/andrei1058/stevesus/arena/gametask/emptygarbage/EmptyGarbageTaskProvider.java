@@ -1,8 +1,5 @@
 package com.andrei1058.stevesus.arena.gametask.emptygarbage;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
@@ -10,6 +7,8 @@ import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
 import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.api.setup.SetupListener;
@@ -246,7 +245,7 @@ public class EmptyGarbageTaskProvider extends TaskProvider {
 
         SteveSus.newChain().delay(20).sync(() -> {
             List<GlowingBox> glowingBoxes = new ArrayList<>();
-            List<Hologram> holograms = new ArrayList<>();
+            List<HologramI> holograms = new ArrayList<>();
 
             for (JsonElement element : array) {
                 JsonObject obj = element.getAsJsonObject();
@@ -271,24 +270,34 @@ public class EmptyGarbageTaskProvider extends TaskProvider {
                     glowingBoxes.add(glowingBox);
                     glowingBox.startGlowing(setupSession.getPlayer());
 
-                    Hologram hologram = new Hologram(location, 2);
-                    HologramPage page = hologram.getPage(0);
-                    assert page != null;
-                    page.setLineContent(0, new LineTextContent(s -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + " - &fGARBAGE POINT"));
-                    page.setLineContent(1, new LineTextContent(s -> localName));
-                    holograms.add(hologram);
+                    var holo = HologramManager.getInstance().makeUnsafe(
+                            location,
+                            Arrays.asList(
+                                    r -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + " - &fGARBAGE POINT",
+                                    r -> localName
+                            )
+                    );
+
+                    if (null != holo) {
+                        holograms.add(holo);
+                    }
                 }
                 if (drop != null) {
                     GlowingBox glowingBox = new GlowingBox(drop.clone().add(0.5, 0, 0.5), 2, GlowColor.GREEN);
                     glowingBoxes.add(glowingBox);
                     glowingBox.startGlowing(setupSession.getPlayer());
 
-                    Hologram hologram = new Hologram(drop, 2);
-                    HologramPage page = hologram.getPage(0);
-                    assert page != null;
-                    page.setLineContent(0, new LineTextContent(s -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + " - &fDROP POINT"));
-                    page.setLineContent(1, new LineTextContent(s -> localName));
-                    holograms.add(hologram);
+                    var holo = HologramManager.getInstance().makeUnsafe(
+                            location,
+                            Arrays.asList(
+                                    r -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + " - &fDROP POINT",
+                                    r -> localName
+                            )
+                    );
+                    if (null != holo) {
+
+                    }
+                    holograms.add(holo);
                 }
             }
 
