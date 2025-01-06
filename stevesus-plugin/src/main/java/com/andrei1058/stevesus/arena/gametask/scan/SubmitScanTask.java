@@ -15,6 +15,7 @@ import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -33,7 +34,7 @@ public class SubmitScanTask extends GameTask {
     public SubmitScanTask(double radius, int scanDuration, Location capsuleLocation, Arena arena, String localName) {
         super(localName);
         this.scanCapsuleLocation = capsuleLocation.clone();
-        this.scanCapsuleLocation.add(0, 1, 0);
+        this.scanCapsuleLocation.add(0, 0.3, 0);
         this.capsuleRadius = radius;
         this.scanDuration = scanDuration;
 
@@ -87,7 +88,7 @@ public class SubmitScanTask extends GameTask {
     }
 
     @Override
-    public void assignToPlayer(Player player, Arena arena) {
+    public void assignToPlayer(@NotNull Player player, Arena arena) {
         assignedPlayers.remove(player.getUniqueId());
         assignedPlayers.put(player.getUniqueId(), 0);
     }
@@ -98,7 +99,7 @@ public class SubmitScanTask extends GameTask {
     }
 
     @Override
-    public boolean hasTask(Player player) {
+    public boolean hasTask(@NotNull Player player) {
         return assignedPlayers.containsKey(player.getUniqueId());
     }
 
