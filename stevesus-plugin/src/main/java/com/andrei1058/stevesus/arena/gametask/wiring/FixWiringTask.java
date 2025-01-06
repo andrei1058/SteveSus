@@ -20,6 +20,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -255,27 +256,26 @@ public class FixWiringTask extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
-                wallPanels.forEach(panel -> {
-                    arena.getPlayers().forEach(player -> {
-                        if (!(hasTask(player) && GlowingManager.isGlowing(panel.getItemFrame(), player))) {
-                            if (panel.getHologram() != null) {
-                                panel.getHologram().hide(player);
-                            }
-                        }
-                    });
-                    if (panel.getHologram() != null) {
-                        panel.getHologram().show();
+                for (Player player : arena.getPlayers()) {
+                    if (!hasTask(player)) {
+                        continue;
                     }
-                });
+                    for (WallPanel panel : wallPanels) {
+                        if (null == panel.getHologram()) {
+                            continue;
+                        }
+                        panel.getHologram().showToPlayer(player);
+                    }
+                }
             }
         }
 
         @Override
-        public void onPlayerJoin(Arena arena, Player player) {
+        public void onPlayerJoin(@NotNull Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
                 wallPanels.forEach(panel -> {
                     if (panel.getHologram() != null) {
-                        panel.getHologram().hide(player);
+                        panel.getHologram().hideFromPlayer(player);
                     }
                 });
             } else {

@@ -1,8 +1,5 @@
 package com.andrei1058.stevesus.arena.gametask.scan;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
@@ -10,12 +7,16 @@ import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.event.PlayerTaskDoneEvent;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.api.arena.GameState;
 import com.andrei1058.stevesus.language.LanguageManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -23,7 +24,7 @@ public class SubmitScanTask extends GameTask {
 
     private final double capsuleRadius;
     private int scanDuration;
-    private final Hologram taskHologram;
+    private @Nullable HologramI taskHologram = null;
     private final List<Location> scanParticles;
     private final Location scanCapsuleLocation;
     // one scan at a time.
@@ -33,14 +34,18 @@ public class SubmitScanTask extends GameTask {
     public SubmitScanTask(double radius, int scanDuration, Location capsuleLocation, Arena arena, String localName) {
         super(localName);
         this.scanCapsuleLocation = capsuleLocation.clone();
-        this.scanCapsuleLocation.add(0, 1, 0);
+        this.scanCapsuleLocation.add(0, 0.3, 0);
         this.capsuleRadius = radius;
         this.scanDuration = scanDuration;
-        this.taskHologram = new Hologram(capsuleLocation.clone().add(0, 1.8, 0), 2);
-        HologramPage page = taskHologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_NAME_PATH_.toString() + getHandler().getIdentifier())));
-        page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.GAME_TASK_DESCRIPTION_PATH_.toString() + getHandler().getIdentifier())));
+
+        var holoManager = HologramManager.getInstance().getProvider();
+        if (null != holoManager) {
+            this.taskHologram = holoManager.spawnHologram(capsuleLocation.clone().add(0, 1.8, 0));
+            this.taskHologram.setPageContent(Arrays.asList(
+                    receiver -> LanguageManager.getINSTANCE().getMsg(receiver, Message.GAME_TASK_NAME_PATH_ + getHandler().getIdentifier()),
+                    receiver -> LanguageManager.getINSTANCE().getMsg(receiver, Message.GAME_TASK_DESCRIPTION_PATH_ + getHandler().getIdentifier())
+            ));
+        }
 
         scanParticles = new ArrayList<>(SubmitScanProvider.getInstance().getCircle(capsuleLocation.add(0, 0.3, 0), radius, 15));
 
@@ -83,7 +88,7 @@ public class SubmitScanTask extends GameTask {
     }
 
     @Override
-    public void assignToPlayer(Player player, Arena arena) {
+    public void assignToPlayer(@NotNull Player player, Arena arena) {
         assignedPlayers.remove(player.getUniqueId());
         assignedPlayers.put(player.getUniqueId(), 0);
     }
@@ -94,7 +99,7 @@ public class SubmitScanTask extends GameTask {
     }
 
     @Override
-    public boolean hasTask(Player player) {
+    public boolean hasTask(@NotNull Player player) {
         return assignedPlayers.containsKey(player.getUniqueId());
     }
 
@@ -105,12 +110,19 @@ public class SubmitScanTask extends GameTask {
 
     @Override
     public void enableIndicators() {
-        taskHologram.show();
+        if (null == taskHologram) {
+            return;
+        }
+        // fixme show to all?
+        taskHologram.unHide();
     }
 
     @Override
     public void disableIndicators() {
-        taskHologram.hide();
+        if (null == taskHologram) {
+            return;
+        }
+        taskHologram.hideToAll();
     }
 
 
@@ -177,7 +189,9 @@ public class SubmitScanTask extends GameTask {
             Bukkit.getScheduler().cancelTask(currentScanTask);
         }
         if (done) {
-            taskHologram.hide(player);
+            if (null != taskHologram) {
+                taskHologram.hideFromPlayer(player);
+            }
             assignedPlayers.replace(currentScan, 1);
             player.sendTitle(" ", LanguageManager.getINSTANCE().getMsg(player, SubmitScanProvider.MSG_SCANNING_DONE), 0, 10, 0);
             player.playSound(player.getLocation(), Sound.ENTITY_CAT_PURREOW, 1, 1);
@@ -216,9 +230,12 @@ public class SubmitScanTask extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
+                if (null == taskHologram){
+                    return;
+                }
                 for (Player player : arena.getPlayers()) {
                     if (hasTask(player)) {
-                        taskHologram.show(player);
+                        taskHologram.showToPlayer(player);
                     }
                 }
             }
@@ -226,7 +243,10 @@ public class SubmitScanTask extends GameTask {
 
         @Override
         public void onPlayerJoin(Arena arena, Player player) {
-            taskHologram.hide(player);
+            if (null == taskHologram) {
+                return;
+            }
+            taskHologram.hideFromPlayer(player);
         }
     }
 }

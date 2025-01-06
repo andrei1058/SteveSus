@@ -41,10 +41,10 @@ public class FuelEnginesTask extends GameTask {
             public void onPlayerJoin(Arena arena, Player player) {
                 for (FuelStage fuelStage : availableStages) {
                     if (fuelStage.getEngineHologram() != null) {
-                        fuelStage.getEngineHologram().hide(player);
+                        fuelStage.getEngineHologram().hideFromPlayer(player);
                     }
                     if (fuelStage.getStorageHologram() != null) {
-                        fuelStage.getStorageHologram().hide(player);
+                        fuelStage.getStorageHologram().hideFromPlayer(player);
                     }
                 }
             }
@@ -154,14 +154,14 @@ public class FuelEnginesTask extends GameTask {
                 stage.getEngineGlowing().startGlowing(player);
             }
             if (stage.getEngineHologram() != null) {
-                stage.getEngineHologram().show(player);
+                stage.getEngineHologram().showToPlayer(player);
             }
         } else {
             if (stage.getStorageGlowing() != null) {
                 stage.getStorageGlowing().startGlowing(player);
             }
             if (stage.getStorageHologram() != null) {
-                stage.getStorageHologram().show(player);
+                stage.getStorageHologram().showToPlayer(player);
             }
         }
     }
@@ -177,14 +177,14 @@ public class FuelEnginesTask extends GameTask {
                 stage.getEngineGlowing().stopGlowing(player);
             }
             if (stage.getEngineHologram() != null) {
-                stage.getEngineHologram().hide(player);
+                stage.getEngineHologram().hideFromPlayer(player);
             }
         } else {
             if (stage.getStorageGlowing() != null) {
                 stage.getStorageGlowing().stopGlowing(player);
             }
             if (stage.getStorageHologram() != null) {
-                stage.getStorageHologram().hide(player);
+                stage.getStorageHologram().hideFromPlayer(player);
             }
         }
     }

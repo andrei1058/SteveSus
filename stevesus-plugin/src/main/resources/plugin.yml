@@ -11,4 +11,5 @@ softdepend:
   - CorpseReborn
   - GlowAPI
   - PacketListenerAPI
+  - packetevents
 main: com.andrei1058.stevesus.SteveSus

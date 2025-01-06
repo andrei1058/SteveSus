@@ -1,8 +1,5 @@
 package com.andrei1058.stevesus.arena.sabotage.oxygen;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.GameListener;
@@ -13,6 +10,8 @@ import com.andrei1058.stevesus.api.event.GameSabotageActivateEvent;
 import com.andrei1058.stevesus.api.event.GameSabotageDeactivateEvent;
 import com.andrei1058.stevesus.api.glow.GlowColor;
 import com.andrei1058.stevesus.api.glow.GlowingBox;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.common.gui.ItemUtil;
 import com.andrei1058.stevesus.language.LanguageManager;
@@ -137,17 +136,20 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         private byte nextErrorFace = -1;
         private byte nextPulseFace = -1;
         private boolean fixed = true;
-        private final Hologram hologram;
+        private @Nullable HologramI hologram;
         private final GlowingBox glowingBox;
 
-        public OxygenMonitor(Location location) {
+        public OxygenMonitor(@NotNull Location location) {
             // try to create error state hologram
-            hologram = new Hologram(location.clone().add(0, 2, 0).add(location.getDirection()), 1);
-            hologram.allowCollisions(false);
-            HologramPage page = hologram.getPage(0);
-            assert page != null;
-            page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, OxygenSabotageProvider.TO_FIX_HOLOGRAM)));
-            hologram.hide();
+            hologram = HologramManager.getInstance().makeUnsafe(
+                    location.clone().add(0, 2, 0).add(location.getDirection()),
+                    List.of(
+                            r-> LanguageManager.getINSTANCE().getMsg(r, OxygenSabotageProvider.TO_FIX_HOLOGRAM)
+                    )
+            );
+            if (null != hologram) {
+                hologram.hideToAll();
+            }
             glowingBox = new GlowingBox(location.clone().add(0, 1.5, 0), 1, GlowColor.RED);
 
 
@@ -180,8 +182,11 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
         }
 
         public void startError() {
-            hologram.show();
-            hologram.refreshLines();
+            if (null != hologram) {
+                // fixme show to all
+//                hologram.show();
+                hologram.refreshForAll();
+            }
             fixed = false;
             for (Player player : getArena().getPlayers()) {
                 getGlowingBox().startGlowing(player);
@@ -207,7 +212,9 @@ public class OxygenSabotage extends SabotageBase implements TimedSabotage {
             if (!meeting) {
                 tryDeactivate();
             }
-            hologram.hide();
+            if (null != hologram) {
+                hologram.remove();
+            }
             for (Player player : getArena().getPlayers()) {
                 getGlowingBox().stopGlowing(player);
             }

@@ -1,11 +1,10 @@
 package com.andrei1058.stevesus.setup;
 
 import ch.jalu.configme.SettingsManager;
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.ArenaTime;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
@@ -23,6 +22,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,7 +32,7 @@ public class SetupActivity implements SetupSession {
     private final Player player;
     private final String worldName;
     private SettingsManager config;
-    private Hologram meetingButtonHologram;
+    private @Nullable HologramI meetingButtonHologram;
     private BukkitTask setupTask;
     private boolean allowCommands = true;
     private final LinkedHashMap<String, Object> cachedValues = new LinkedHashMap<>();
@@ -105,7 +105,6 @@ public class SetupActivity implements SetupSession {
     public void onStop() {
         setupTask.cancel();
         if (meetingButtonHologram != null) {
-            meetingButtonHologram.hide();
             meetingButtonHologram.remove();
         }
         if (player.isOnline()) {
@@ -166,27 +165,28 @@ public class SetupActivity implements SetupSession {
     public void reloadButtonHologram() {
         config.reload();
         if (!config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).isPresent()) return;
-        HologramPage page;
         if (meetingButtonHologram != null) {
-            meetingButtonHologram.hide();
             meetingButtonHologram.remove();
         }
         // the first page is created automatically
         Location location = config.getProperty(ArenaConfig.MEETING_BUTTON_LOC).get();
         location.setWorld(player.getWorld());
-        meetingButtonHologram = new Hologram(location.clone().add(0, 1.3, 0), 2);
-        page = meetingButtonHologram.getPage(0);
-        // setting first line content
-        assert page != null;
-        page.setLineContent(0, new LineTextContent((p) -> "&4&lEmergency Meeting Button"));
-        page.setLineContent(1, new LineTextContent((p) -> "&fwill be spawned here"));
+        meetingButtonHologram = HologramManager.getInstance().makeUnsafe(
+                location.clone().add(0, 1.3, 0),
+                Arrays.asList(
+                        r -> "&4&lEmergency Meeting Button",
+                        r -> "&fwill be spawned here"
+                )
+        );
         SteveSus.newChain().delay(10).sync(()-> {
-            meetingButtonHologram.hide(player);
-            meetingButtonHologram.show(player);
+            if (null != meetingButtonHologram) {
+                meetingButtonHologram.hideFromPlayer(player);
+                meetingButtonHologram.showToPlayer(player);
+            }
         }).execute();
     }
 
-    public void setTime(ArenaTime time) {
+    public void setTime(@NotNull ArenaTime time) {
         this.time = time;
         Bukkit.getWorld(getWorldName()).setTime(time.getStartTick());
     }

@@ -20,6 +20,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,7 +53,9 @@ public class UploadTask extends GameTask {
             // already finished;
             return;
         }
-        panel.getHologram().hide(player);
+        if (null != panel.getHologram()) {
+            panel.getHologram().hideFromPlayer(player);
+        }
         GlowingManager.getInstance().removeGlowing(panel.getItemFrame(), player);
         int taskId = currentlyDoing.remove(player.getUniqueId());
         Bukkit.getScheduler().cancelTask(taskId);
@@ -70,7 +73,9 @@ public class UploadTask extends GameTask {
             WallPanel newPanel = nextPanel.get(0);
             currentPlayerStage.remove(player.getUniqueId());
             currentPlayerStage.put(player.getUniqueId(), newPanel);
-            newPanel.getHologram().show(player);
+            if (null != newPanel.getHologram()) {
+                newPanel.getHologram().showToPlayer(player);
+            }
             GlowingManager.setGlowingBlue(newPanel.getItemFrame(), player);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
             GameRoom room = arena.getRoom(newPanel.getItemFrame().getLocation());
@@ -104,30 +109,27 @@ public class UploadTask extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
-                panels.forEach(panel -> {
-                    arena.getPlayers().forEach(player -> {
-                        if (!GlowingManager.isGlowing(panel.getItemFrame(), player)) {
-                            if (panel.getHologram() != null) {
-                                panel.getHologram().hide(player);
-                            }
-                        } else {
-                            if (panel.getHologram() != null) {
-                                panel.getHologram().show(player);
-                            }
-                        }
-                    });
-                    if (panel.getHologram() != null) {
-                        panel.getHologram().show();
+                for (Player player : arena.getPlayers()) {
+                    if (!hasTask(player)) {
+                        continue;
                     }
-                });
+                    for (WallPanel panel : panels) {
+                        if (null == panel.getHologram()) {
+                            continue;
+                        }
+                        panel.getHologram().showToPlayer(player);
+                    }
+                }
             }
         }
 
         @Override
-        public void onPlayerJoin(Arena arena, Player player) {
+        public void onPlayerJoin(@NotNull Arena arena, Player player) {
             if (arena.getGameState() == GameState.IN_GAME) {
                 for (WallPanel panel : panels) {
-                    panel.getHologram().hide(player);
+                    if (null != panel.getHologram()) {
+                        panel.getHologram().hideFromPlayer(player);
+                    }
                 }
             } else {
                 // hide existing glowing

@@ -1,13 +1,12 @@
 package com.andrei1058.stevesus.arena.gametask.manifolds;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.GameTask;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.server.multiarena.InventoryBackup;
 import com.andrei1058.stevesus.api.setup.SetupListener;
@@ -32,6 +31,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class UnlockManifoldsProvider extends TaskProvider {
 
@@ -98,7 +98,7 @@ public class UnlockManifoldsProvider extends TaskProvider {
         player.getInventory().setHeldItemSlot(5);
 
         final Shulker[] shulkerEntity = {null};
-        final Hologram[] hologram = {null};
+        final HologramI[] hologram = {null};
 
         setupSession.addSetupListener("unlockManifolds_" + localName, new SetupListener() {
             @Override
@@ -155,12 +155,16 @@ public class UnlockManifoldsProvider extends TaskProvider {
                     shulkerEntity[0].setSilent(true);
                     shulkerEntity[0].setMetadata(localName, new FixedMetadataValue(SteveSus.getInstance(), localName));
                     player.sendMessage("Task location set!");
-                    hologram[0] = new Hologram(event.getBlockPlaced().getLocation(), 1);
-                    HologramPage page = hologram[0].getPage(0);
-                    assert page != null;
-                    page.setLineContent(0, new LineTextContent(s -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + "(" + localName + ")"));
-                    hologram[0].refreshLines();
-                    event.setCancelled(true);
+
+                    var holoManager = HologramManager.getInstance().getProvider();
+                    if (null != holoManager) {
+                        hologram[0] = holoManager.spawnHologram(event.getBlockPlaced().getLocation());
+                        hologram[0].setPageContent(List.of(
+                                receiver -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + "(" + localName + ")")
+                        );
+                        hologram[0].refreshForAll();
+                        event.setCancelled(true);
+                    }
                 }
             }
 
@@ -189,11 +193,14 @@ public class UnlockManifoldsProvider extends TaskProvider {
         if (location == null) return;
         location.setWorld(Bukkit.getWorld(setupSession.getWorldName()));
 
-        Hologram hologram = new Hologram(location, 1);
-        HologramPage page = hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + "(" + localName + ")"));
-        hologram.refreshLines();
+        var holoAdapter = HologramManager.getInstance().getProvider();
+
+        if (null != holoAdapter) {
+            var holo = holoAdapter.spawnHologram(location);
+            holo.setPageContent(List.of(
+                    receiver -> ChatColor.translateAlternateColorCodes('&', getDefaultDisplayName()) + "(" + localName + ")")
+            );
+        }
     }
 
     @Override

@@ -17,6 +17,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class VentListener implements GameListener {
@@ -83,56 +84,65 @@ public class VentListener implements GameListener {
     }
 
     @Override
-    public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
+    public void onGameStateChange(@NotNull Arena arena, GameState oldState, GameState newState) {
         if (arena.getVentHandler() == null) return;
         if (newState == GameState.IN_GAME) {
             for (Vent vent : arena.getVentHandler().getVents()) {
-                vent.getHologram().show();
-                for (Team team : arena.getGameTeams()) {
-                    if (team.isInnocent()) {
-                        team.getMembers().forEach(mem -> vent.getHologram().hide(mem));
-                    }
+                if (null ==  vent.getHologram()) {
+                    continue;
                 }
-                for (Player spectator : arena.getSpectators()) {
-                    vent.getHologram().hide(spectator);
+                vent.getHologram().hideToAll();
+                for (Team team : arena.getGameTeams()) {
+                    if (!team.isInnocent()) {
+                        team.getMembers().forEach(mem -> vent.getHologram().showToPlayer(mem));
+                    }
                 }
             }
         }
     }
 
     @Override
-    public void onPlayerJoin(Arena arena, Player player) {
+    public void onPlayerJoin(@NotNull Arena arena, Player player) {
         if (arena.getVentHandler() == null) return;
         if (arena.getGameState() == GameState.IN_GAME) {
             for (Vent vent : arena.getVentHandler().getVents()) {
-                vent.getHologram().hide(player);
+                if (null == vent.getHologram()){
+                    continue;
+                }
+                vent.getHologram().hideFromPlayer(player);
             }
         }
     }
 
     @Override
-    public void onPlayerToSpectator(Arena arena, Player player) {
+    public void onPlayerToSpectator(@NotNull Arena arena, Player player) {
         if (arena.getVentHandler() == null) return;
         for (Vent vent : arena.getVentHandler().getVents()) {
-            vent.getHologram().hide(player);
+            if (null == vent.getHologram()){
+                continue;
+            }
+            vent.getHologram().hideFromPlayer(player);
         }
     }
 
     @Override
-    public void onPlayerMove(Arena arena, Player player, Location from, @Nullable Team playerTeam) {
+    public void onPlayerMove(@NotNull Arena arena, Player player, Location from, @Nullable Team playerTeam) {
         if (arena.getVentHandler() == null) return;
         if (arena.getGameState() != GameState.IN_GAME) return;
         if (playerTeam == null) return;
         if (playerTeam.isInnocent()) return;
         for (Vent vent : arena.getVentHandler().getVents()) {
+            if (null ==  vent.getHologram()){
+                continue;
+            }
             int distance = (int) player.getLocation().distance(vent.getBlock().getLocation());
             if (vent.getHologram().isHiddenFor(player)) {
                 if (distance <= 7) {
-                    vent.getHologram().show(player);
+                    vent.getHologram().showToPlayer(player);
                 }
             } else {
                 if (distance > 7) {
-                    vent.getHologram().hide(player);
+                    vent.getHologram().hideFromPlayer(player);
                 }
             }
         }

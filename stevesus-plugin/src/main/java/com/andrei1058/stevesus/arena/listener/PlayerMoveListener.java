@@ -47,12 +47,12 @@ public class PlayerMoveListener implements Listener {
                         if (corpse.isInRange(location)) {
                             if (corpse.getHologram().isHiddenFor(player)) {
                                 if (playerTeam != null && playerTeam.canReportBody()) {
-                                    corpse.getHologram().show(player);
+                                    corpse.getHologram().showToPlayer(player);
                                 }
                             }
                         } else {
                             if (!corpse.getHologram().isHiddenFor(player)) {
-                                corpse.getHologram().hide(player);
+                                corpse.getHologram().hideFromPlayer(player);
                             }
                         }
                     }

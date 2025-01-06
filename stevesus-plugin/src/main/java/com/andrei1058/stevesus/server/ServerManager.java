@@ -2,10 +2,10 @@ package com.andrei1058.stevesus.server;
 
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
-import com.andrei1058.hologramapi.HologramAPI;
 import com.andrei1058.spigot.versionsupport.ParticleSupport;
 import com.andrei1058.spigot.versionsupport.PlayerNPCSupport;
 import com.andrei1058.stevesus.SteveSus;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.server.DisconnectHandler;
 import com.andrei1058.stevesus.api.server.ServerType;
 import com.andrei1058.stevesus.arena.listener.*;
@@ -46,7 +46,6 @@ public class ServerManager {
     private DisconnectHandler disconnectHandler;
     private boolean debuggingLogs = true;
     private final String serverName;
-    private HologramAPI hologramAPI;
     private PlayerNPCSupport playerNPCSupport;
     private static ParticleSupport particleSupport;
 
@@ -64,6 +63,9 @@ public class ServerManager {
         if (INSTANCE == null) {
             INSTANCE = new ServerManager();
         }
+
+        // register hologram api
+        HologramManager.getInstance().onLoad(SteveSus.getInstance());
     }
 
     @SuppressWarnings("InstantiationOfUtilityClass")
@@ -72,11 +74,7 @@ public class ServerManager {
         INSTANCE.config.reload();
 
         // register hologram api
-        try {
-            INSTANCE.hologramAPI = new HologramAPI(SteveSus.getInstance());
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
+        HologramManager.getInstance().onEnable(SteveSus.getInstance());
 
         particleSupport = ParticleSupport.SupportBuilder.load();
 
@@ -156,6 +154,8 @@ public class ServerManager {
             RemoteLobby.getSockets().values().forEach(RemoteLobby::close);
             SteveSus.debug("Took " + (System.currentTimeMillis() - startTime) + "ms to disable " + ServerManager.class.getSimpleName() + ".");
         }
+        // clear hologram api
+        HologramManager.getInstance().onDisable(SteveSus.getInstance());
     }
 
     public SettingsManager getConfig() {
@@ -189,10 +189,6 @@ public class ServerManager {
 
     public String getServerName() {
         return serverName;
-    }
-
-    public HologramAPI getHologramAPI() {
-        return hologramAPI;
     }
 
     public PlayerNPCSupport getPlayerNPCSupport() {

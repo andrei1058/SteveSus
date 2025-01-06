@@ -1,13 +1,11 @@
 package com.andrei1058.stevesus.arena.gametask.scan;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.task.TaskProvider;
-import com.andrei1058.stevesus.api.arena.task.TaskTriggerType;
 import com.andrei1058.stevesus.api.arena.task.TaskType;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.server.GameSound;
 import com.andrei1058.stevesus.api.setup.SetupListener;
 import com.andrei1058.stevesus.api.setup.SetupSession;
@@ -28,12 +26,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 
@@ -98,9 +94,9 @@ public class SubmitScanProvider extends TaskProvider {
         double minRange = 1;
 
         Arrays.asList(" ", " ",
-                ChatColor.AQUA + "1." + ChatColor.RESET + " Use the items in your inventory to adjust task settings.",
-                ChatColor.AQUA + "2." + ChatColor.RESET + " You can increase and decrease this task's usage radius (Capsule radius). When set to " + minRange + " players will need to stand on the exact scan location block.",
-                ChatColor.AQUA + "3." + ChatColor.RESET + " You can increase and decrease how long it takes to scan.")
+                        ChatColor.AQUA + "1." + ChatColor.RESET + " Use the items in your inventory to adjust task settings.",
+                        ChatColor.AQUA + "2." + ChatColor.RESET + " You can increase and decrease this task's usage radius (Capsule radius). When set to " + minRange + " players will need to stand on the exact scan location block.",
+                        ChatColor.AQUA + "3." + ChatColor.RESET + " You can increase and decrease how long it takes to scan.")
                 .forEach(player::sendMessage);
 
         ItemStack saveAndClose = ItemUtil.createItem("BOOK", (byte) 0, 1, true, Arrays.asList("customTaskItem", "saveAndClose"), ChatColor.RED + "" + ChatColor.BOLD + "Save and close: " + ChatColor.RESET + getDefaultDisplayName(), null);
@@ -128,7 +124,7 @@ public class SubmitScanProvider extends TaskProvider {
         final int[] currentSeconds = {minSeconds};
 
         Location[] scanCapsuleLocation = {null};
-        Hologram[] scanCapsuleHologram = {null};
+        HologramI[] scanCapsuleHologram = {null};
 
         // save and close task setup.
         final boolean[] preventCalledTwice = {false};
@@ -167,16 +163,19 @@ public class SubmitScanProvider extends TaskProvider {
 
         Function<Location, Void> setScanLoc = location -> {
             if (scanCapsuleHologram[0] != null) {
-                scanCapsuleHologram[0].hide();
+                scanCapsuleHologram[0].hideToAll();
             }
-            scanCapsuleHologram[0] = new Hologram(location, 2);
-            HologramPage page = scanCapsuleHologram[0].getPage(0);
-            assert page != null;
-            page.setLineContent(0, new LineTextContent(s -> "&b&lSubmit Scan"));
-            page.setLineContent(1, new LineTextContent(s -> "&fSet here! (" + localName + ")"));
-            scanCapsuleLocation[0] = location;
-            scanCapsuleHologram[0].hide(player);
-            scanCapsuleHologram[0].show(player);
+            var holoManager = HologramManager.getInstance().getProvider();
+            if (null != holoManager) {
+                scanCapsuleHologram[0] = holoManager.spawnHologram(location.clone().add(0, 2, 0));
+                scanCapsuleHologram[0].setPageContent(Arrays.asList(
+                        receiver -> "&b&lSubmit Scan",
+                        receiver -> "&fSet here! (" + localName + ")"
+                ));
+                scanCapsuleLocation[0] = location;
+                scanCapsuleHologram[0].hideFromPlayer(player);
+                scanCapsuleHologram[0].showToPlayer(player);
+            }
             player.sendTitle(" ", ChatColor.AQUA + "Scan location set!", 0, 50, 0);
             GameSound.JOIN_SOUND_CURRENT.playToPlayer(player);
             particleLocations.clear();
@@ -269,14 +268,20 @@ public class SubmitScanProvider extends TaskProvider {
         }), 0L, 10).getTaskId();
         setupSession.cacheValue("submit_scan_task_id_" + localName, particlesTask);
 
-        Hologram hologram = new Hologram(location.add(0, 1.7, 0), 2);
-        HologramPage page = hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> "&b&lSubmit Scan"));
-        page.setLineContent(1, new LineTextContent(s -> "&fSet here! (" + localName + ")"));
-        hologram.hide(setupSession.getPlayer());
-        hologram.show(setupSession.getPlayer());
-        setupSession.cacheValue("submit_scan_" + localName, hologram);
+        HologramI hologram = null;
+        var holoManager = HologramManager.getInstance().getProvider();
+        if (null != holoManager) {
+            hologram = holoManager.spawnHologram(location.add(0, 1.7, 0));
+            hologram.setPageContent(Arrays.asList(
+                    receiver -> "&b&lSubmit Scan",
+                    receiver -> "&fSet here! (" + localName + ")"
+            ));
+            hologram.hideFromPlayer(setupSession.getPlayer());
+            hologram.showToPlayer(setupSession.getPlayer());
+        }
+        if (null != hologram) {
+            setupSession.cacheValue("submit_scan_" + localName, hologram);
+        }
     }
 
     @Override
@@ -289,9 +294,9 @@ public class SubmitScanProvider extends TaskProvider {
 
     @Override
     public void onRemove(SetupSession setupSession, String localName, JsonObject configData) {
-        Hologram hologram = (Hologram) setupSession.getCachedValue("submit_scan_" + localName);
+        HologramI hologram = (HologramI) setupSession.getCachedValue("submit_scan_" + localName);
         if (hologram != null) {
-            hologram.hide();
+            hologram.remove();
             setupSession.removeCacheValue("submit_scan_" + localName);
         }
         Object cached = setupSession.getCachedValue("submit_scan_task_id_" + localName);

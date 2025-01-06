@@ -142,4 +142,5 @@ You really need to call GameSabotageDeactivateEvent when it's done.
 
 ## Alte recomandari
 - decrease player tracking range 
+- command to kill invisible armor_stands (holograms) on your maps during setup session `/kill @e[type=armor_stand,nbt={Invisible:1b}]`
 

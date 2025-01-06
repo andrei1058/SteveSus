@@ -23,6 +23,7 @@ import com.andrei1058.stevesus.api.arena.team.Team;
 import com.andrei1058.stevesus.api.arena.vent.Vent;
 import com.andrei1058.stevesus.api.arena.vent.VentHandler;
 import com.andrei1058.stevesus.api.event.*;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.ChatUtil;
 import com.andrei1058.stevesus.api.locale.Locale;
 import com.andrei1058.stevesus.api.locale.Message;
@@ -359,6 +360,8 @@ public class SteveSusArena implements Arena {
         if (gameTask != -1) {
             Bukkit.getScheduler().cancelTask(gameTask);
         }
+
+        HologramManager.getInstance().onArenaDestroy(this);
     }
 
     @Override
@@ -374,6 +377,7 @@ public class SteveSusArena implements Arena {
         GameRestartEvent gameRestartEvent = new GameRestartEvent(getGameId(), this);
         Bukkit.getPluginManager().callEvent(gameRestartEvent);
         WorldManager.getINSTANCE().getWorldAdapter().onArenaRestart(this);
+        HologramManager.getInstance().onArenaDestroy(this);
     }
 
     @Override
@@ -857,6 +861,7 @@ public class SteveSusArena implements Arena {
         if (getVentHandler() != null) {
             getVentHandler().interruptVenting(player, true);
         }
+        HologramManager.getInstance().onArenaLeave(this, player);
 
         SteveSus.debug("Player " + player.getName() + " was removed as player from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
@@ -912,6 +917,7 @@ public class SteveSusArena implements Arena {
         for (GameListener gameListener : gameListeners) {
             gameListener.onPlayerLeave(this, player, true);
         }
+        HologramManager.getInstance().onArenaLeave(this, player);
 
         SteveSus.debug("Player " + player.getName() + " was removed as spectator from game " + getGameId() + "(" + getTemplateWorld() + ").");
     }
@@ -971,7 +977,7 @@ public class SteveSusArena implements Arena {
             getPlayers().forEach(player -> GameSidebarManager.getInstance().setSidebar(player, SidebarType.IN_GAME, this, false));
             // refresh meeting button lines
             if (getMeetingButton() != null) {
-                getMeetingButton().onGameStart();
+                getMeetingButton().onGameStart(this);
                 getMeetingButton().refreshLines(this);
                 getMeetingButton().setLastUsage(System.currentTimeMillis());
             }

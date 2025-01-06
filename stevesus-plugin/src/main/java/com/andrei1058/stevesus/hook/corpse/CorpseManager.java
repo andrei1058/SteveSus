@@ -1,12 +1,11 @@
 package com.andrei1058.stevesus.hook.corpse;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.arena.PlayerCorpse;
 import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import com.andrei1058.stevesus.api.arena.room.CircleRegion;
 import com.andrei1058.stevesus.api.arena.room.Region;
@@ -19,6 +18,7 @@ import org.golde.bukkit.corpsereborn.CorpseAPI.CorpseAPI;
 import org.golde.bukkit.corpsereborn.nms.Corpses;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class CorpseManager {
@@ -40,24 +40,28 @@ public class CorpseManager {
 
         private final Corpses.CorpseData data;
         private final Player owner;
-        private final Hologram hologram;
+        private @Nullable HologramI hologram = null;
         private final Region region;
 
         public CorpseRebornBody(Arena arena, Player player, Location location, ItemStack helmet, ItemStack chestPlate, ItemStack leggings, ItemStack boots) {
             owner = player;
             this.region = new CircleRegion(location, 3, false);
             data = CorpseAPI.spawnCorpse(player, location, new ItemStack[]{}, helmet, chestPlate, leggings, boots);
-            hologram = new Hologram(location, 2);
-            HologramPage page = hologram.getPage(0);
-            assert page != null;
-            page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.DEAD_BODY_HOLO_LINE1)));
-            page.setLineContent(1, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, Message.DEAD_BODY_HOLO_LINE2)));
+
+            var holoManager = HologramManager.getInstance().getProvider();
+            if (null != holoManager) {
+                hologram = holoManager.spawnHologram(location);
+                hologram.setPageContent(Arrays.asList(
+                        r -> LanguageManager.getINSTANCE().getMsg(r, Message.DEAD_BODY_HOLO_LINE1),
+                        r -> LanguageManager.getINSTANCE().getMsg(r, Message.DEAD_BODY_HOLO_LINE2)
+                ));
+            }
             arena.getPlayers().forEach(inGame -> {
                 Team playerTeam = arena.getPlayerTeam(inGame);
                 if (isInRange(inGame.getLocation()) && playerTeam.canReportBody()) {
-                    hologram.show(inGame);
+                    hologram.showToPlayer(inGame);
                 } else {
-                    hologram.hide(inGame);
+                    hologram.hideFromPlayer(inGame);
                 }
             });
         }
@@ -69,8 +73,9 @@ public class CorpseManager {
         @Override
         public void destroy() {
             CorpseAPI.removeCorpse(data);
-            hologram.hide();
-            //todo destroy hologram
+            if (null != hologram) {
+                hologram.remove();
+            }
         }
 
         @Override
@@ -94,7 +99,7 @@ public class CorpseManager {
         }
 
         @Override
-        public @Nullable Hologram getHologram() {
+        public @Nullable HologramI getHologram() {
             return hologram;
         }
 

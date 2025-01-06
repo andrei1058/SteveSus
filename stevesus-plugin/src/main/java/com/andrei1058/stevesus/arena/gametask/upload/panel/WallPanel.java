@@ -1,10 +1,9 @@
 package com.andrei1058.stevesus.arena.gametask.upload.panel;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.SteveSus;
 import com.andrei1058.stevesus.api.arena.Arena;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.arena.gametask.upload.UploadTaskProvider;
 import com.andrei1058.stevesus.language.LanguageManager;
 import com.github.johnnyjayjay.spigotmaps.MapBuilder;
@@ -14,10 +13,12 @@ import com.github.johnnyjayjay.spigotmaps.util.ImageTools;
 import org.bukkit.Location;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
 public class WallPanel {
 
@@ -26,7 +27,7 @@ public class WallPanel {
     }
 
     private final ItemFrame itemFrame;
-    private Hologram hologram;
+    private @Nullable HologramI hologram = null;
     private final PanelType panelType;
 
     public WallPanel(Arena arena, Location location, PanelType panelType) {
@@ -54,12 +55,21 @@ public class WallPanel {
             e.printStackTrace();
         }
 
-        this.hologram = new Hologram(itemFrame.getLocation().clone().add(0, 1, 0).add((itemFrame.getLocation().getDirection().normalize())), 1);
-        HologramPage page = this.hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(s -> LanguageManager.getINSTANCE().getMsg(s, getPanelType() == PanelType.DOWNLOAD ? UploadTaskProvider.DOWNLOAD_PANEL_HOLO : UploadTaskProvider.UPLOAD_PANEL_HOLO)));
-        hologram.hide();
-        hologram.allowCollisions(false);
+        var holoManager = HologramManager.getInstance().getProvider();
+        if (null != holoManager) {
+            var holo = holoManager.spawnHologram(
+                    itemFrame.getLocation().clone().add(0, 1, 0)
+                            .add((itemFrame.getLocation().getDirection().normalize()))
+            );
+            holo.setPageContent(List.of(
+                    r -> LanguageManager.getINSTANCE().getMsg(r,
+                            getPanelType() == PanelType.DOWNLOAD ?
+                                    UploadTaskProvider.DOWNLOAD_PANEL_HOLO :
+                                    UploadTaskProvider.UPLOAD_PANEL_HOLO
+                    )
+            ));
+            holo.hideToAll();
+        }
     }
 
     public PanelType getPanelType() {
@@ -70,7 +80,7 @@ public class WallPanel {
         return itemFrame;
     }
 
-    public Hologram getHologram() {
+    public @Nullable HologramI getHologram() {
         return hologram;
     }
 }

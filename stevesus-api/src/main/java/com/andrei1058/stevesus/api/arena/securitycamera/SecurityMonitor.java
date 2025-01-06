@@ -1,49 +1,57 @@
 package com.andrei1058.stevesus.api.arena.securitycamera;
 
-import com.andrei1058.hologramapi.Hologram;
-import com.andrei1058.hologramapi.HologramPage;
-import com.andrei1058.hologramapi.content.HologramClickListener;
-import com.andrei1058.hologramapi.content.LineTextContent;
 import com.andrei1058.stevesus.api.SteveSusAPI;
-import com.andrei1058.stevesus.api.arena.Arena;
-import com.andrei1058.stevesus.api.arena.team.Team;
+import com.andrei1058.stevesus.api.hook.hologram.HologramI;
+import com.andrei1058.stevesus.api.hook.hologram.HologramManager;
 import com.andrei1058.stevesus.api.locale.Message;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 public class SecurityMonitor {
 
-    private static HologramClickListener clickListener;
+//    private static HologramClickListener clickListener;
 
     private final Location location;
-    private Hologram hologram;
+    private @Nullable HologramI hologram;
 
     public SecurityMonitor(Location location){
         this.location = location;
-        this.hologram = new Hologram(location, 2);
-        HologramPage page = hologram.getPage(0);
-        assert page != null;
-        page.setLineContent(0, new LineTextContent(player -> SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.SECURITY_MONITOR_HOLOGRAM_LINE1)));
-        page.setLineContent(1, new LineTextContent(player -> SteveSusAPI.getInstance().getLocaleHandler().getMsg(player, Message.SECURITY_MONITOR_HOLOGRAM_LINE2)));
 
-        if (clickListener == null){
-            clickListener = (player, lineClickType) -> {
-                Arena arena = SteveSusAPI.getInstance().getArenaHandler().getArenaByPlayer(player);
-                if (arena == null) return;
-                if (arena.getCamHandler() == null) return;
-                if (arena.getCamHandler().getCams().isEmpty()) return;
-                if (arena.isSpectator(player)) return;
-                Team playerTeam = arena.getPlayerTeam(player);
-                if (playerTeam == null) return;
-                if (playerTeam.getIdentifier().endsWith("-ghost")) return;
-                arena.getCamHandler().startWatching(player, arena, arena.getCamHandler().getCams().get(0));
-            };
+        var holoManager = HologramManager.getInstance().getProvider();
+
+        if (null != holoManager) {
+            this.hologram = holoManager.spawnHologram(location);
+
+            var langManager = SteveSusAPI.getInstance().getLocaleHandler();
+            this.hologram.setPageContent(Arrays.asList(
+                    player -> langManager.getMsg(player, Message.SECURITY_MONITOR_HOLOGRAM_LINE1),
+                    player -> langManager.getMsg(player, Message.SECURITY_MONITOR_HOLOGRAM_LINE2)
+            ));
         }
 
-        hologram.allowCollisions(true);
-        hologram.setClickListener(clickListener);
+        // fixme
+//        if (clickListener == null){
+//            clickListener = (player, lineClickType) -> {
+//                Arena arena = SteveSusAPI.getInstance().getArenaHandler().getArenaByPlayer(player);
+//                if (arena == null) return;
+//                if (arena.getCamHandler() == null) return;
+//                if (arena.getCamHandler().getCams().isEmpty()) return;
+//                if (arena.isSpectator(player)) return;
+//                Team playerTeam = arena.getPlayerTeam(player);
+//                if (playerTeam == null) return;
+//                if (playerTeam.getIdentifier().endsWith("-ghost")) return;
+//                arena.getCamHandler().startWatching(player, arena, arena.getCamHandler().getCams().get(0));
+//            };
+//        }
+
+        // fixme
+//        hologram.allowCollisions(true);
+//        hologram.setClickListener(clickListener);
     }
 
-    public Hologram getHologram() {
+    public @Nullable HologramI getHologram() {
         return hologram;
     }
 
@@ -51,7 +59,7 @@ public class SecurityMonitor {
         return location;
     }
 
-    public void setHologram(Hologram hologram) {
+    public void setHologram(@Nullable HologramI hologram) {
         this.hologram = hologram;
     }
 }
