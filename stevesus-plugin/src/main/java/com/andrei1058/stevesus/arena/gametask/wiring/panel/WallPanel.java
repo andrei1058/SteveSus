@@ -18,6 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -35,7 +36,7 @@ public class WallPanel {
 
     private int assignments = 0;
 
-    public WallPanel(Arena arena, int x, int y, int z, int wiresAmount, FixWiringTask.PanelFlag flag) {
+    public WallPanel(@NotNull Arena arena, int x, int y, int z, int wiresAmount, FixWiringTask.PanelFlag flag) {
         this.wiresAmount = wiresAmount;
         this.flag = flag;
 
@@ -45,7 +46,6 @@ public class WallPanel {
             return;
         }
         this.itemFrame.setItem(null);
-
 
         try {
             BufferedImage catImage = ImageIO.read(this.getClass().getResource("wiring_panel.png")); // read an image from a source, e.g. a file

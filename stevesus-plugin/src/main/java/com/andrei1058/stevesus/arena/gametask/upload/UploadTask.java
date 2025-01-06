@@ -109,23 +109,17 @@ public class UploadTask extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
-                panels.forEach(panel -> {
-                    arena.getPlayers().forEach(player -> {
-                        if (!GlowingManager.isGlowing(panel.getItemFrame(), player)) {
-                            if (panel.getHologram() != null) {
-                                panel.getHologram().hideFromPlayer(player);
-                            }
-                        } else {
-                            if (panel.getHologram() != null) {
-                                panel.getHologram().showToPlayer(player);
-                            }
-                        }
-                    });
-                    if (panel.getHologram() != null) {
-                        // fixme show to all
-//                        panel.getHologram().show();
+                for (Player player : arena.getPlayers()) {
+                    if (!hasTask(player)) {
+                        continue;
                     }
-                });
+                    for (WallPanel panel : panels) {
+                        if (null == panel.getHologram()) {
+                            continue;
+                        }
+                        panel.getHologram().showToPlayer(player);
+                    }
+                }
             }
         }
 

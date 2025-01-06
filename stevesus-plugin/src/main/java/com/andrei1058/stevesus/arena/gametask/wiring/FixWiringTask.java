@@ -256,19 +256,17 @@ public class FixWiringTask extends GameTask {
         @Override
         public void onGameStateChange(Arena arena, GameState oldState, GameState newState) {
             if (newState == GameState.IN_GAME) {
-                wallPanels.forEach(panel -> {
-                    arena.getPlayers().forEach(player -> {
-                        if (!(hasTask(player) && GlowingManager.isGlowing(panel.getItemFrame(), player))) {
-                            if (panel.getHologram() != null) {
-                                panel.getHologram().hideFromPlayer(player);
-                            }
-                        }
-                    });
-                    if (panel.getHologram() != null) {
-                        // fixme show all to be implemented
-//                        panel.getHologram().show();
+                for (Player player : arena.getPlayers()) {
+                    if (!hasTask(player)) {
+                        continue;
                     }
-                });
+                    for (WallPanel panel : wallPanels) {
+                        if (null == panel.getHologram()) {
+                            continue;
+                        }
+                        panel.getHologram().showToPlayer(player);
+                    }
+                }
             }
         }
 
