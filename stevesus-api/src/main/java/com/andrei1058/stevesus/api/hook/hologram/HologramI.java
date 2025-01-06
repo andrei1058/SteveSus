@@ -1,5 +1,6 @@
 package com.andrei1058.stevesus.api.hook.hologram;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -37,7 +38,18 @@ public interface HologramI {
     void showToPlayer(Player player);
     void hideFromPlayer(Player player);
 
+    /**
+     * Destroy hologram.
+     * Remove any trace of players and worlds etc.
+     */
     void remove();
 
     boolean isHiddenFor(Player player);
+
+    Location getLocation();
+
+    /**
+     * Remove any trace of the given player to avoid memory leaks.
+     */
+    void destroyPlayer(Player player);
 }

@@ -1,5 +1,7 @@
 package com.andrei1058.stevesus.api.hook.hologram;
 
+import com.andrei1058.stevesus.api.SteveSusAPI;
+import com.andrei1058.stevesus.api.arena.Arena;
 import com.andrei1058.stevesus.api.hook.hologram.easyholo.EasyHoloAdapter;
 import com.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -31,6 +33,10 @@ public class HologramManager {
 
     public void setProvider(@Nullable HologramProvider provider) {
         this.provider = provider;
+        if (null == provider) {
+            return;
+        }
+        provider.onAdapterInit(SteveSusAPI.getInstance());
     }
 
     public void onLoad(Plugin plugin) {
@@ -70,5 +76,19 @@ public class HologramManager {
         var holo = getProvider().spawnHologram(location);
         holo.setPageContent(list);
         return holo;
+    }
+
+    public void onArenaLeave(Arena arena, Player player) {
+        if (null == getProvider()) {
+            return;
+        }
+        getProvider().onArenaLeave(arena, player);
+    }
+
+    public void onArenaDestroy(Arena arena) {
+        if (null == getProvider()) {
+            return;
+        }
+        getProvider().onArenaDestroy(arena);
     }
 }

@@ -119,4 +119,13 @@ public class EasyHolo implements HologramI {
         }
         return !holo.isShownFor(player);
     }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    @Override
+    public void destroyPlayer(@NotNull Player player) {
+        perPlayer.remove(player.getUniqueId());
+    }
 }
